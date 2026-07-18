@@ -1,0 +1,12 @@
+<resources>
+    <string name="home_title">My drawings</string>
+    <string name="home_subtitle">A clean foundation for your next idea.</string>
+    <string name="loading">Loading drawings</string>
+    <string name="no_drawings">No drawings yet</string>
+    <string name="load_error">Could not load drawings.</string>
+    <string name="retry">Try again</string>
+    <string name="add_drawing">New drawing</string>
+    <string name="drawing_created">Drawing created</string>
+    <string name="generic_error">Something went wrong</string>
+    <string name="open_drawing">Open %1$s</string>
+</resources>

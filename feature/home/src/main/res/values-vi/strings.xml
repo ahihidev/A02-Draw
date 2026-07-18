@@ -1,0 +1,12 @@
+<resources>
+    <string name="home_title">Bản vẽ của tôi</string>
+    <string name="home_subtitle">Nền tảng gọn gàng cho ý tưởng tiếp theo.</string>
+    <string name="loading">Đang tải bản vẽ</string>
+    <string name="no_drawings">Chưa có bản vẽ</string>
+    <string name="load_error">Không thể tải bản vẽ.</string>
+    <string name="retry">Thử lại</string>
+    <string name="add_drawing">Bản vẽ mới</string>
+    <string name="drawing_created">Đã tạo bản vẽ</string>
+    <string name="generic_error">Đã xảy ra lỗi</string>
+    <string name="open_drawing">Mở %1$s</string>
+</resources>
