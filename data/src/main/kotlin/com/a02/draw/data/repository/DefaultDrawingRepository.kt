@@ -10,13 +10,12 @@ import com.a02.draw.data.mapper.toDomain
 import com.a02.draw.data.mapper.toEntity
 import com.a02.draw.domain.model.Drawing
 import com.a02.draw.domain.repository.DrawingRepository
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
 class DefaultDrawingRepository @Inject constructor(
@@ -24,7 +23,6 @@ class DefaultDrawingRepository @Inject constructor(
     private val dispatchers: DispatcherProvider,
 ) : DrawingRepository {
     override fun observeDrawings(): Flow<List<Drawing>> = drawingDao.observeAll()
-        .onStart { seedIfEmpty() }
         .map { entities -> entities.map(DrawingEntity::toDomain) }
         .flowOn(dispatchers.io)
 
@@ -43,19 +41,6 @@ class DefaultDrawingRepository @Inject constructor(
 
     override suspend fun deleteDrawing(id: Long): AppResult<Unit> = execute {
         drawingDao.deleteById(id)
-    }
-
-    private suspend fun seedIfEmpty() = withContext(dispatchers.io) {
-        if (drawingDao.count() == 0) {
-            val now = System.currentTimeMillis()
-            drawingDao.insertAll(
-                listOf(
-                    DrawingEntity(title = "Welcome sketch", updatedAtEpochMillis = now),
-                    DrawingEntity(title = "UI wireframe", updatedAtEpochMillis = now - 3_600_000),
-                    DrawingEntity(title = "Ideas", updatedAtEpochMillis = now - 86_400_000),
-                ),
-            )
-        }
     }
 
     private suspend fun <T> execute(block: suspend () -> T): AppResult<T> = withContext(dispatchers.io) {

@@ -33,6 +33,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 abortOnError = true
                 warningsAsErrors = true
                 checkReleaseBuilds = true
+                checkTestSources = false
                 disable += setOf("AndroidGradlePluginVersion", "GradleDependency", "OldTargetApi")
             }
             testOptions.unitTests.isIncludeAndroidResources = true

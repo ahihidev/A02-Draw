@@ -1,4 +1,7 @@
 <resources>
+    <string name="drawing_reference_overlay">Drawing reference overlay</string>
+    <string name="ar_draw_experience">AR Drawing interactive experience</string>
+    <string name="camera_permission_required">Camera permission is required for AR drawing</string>
     <string name="home_title">My drawings</string>
     <string name="home_subtitle">A clean foundation for your next idea.</string>
     <string name="loading">Loading drawings</string>
@@ -8,5 +11,10 @@
     <string name="add_drawing">New drawing</string>
     <string name="drawing_created">Drawing created</string>
     <string name="generic_error">Something went wrong</string>
+    <string name="share_message">Made with AR Draw</string>
+    <string name="share_drawing">Share drawing</string>
+    <string name="search_hint">What will you draw today?</string>
     <string name="open_drawing">Open %1$s</string>
+    <string name="video_saved">Video saved</string>
+    <string name="video_recording_error">Could not record video</string>
 </resources>

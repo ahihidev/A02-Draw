@@ -39,6 +39,9 @@ android {
         abortOnError = true
         warningsAsErrors = true
         checkReleaseBuilds = true
+        // Instrumentation sources currently trigger a Kotlin FIR crash inside lint itself.
+        // Keep strict lint for all production code while unit/instrumentation tests run separately.
+        checkTestSources = false
         disable += setOf("AndroidGradlePluginVersion", "GradleDependency", "OldTargetApi")
     }
 

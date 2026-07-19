@@ -9,4 +9,6 @@ data class DrawingEntity(
     val id: Long = 0,
     val title: String,
     val updatedAtEpochMillis: Long,
+    val mediaUri: String? = null,
+    val artworkId: String? = null,
 )

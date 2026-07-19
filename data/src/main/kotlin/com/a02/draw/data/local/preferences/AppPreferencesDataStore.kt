@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.a02.draw.core.common.coroutines.DispatcherProvider
 import com.a02.draw.core.common.result.AppError
@@ -13,14 +14,14 @@ import com.a02.draw.domain.model.AppPreferences
 import com.a02.draw.domain.model.ThemeMode
 import com.a02.draw.domain.repository.AppPreferencesRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.io.IOException
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.io.IOException
+import javax.inject.Inject
+import javax.inject.Singleton
 
 private val Context.appPreferencesDataStore by preferencesDataStore(name = "app_preferences")
 
@@ -45,6 +46,14 @@ class AppPreferencesDataStore @Inject constructor(
         it[Keys.ONBOARDING_COMPLETED] = completed
     }
 
+    override suspend fun setFavoriteArtworkIds(ids: Set<String>): AppResult<Unit> = update {
+        it[Keys.FAVORITE_ARTWORK_IDS] = ids
+    }
+
+    override suspend fun setMusicEnabled(enabled: Boolean): AppResult<Unit> = update {
+        it[Keys.MUSIC_ENABLED] = enabled
+    }
+
     private suspend fun update(
         transform: suspend (androidx.datastore.preferences.core.MutablePreferences) -> Unit,
     ): AppResult<Unit> = withContext(dispatchers.io) {
@@ -63,11 +72,15 @@ class AppPreferencesDataStore @Inject constructor(
         return AppPreferences(
             themeMode = theme,
             onboardingCompleted = preferences[Keys.ONBOARDING_COMPLETED] ?: false,
+            favoriteArtworkIds = preferences[Keys.FAVORITE_ARTWORK_IDS].orEmpty(),
+            musicEnabled = preferences[Keys.MUSIC_ENABLED] ?: true,
         )
     }
 
     private object Keys {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
+        val FAVORITE_ARTWORK_IDS = stringSetPreferencesKey("favorite_artwork_ids")
+        val MUSIC_ENABLED = booleanPreferencesKey("music_enabled")
     }
 }
