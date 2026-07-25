@@ -10,6 +10,7 @@ import com.a02.draw.data.mapper.toDomain
 import com.a02.draw.data.mapper.toEntity
 import com.a02.draw.domain.model.Drawing
 import com.a02.draw.domain.repository.DrawingRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -30,6 +31,8 @@ class DefaultDrawingRepository @Inject constructor(
         try {
             drawingDao.getById(id)?.toDomain()?.let { AppResult.Success(it) }
                 ?: AppResult.Failure(AppError.Validation("Drawing not found."))
+        } catch (cancellation: CancellationException) {
+            throw cancellation
         } catch (throwable: Throwable) {
             AppResult.Failure(throwable.toAppError())
         }
@@ -46,6 +49,8 @@ class DefaultDrawingRepository @Inject constructor(
     private suspend fun <T> execute(block: suspend () -> T): AppResult<T> = withContext(dispatchers.io) {
         try {
             AppResult.Success(block())
+        } catch (cancellation: CancellationException) {
+            throw cancellation
         } catch (throwable: Throwable) {
             AppResult.Failure(throwable.toAppError())
         }

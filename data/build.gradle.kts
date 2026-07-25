@@ -7,6 +7,7 @@ android {
     namespace = "com.a02.draw.data"
     testNamespace = "com.a02.draw.data.test"
     buildFeatures.buildConfig = true
+    sourceSets.getByName("androidTest").assets.srcDir("$projectDir/schemas")
 
     val apiBaseUrl = providers.gradleProperty("API_BASE_URL")
         .orElse("https://example.com/")

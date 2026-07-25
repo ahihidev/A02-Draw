@@ -10,6 +10,9 @@ internal fun DrawingEntity.toDomain(): Drawing = Drawing(
     updatedAtEpochMillis = updatedAtEpochMillis,
     mediaUri = mediaUri,
     artworkId = artworkId,
+    lessonId = lessonId,
+    lessonMinutes = lessonMinutes,
+    usesCamera = usesCamera,
 )
 
 internal fun Drawing.toEntity(): DrawingEntity = DrawingEntity(
@@ -18,6 +21,9 @@ internal fun Drawing.toEntity(): DrawingEntity = DrawingEntity(
     updatedAtEpochMillis = updatedAtEpochMillis,
     mediaUri = mediaUri,
     artworkId = artworkId,
+    lessonId = lessonId,
+    lessonMinutes = lessonMinutes,
+    usesCamera = usesCamera,
 )
 
 internal fun DrawingDto.toEntity(): DrawingEntity = DrawingEntity(

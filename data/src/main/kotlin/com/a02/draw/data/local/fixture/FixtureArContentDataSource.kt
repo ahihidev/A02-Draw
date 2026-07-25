@@ -6,6 +6,7 @@ import com.a02.draw.data.remote.dto.ContentImageDto
 import com.a02.draw.data.remote.dto.LessonCategoryDto
 import com.a02.draw.data.remote.dto.LessonDto
 import com.a02.draw.data.remote.dto.SettingItemDto
+import com.a02.draw.data.remote.dto.SubscriptionPlanDto
 import com.a02.draw.data.remote.dto.TopicDto
 import com.a02.draw.data.remote.dto.TrendingSearchDto
 import javax.inject.Inject
@@ -43,6 +44,36 @@ class FixtureArContentDataSource @Inject constructor() {
             "topic_flower",
             "topic_kids",
         )
+        val baseArtworks = artworkTitles.mapIndexed { index, title ->
+            val topicId = topicKeys[index % topicKeys.size]
+            val seriesTag = if (topicId == "anime") {
+                if (index % 2 == 0) "jujutsu-kaisen" else "one-piece"
+            } else {
+                null
+            }
+            ArtworkDto(
+                id = "art-${index + 1}",
+                topicId = topicId,
+                title = title,
+                image = local(assets[index % assets.size]),
+                tags = listOfNotNull(title.lowercase(), topicId, seriesTag),
+                premium = index > 8,
+                difficulty = listOf("Easy", "Medium", "Hard")[index % 3],
+                style = if (index % 2 == 0) "line_sketch" else "color",
+                // The API may provide a dedicated transparent trace layer later. Offline content
+                // deliberately uses the selected artwork itself so the AR overlay can never show
+                // an unrelated fallback image.
+                traceImage = local(assets[index % assets.size]),
+            )
+        }
+        val animeExtras = listOf(
+            animeArtwork(13, "Yuji Itadori", "topic_chibi", "jujutsu-kaisen"),
+            animeArtwork(14, "Satoru Gojo", "topic_pixel", "jujutsu-kaisen"),
+            animeArtwork(15, "Monkey D. Luffy", "topic_world_cup", "one-piece"),
+            animeArtwork(16, "Roronoa Zoro", "topic_animal", "one-piece"),
+            animeArtwork(17, "Doraemon Adventure", "topic_cartoon", "doraemon"),
+            animeArtwork(18, "Doraemon Friends", "topic_kids", "doraemon"),
+        )
         return ArCatalogDto(
             topics = topics,
             trendingSearches = listOf(
@@ -51,41 +82,100 @@ class FixtureArContentDataSource @Inject constructor() {
                 trending("anime", "Anime", "topic_anime", "#F2447D"),
                 trending("cartoon", "Cartoon", "topic_cartoon", "#2F95E8"),
             ),
-            artworks = artworkTitles.mapIndexed { index, title ->
-                ArtworkDto(
-                    id = "art-${index + 1}",
-                    topicId = topicKeys[index % topicKeys.size],
-                    title = title,
-                    image = local(assets[index % assets.size]),
-                    tags = listOf(title.lowercase(), topicKeys[index % topicKeys.size]),
-                    premium = index > 8,
-                    difficulty = listOf("Easy", "Medium", "Hard")[index % 3],
-                    style = if (index % 2 == 0) "line_sketch" else "color",
-                    // The API may provide a dedicated transparent trace layer later. Offline content
-                    // deliberately uses the selected artwork itself so the AR overlay can never show
-                    // an unrelated fallback image.
-                    traceImage = local(assets[index % assets.size]),
-                )
-            },
+            artworks = baseArtworks + animeExtras,
             lessons = listOf(
-                lesson("artist", "people", "Draw a Little Artist", 20, "topic_chibi"),
-                lesson("astronaut", "pixel-art", "Pixel Astronaut", 25, "topic_pixel"),
-                lesson("portrait", "portrait", "Anime-style Portrait", 30, "topic_anime"),
-                lesson("fox", "animals", "Friendly Cartoon Fox", 20, "topic_cartoon"),
-                lesson("bouquet", "nature", "Flower Bouquet", 25, "topic_flower"),
-                lesson("kids", "people", "Happy Young Artists", 25, "topic_kids"),
+                lesson("ramen", "people", "Naruto Eats Ramen", 40, "topic_chibi"),
+                lesson(
+                    "doraemon",
+                    "animals",
+                    "Doraemon",
+                    25,
+                    "topic_cartoon",
+                    completedPercent = 40,
+                    completedLessons = 4,
+                    totalLessons = 10,
+                ),
+                lesson("sasuke", "portrait", "Sasuke", 30, "topic_anime"),
+                lesson("cinematic", "pixel-art", "Cinematic", 30, "topic_world_cup"),
+                lesson("art-direction", "sports", "Art Direction", 25, "topic_flower"),
+                lesson(
+                    "christmas-tree",
+                    "nature",
+                    "Draw Christmas Tree",
+                    40,
+                    "topic_flower",
+                    showInLearningPath = false,
+                ),
+                lesson(
+                    "palm-tree",
+                    "nature",
+                    "Draw Palm Tree",
+                    25,
+                    "topic_animal",
+                    showInLearningPath = false,
+                ),
+                lesson(
+                    "leaf",
+                    "nature",
+                    "A Leaf",
+                    10,
+                    "topic_flower",
+                    showInLearningPath = false,
+                ),
+                lesson(
+                    "rainbow",
+                    "nature",
+                    "A Rainbow",
+                    30,
+                    "topic_kids",
+                    showInLearningPath = false,
+                ),
+                lesson(
+                    "flower-garden",
+                    "nature",
+                    "A Flower Garden",
+                    25,
+                    "topic_flower",
+                    showInLearningPath = false,
+                ),
+                lesson(
+                    "potted-plants",
+                    "nature",
+                    "A potted plants",
+                    25,
+                    "topic_animal",
+                    showInLearningPath = false,
+                ),
             ),
             categories = listOf(
-                category("nature", "Nature", "Easy", "topic_flower"),
                 category("people", "People", "Easy", "topic_chibi"),
-                category("animals", "Animals", "Medium", "topic_animal"),
-                category("pixel-art", "Pixel Art", "Easy", "topic_pixel"),
-                category("sports", "Sports", "Medium", "topic_world_cup"),
-                category("portrait", "Portrait", "Hard", "topic_anime"),
+                category("animals", "Animal", "Medium", "topic_cartoon"),
+                category("portrait", "Sasuke", "Easy", "topic_anime"),
+                category("pixel-art", "Cinematic", "Hard", "topic_world_cup"),
+                category("sports", "Art Direction", "Easy", "topic_flower"),
+                category("nature", "Plant", "Easy", "topic_flower"),
             ),
-            // Billing products must come from the production catalog together with the Play
-            // Billing integration. The offline build never advertises prices it cannot charge.
-            plans = emptyList(),
+            plans = listOf(
+                SubscriptionPlanDto(
+                    id = "yearly",
+                    title = "Yearly",
+                    subtitle = "3-day free trial then",
+                    price = "600.000 VNĐ\nper year",
+                    recommended = true,
+                ),
+                SubscriptionPlanDto(
+                    id = "monthly",
+                    title = "Monthly",
+                    subtitle = "600.000vnd/year",
+                    price = "600.000 VNĐ\nper year",
+                ),
+                SubscriptionPlanDto(
+                    id = "weekly",
+                    title = "Weekly",
+                    subtitle = "105.000vnd/year",
+                    price = "600.000 VNĐ\nper week",
+                ),
+            ),
             settings = listOf(
                 SettingItemDto("gift", "Gift Code Lifetime"),
                 SettingItemDto("music", "Music", "toggle"),
@@ -105,11 +195,42 @@ class FixtureArContentDataSource @Inject constructor() {
     private fun trending(id: String, title: String, asset: String, accentColorHex: String) =
         TrendingSearchDto(id, title, local(asset), accentColorHex)
 
-    private fun lesson(id: String, category: String, title: String, minutes: Int, asset: String) =
-        LessonDto(id, category, title, minutes, image = local(asset))
+    private fun lesson(
+        id: String,
+        category: String,
+        title: String,
+        minutes: Int,
+        asset: String,
+        completedPercent: Int = 0,
+        completedLessons: Int = 0,
+        totalLessons: Int = 1,
+        showInLearningPath: Boolean = true,
+    ) = LessonDto(
+        id = id,
+        categoryId = category,
+        title = title,
+        minutes = minutes,
+        completedPercent = completedPercent,
+        image = local(asset),
+        completedLessons = completedLessons,
+        totalLessons = totalLessons,
+        showInLearningPath = showInLearningPath,
+    )
 
     private fun category(id: String, title: String, difficulty: String, asset: String) =
         LessonCategoryDto(id, title, difficulty, 15, local(asset))
+
+    private fun animeArtwork(id: Int, title: String, asset: String, seriesTag: String) = ArtworkDto(
+        id = "art-$id",
+        topicId = "anime",
+        title = title,
+        image = local(asset),
+        tags = listOf(title.lowercase(), "anime", seriesTag),
+        premium = id >= 17,
+        difficulty = listOf("Easy", "Medium", "Hard")[id % 3],
+        style = if (id % 2 == 0) "line_sketch" else "color",
+        traceImage = local(asset),
+    )
 
     private fun local(key: String) = ContentImageDto(localKey = key)
 }

@@ -33,6 +33,9 @@ data class LessonDto(
     val minutes: Int,
     val completedPercent: Int = 0,
     val image: ContentImageDto,
+    val completedLessons: Int = 0,
+    val totalLessons: Int = 1,
+    val showInLearningPath: Boolean = true,
 )
 
 data class LessonCategoryDto(

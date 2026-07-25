@@ -15,6 +15,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,7 +28,10 @@ class HomeViewModel @Inject constructor(
     private val saveDrawing: SaveDrawingUseCase,
 ) : BaseViewModel<HomeUiState, HomeEffect>(HomeUiState()) {
     private var onboardingJob: Job? = null
+    private var catalogLoadJob: Job? = null
     private var preferencesResolved = false
+    private val drawingSaveMutex = Mutex()
+    private var drawingSessionGeneration = 0L
 
     init {
         loadCatalog()
@@ -52,15 +57,23 @@ class HomeViewModel @Inject constructor(
 
             is ArDrawAction.SelectDeviceSource -> updateState { copy(selectedDeviceSource = action.source) }
             ArDrawAction.ConfirmSource -> confirmSource()
-            is ArDrawAction.MediaPicked -> updateState {
-                copy(
-                    pickedImageUri = action.uri,
-                    selectedArtworkId = null,
-                    capturedImageUri = null,
-                    screen = ArDrawScreen.TUTORIAL_CAMERA,
-                    drawingWithCamera = true,
-                    tutorialOrigin = ArDrawScreen.HOME,
-                )
+            is ArDrawAction.MediaPicked -> {
+                beginDrawingSession()
+                updateState {
+                    copy(
+                        pickedImageUri = action.uri,
+                        selectedArtworkId = null,
+                        selectedLessonId = null,
+                        selectedCategoryId = null,
+                        capturedImageUri = null,
+                        replacedMediaUri = null,
+                        activeDrawingId = null,
+                        drawingCompleteOrigin = null,
+                        screen = ArDrawScreen.TUTORIAL_CAMERA,
+                        drawingWithCamera = true,
+                        tutorialOrigin = ArDrawScreen.HOME,
+                    )
+                }
             }
 
             ArDrawAction.OpenSearch -> openSearch()
@@ -101,6 +114,7 @@ class HomeViewModel @Inject constructor(
             ArDrawAction.OpenLearnPath -> show(ArDrawScreen.LEARN_PATH)
             ArDrawAction.OpenLearnCategories -> show(ArDrawScreen.LEARN_CATEGORIES)
             is ArDrawAction.OpenLearnDetail -> openLearnDetail(action.id)
+            is ArDrawAction.OpenLessonTutorial -> openLessonTutorial(action.lessonId)
             ArDrawAction.OpenProfileFavorite -> show(profileFavoriteScreen())
             ArDrawAction.OpenProfileAlbum -> show(profileAlbumScreen())
             ArDrawAction.OpenTutorial -> updateState {
@@ -215,16 +229,9 @@ class HomeViewModel @Inject constructor(
             is ArDrawAction.PhotoCaptured -> onPhotoCaptured(action.uri)
             ArDrawAction.CompleteDrawing -> completeDrawing()
             ArDrawAction.ShareDrawing -> shareDrawing()
-            ArDrawAction.RetakeDrawing -> updateState {
-                copy(
-                    capturedImageUri = null, screen = if (drawingWithCamera) {
-                        ArDrawScreen.TUTORIAL_CAMERA
-                    } else {
-                        ArDrawScreen.TUTORIAL_SCREEN
-                    }
-                )
-            }
+            ArDrawAction.RetakeDrawing -> retakeDrawing()
 
+            is ArDrawAction.OpenDrawing -> openSavedDrawing(action.drawingId)
             is ArDrawAction.OpenSetting -> openSetting(action.settingId)
             ArDrawAction.Back -> goBack()
         }
@@ -234,7 +241,8 @@ class HomeViewModel @Inject constructor(
     fun onAddDrawingClicked() = saveCurrentDrawing(state.value.capturedImageUri)
 
     private fun loadCatalog(forceRefresh: Boolean = false) {
-        viewModelScope.launch {
+        catalogLoadJob?.cancel()
+        catalogLoadJob = viewModelScope.launch {
             updateState { copy(isLoading = true, contentError = false) }
             when (val result = getCatalog(forceRefresh)) {
                 is AppResult.Success -> updateState {
@@ -242,6 +250,9 @@ class HomeViewModel @Inject constructor(
                         catalog = result.data,
                         selectedArtworkId = selectedArtworkId
                             ?: result.data.artworks.firstOrNull()?.id,
+                        selectedPlanId = selectedPlanId
+                            ?: result.data.plans.firstOrNull { it.isRecommended }?.id
+                            ?: result.data.plans.firstOrNull()?.id,
                         isLoading = false,
                     )
                 }
@@ -344,15 +355,7 @@ class HomeViewModel @Inject constructor(
         if (state.value.selectedDeviceSource == DeviceImageSource.GALLERY) {
             viewModelScope.launch { sendEffect(HomeEffect.OpenPhotoPicker) }
         } else {
-            updateState {
-                copy(
-                    pickedImageUri = null,
-                    capturedImageUri = null,
-                    screen = ArDrawScreen.TUTORIAL_CAMERA,
-                    drawingWithCamera = true,
-                    tutorialOrigin = ArDrawScreen.HOME,
-                )
-            }
+            viewModelScope.launch { sendEffect(HomeEffect.OpenSourceCamera) }
         }
     }
 
@@ -362,11 +365,17 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun selectArtwork(id: String) {
+        beginDrawingSession()
         updateState {
             copy(
                 selectedArtworkId = id,
+                selectedLessonId = null,
+                selectedCategoryId = null,
                 pickedImageUri = null,
                 capturedImageUri = null,
+                replacedMediaUri = null,
+                activeDrawingId = null,
+                drawingCompleteOrigin = null,
                 screen = ArDrawScreen.TUTORIAL_CAMERA,
                 drawingWithCamera = true,
                 tutorialOrigin = screen,
@@ -391,7 +400,9 @@ class HomeViewModel @Inject constructor(
         }
         viewModelScope.launch {
             if (updatePreferences.setFavorites(next) is AppResult.Failure) {
-                updateState { copy(favoriteArtworkIds = previous) }
+                updateState {
+                    if (favoriteArtworkIds == next) copy(favoriteArtworkIds = previous) else this
+                }
                 sendEffect(HomeEffect.ShowMessage(R.string.generic_error))
             }
         }
@@ -409,14 +420,54 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun openLearnDetail(id: String?) {
+        beginDrawingSession()
+        updateState {
+            if (screen == ArDrawScreen.LEARN_CATEGORIES) {
+                val categoryId = id ?: catalog?.categories?.firstOrNull()?.id
+                copy(
+                    selectedCategoryId = categoryId,
+                    selectedArtworkId = null,
+                    selectedLessonId = catalog?.lessons
+                        ?.firstOrNull { it.categoryId == categoryId }
+                        ?.id,
+                    pickedImageUri = null,
+                    capturedImageUri = null,
+                    replacedMediaUri = null,
+                    activeDrawingId = null,
+                    drawingCompleteOrigin = null,
+                    screen = ArDrawScreen.LEARN_CATEGORY_DETAIL,
+                )
+            } else {
+                copy(
+                    selectedCategoryId = null,
+                    selectedArtworkId = null,
+                    selectedLessonId = id ?: catalog?.lessons?.firstOrNull()?.id,
+                    pickedImageUri = null,
+                    capturedImageUri = null,
+                    replacedMediaUri = null,
+                    activeDrawingId = null,
+                    drawingCompleteOrigin = null,
+                    screen = ArDrawScreen.LEARN_LEVEL_DETAIL,
+                )
+            }
+        }
+    }
+
+    private fun openLessonTutorial(lessonId: String) {
+        val lesson = state.value.catalog?.lessons?.firstOrNull { it.id == lessonId } ?: return
+        beginDrawingSession()
         updateState {
             copy(
-                selectedLessonId = id ?: catalog?.lessons?.firstOrNull()?.id,
-                screen = if (screen == ArDrawScreen.LEARN_CATEGORIES) {
-                    ArDrawScreen.LEARN_CATEGORY_DETAIL
-                } else {
-                    ArDrawScreen.LEARN_LEVEL_DETAIL
-                },
+                selectedLessonId = lesson.id,
+                selectedArtworkId = null,
+                pickedImageUri = null,
+                capturedImageUri = null,
+                replacedMediaUri = null,
+                activeDrawingId = null,
+                drawingCompleteOrigin = null,
+                tutorialOrigin = screen,
+                drawingWithCamera = true,
+                screen = ArDrawScreen.TUTORIAL_CAMERA,
             )
         }
     }
@@ -427,6 +478,7 @@ class HomeViewModel @Inject constructor(
                 copy(
                     screen = ArDrawScreen.DRAWING_CANVAS,
                     drawingWithCamera = false,
+                    drawingCompleteOrigin = null,
                     overlayOffsetX = 0f,
                     overlayOffsetY = 0f,
                     zoom = 1f,
@@ -446,6 +498,7 @@ class HomeViewModel @Inject constructor(
                 copy(
                     screen = ArDrawScreen.DRAWING_CAMERA,
                     drawingWithCamera = true,
+                    drawingCompleteOrigin = null,
                     overlayOffsetX = 0f,
                     overlayOffsetY = 0f,
                     zoom = 1f,
@@ -535,52 +588,127 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun captureDrawing() {
-        if (state.value.cameraPermissionGranted) {
+        if (!state.value.drawingWithCamera) {
+            viewModelScope.launch { sendEffect(HomeEffect.CaptureCanvas) }
+        } else if (state.value.cameraPermissionGranted) {
             viewModelScope.launch { sendEffect(HomeEffect.CapturePhoto) }
-        } else if (state.value.screen == ArDrawScreen.DRAWING_COMPLETE &&
-            state.value.pickedImageUri != null
-        ) {
-            saveCurrentDrawing(state.value.pickedImageUri)
         } else {
             viewModelScope.launch { sendEffect(HomeEffect.RequestCameraPermission) }
         }
     }
 
     private fun onPhotoCaptured(uri: String) {
-        updateState { copy(capturedImageUri = uri, screen = ArDrawScreen.DRAWING_COMPLETE) }
+        updateState {
+            copy(
+                capturedImageUri = uri,
+                screen = ArDrawScreen.DRAWING_COMPLETE,
+                drawingCompleteOrigin = screen.takeIf { it in DRAWING_SCREENS },
+            )
+        }
         saveCurrentDrawing(uri)
     }
 
     private fun completeDrawing() {
-        if (state.value.drawingWithCamera) {
-            if (state.value.cameraPermissionGranted) {
-                viewModelScope.launch { sendEffect(HomeEffect.CapturePhoto) }
-            } else {
-                viewModelScope.launch { sendEffect(HomeEffect.RequestCameraPermission) }
-            }
-            return
+        val currentScreen = state.value.screen
+        if (currentScreen !in DRAWING_SCREENS) return
+        if (state.value.isRecording) {
+            viewModelScope.launch { sendEffect(HomeEffect.SetRecording(false)) }
         }
-        viewModelScope.launch { sendEffect(HomeEffect.CaptureCanvas) }
+        updateState {
+            copy(
+                screen = ArDrawScreen.DRAWING_COMPLETE,
+                drawingCompleteOrigin = currentScreen,
+                isRecording = false,
+                capturedImageUri = null,
+            )
+        }
+    }
+
+    private fun retakeDrawing() {
+        updateState {
+            val returnScreen = drawingCompleteOrigin
+                ?.takeIf { it in DRAWING_SCREENS }
+                ?: if (drawingWithCamera) {
+                    ArDrawScreen.TUTORIAL_CAMERA
+                } else {
+                    ArDrawScreen.TUTORIAL_SCREEN
+                }
+            copy(
+                replacedMediaUri = capturedImageUri ?: replacedMediaUri,
+                capturedImageUri = null,
+                screen = returnScreen,
+            )
+        }
     }
 
     private fun saveCurrentDrawing(uri: String?) {
+        val requestedState = state.value
+        val requestedGeneration = drawingSessionGeneration
         viewModelScope.launch {
-            val artwork = state.value.selectedArtwork
-            val drawing = Drawing(
-                title = artwork?.title ?: "AR sketch ${state.value.drawings.size + 1}",
-                updatedAtEpochMillis = System.currentTimeMillis(),
-                mediaUri = uri,
-                artworkId = artwork?.id,
-            )
-            when (saveDrawing(drawing)) {
-                is AppResult.Success -> sendEffect(HomeEffect.ShowMessage(R.string.drawing_created))
-                is AppResult.Failure -> sendEffect(HomeEffect.ShowMessage(R.string.generic_error))
+            drawingSaveMutex.withLock {
+                val currentState = state.value
+                val sameDrawingFlow = drawingSessionGeneration == requestedGeneration
+                val drawing = Drawing(
+                    id = requestedState.activeDrawingId
+                        ?: currentState.activeDrawingId?.takeIf { sameDrawingFlow }
+                        ?: 0,
+                    title = requestedState.selectedReferenceTitle
+                        ?: "AR sketch ${requestedState.drawings.size + 1}",
+                    updatedAtEpochMillis = System.currentTimeMillis(),
+                    mediaUri = uri,
+                    artworkId = requestedState.selectedArtwork
+                        ?.takeIf {
+                            requestedState.selectedLesson == null &&
+                                    requestedState.selectedCategory == null
+                        }
+                        ?.id,
+                    lessonId = requestedState.selectedLesson?.id,
+                    lessonMinutes = requestedState.selectedLesson?.minutes,
+                    usesCamera = requestedState.drawingWithCamera,
+                )
+                when (val result = saveDrawing(drawing)) {
+                    is AppResult.Success -> {
+                        updateState {
+                            if (drawingSessionGeneration == requestedGeneration) {
+                                copy(activeDrawingId = result.data, replacedMediaUri = null)
+                            } else {
+                                this
+                            }
+                        }
+                        requestedState.replacedMediaUri
+                            ?.takeIf { it != uri }
+                            ?.let { sendEffect(HomeEffect.DeleteMedia(it)) }
+                        sendEffect(HomeEffect.ShowMessage(R.string.drawing_created))
+                    }
+
+                    is AppResult.Failure -> sendEffect(HomeEffect.ShowMessage(R.string.generic_error))
+                }
             }
         }
     }
 
     private fun shareDrawing() {
         viewModelScope.launch { sendEffect(HomeEffect.Share(state.value.capturedImageUri)) }
+    }
+
+    private fun openSavedDrawing(drawingId: Long) {
+        val drawing = state.value.drawings.firstOrNull { it.id == drawingId } ?: return
+        beginDrawingSession()
+        updateState {
+            copy(
+                selectedArtworkId = drawing.artworkId,
+                selectedLessonId = drawing.lessonId,
+                selectedCategoryId = null,
+                pickedImageUri = null,
+                capturedImageUri = drawing.mediaUri,
+                replacedMediaUri = null,
+                activeDrawingId = drawing.id,
+                drawingCompleteOrigin = screen,
+                tutorialOrigin = screen,
+                drawingWithCamera = drawing.usesCamera,
+                screen = ArDrawScreen.DRAWING_COMPLETE,
+            )
+        }
     }
 
     private fun openSetting(settingId: String) {
@@ -668,11 +796,18 @@ class HomeViewModel @Inject constructor(
 
                 ArDrawScreen.TUTORIAL_CAMERA, ArDrawScreen.TUTORIAL_SCREEN -> state.value.tutorialOrigin
                 ArDrawScreen.DRAWING_CANVAS, ArDrawScreen.DRAWING_CAMERA,
-                ArDrawScreen.DRAWING_OPACITY, ArDrawScreen.DRAWING_COMPLETE -> if (state.value.drawingWithCamera) {
+                ArDrawScreen.DRAWING_OPACITY -> if (state.value.drawingWithCamera) {
                     ArDrawScreen.TUTORIAL_CAMERA
                 } else {
                     ArDrawScreen.TUTORIAL_SCREEN
                 }
+
+                ArDrawScreen.DRAWING_COMPLETE -> state.value.drawingCompleteOrigin
+                    ?: if (state.value.drawingWithCamera) {
+                        ArDrawScreen.TUTORIAL_CAMERA
+                    } else {
+                        ArDrawScreen.TUTORIAL_SCREEN
+                    }
 
                 else -> state.value.screen
             },
@@ -687,11 +822,20 @@ class HomeViewModel @Inject constructor(
 
     private fun show(screen: ArDrawScreen) = updateState { copy(screen = screen) }
 
+    private fun beginDrawingSession() {
+        drawingSessionGeneration += 1
+    }
+
     private companion object {
         const val MAX_TOPICS = 3
         const val PERSONALIZATION_DELAY_MILLIS = 1_500L
         const val DEFAULT_OPACITY = 0.4f
         const val WEB_IMAGE_SEARCH_URL =
             "https://www.google.com/search?tbm=isch&q=drawing+reference"
+        val DRAWING_SCREENS = setOf(
+            ArDrawScreen.DRAWING_CANVAS,
+            ArDrawScreen.DRAWING_CAMERA,
+            ArDrawScreen.DRAWING_OPACITY,
+        )
     }
 }

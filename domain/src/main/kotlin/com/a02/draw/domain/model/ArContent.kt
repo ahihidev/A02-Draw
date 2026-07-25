@@ -43,6 +43,9 @@ data class DrawingLesson(
     val minutes: Int,
     val completedPercent: Int = 0,
     val image: ContentImage,
+    val completedLessons: Int = 0,
+    val totalLessons: Int = 1,
+    val showInLearningPath: Boolean = true,
 )
 
 data class LessonCategory(

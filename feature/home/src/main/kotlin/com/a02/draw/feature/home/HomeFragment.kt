@@ -69,10 +69,23 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     private var imageCaptureExecutor: ExecutorService? = null
     private var overlayImageKey: String? = null
     private var overlayImageLoadJob: Job? = null
+    private var sourceCaptureFile: File? = null
+    private var captureInProgress = false
 
     private val cameraPermission = registerForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { granted -> viewModel.onAction(ArDrawAction.CameraPermissionResult(granted)) }
+
+    private val sourceCameraPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        viewModel.onAction(ArDrawAction.SyncCameraPermission(granted))
+        if (granted) {
+            openSourceCamera()
+        } else {
+            viewModel.onAction(ArDrawAction.CameraPermissionResult(false))
+        }
+    }
 
     private val photoPicker = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia(),
@@ -88,7 +101,23 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         }
     }
 
+    private val sourceCamera = registerForActivityResult(
+        ActivityResultContracts.TakePicture(),
+    ) { saved ->
+        val file = sourceCaptureFile
+        sourceCaptureFile = null
+        if (saved && file != null) {
+            viewModel.onAction(ArDrawAction.MediaPicked(fileProviderUri(file).toString()))
+        } else {
+            file?.delete()
+        }
+    }
+
     override fun setupViews(savedInstanceState: Bundle?) {
+        sourceCaptureFile = savedInstanceState
+            ?.getString(SOURCE_CAPTURE_FILE_KEY)
+            ?.let(::File)
+            ?.takeIf(File::exists)
         binding.arDrawView.onAction = viewModel::onAction
         binding.arDrawView.onOverlayPreview = ::renderOverlayPreview
         binding.cameraOverlayImage.clipToOutline = true
@@ -229,7 +258,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         } else {
             null
         }
-        val image = state.selectedArtwork?.traceImage ?: state.selectedArtwork?.image
+        val image = state.selectedTraceImage
         val key = state.pickedImageUri ?: image?.url ?: image?.localKey ?: "drawing_trace_overlay"
         if (key == overlayImageKey) return
         overlayImageKey = key
@@ -339,25 +368,39 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
             )
 
+            HomeEffect.OpenSourceCamera -> openSourceCamera()
             HomeEffect.RequestCameraPermission -> cameraPermission.launch(Manifest.permission.CAMERA)
             HomeEffect.CapturePhoto -> captureCompositePhoto()
             HomeEffect.CaptureCanvas -> captureCanvasDrawing()
             is HomeEffect.SetTorch -> {
-                ensureCameraController()
-                cameraController?.enableTorch(effect.enabled)
+                runCatching {
+                    ensureCameraController()
+                    cameraController?.enableTorch(effect.enabled)
+                }.onFailure {
+                    view?.let { root ->
+                        Snackbar.make(root, R.string.generic_error, Snackbar.LENGTH_SHORT).show()
+                    }
+                }
             }
 
             is HomeEffect.SetCameraZoom -> {
-                ensureCameraController()
-                val zoomState = cameraController?.zoomState?.value
-                val boundedZoom = if (zoomState == null) effect.zoom else {
-                    effect.zoom.coerceIn(zoomState.minZoomRatio, zoomState.maxZoomRatio)
+                runCatching {
+                    ensureCameraController()
+                    val zoomState = cameraController?.zoomState?.value
+                    val boundedZoom = if (zoomState == null) effect.zoom else {
+                        effect.zoom.coerceIn(zoomState.minZoomRatio, zoomState.maxZoomRatio)
+                    }
+                    cameraController?.setZoomRatio(boundedZoom)
+                }.onFailure {
+                    view?.let { root ->
+                        Snackbar.make(root, R.string.generic_error, Snackbar.LENGTH_SHORT).show()
+                    }
                 }
-                cameraController?.setZoomRatio(boundedZoom)
             }
 
             is HomeEffect.SetRecording -> setRecording(effect.enabled)
             is HomeEffect.Share -> share(effect.uri)
+            is HomeEffect.DeleteMedia -> deleteOwnedMedia(effect.uri)
             is HomeEffect.OpenExternal -> openExternal(effect.target)
             HomeEffect.OpenStoreListing -> openStoreListing()
             HomeEffect.OpenSubscriptionManager -> openSubscriptionManager()
@@ -376,39 +419,56 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     }
 
     private fun captureCompositePhoto() {
-        ensureCameraController()
+        if (captureInProgress) return
+        captureInProgress = true
+        val controller = runCatching {
+            ensureCameraController()
+            cameraController
+        }.getOrNull()
+        if (controller == null) {
+            showCaptureErrorAndReset()
+            return
+        }
         val executor = imageCaptureExecutor ?: Executors.newSingleThreadExecutor().also {
             imageCaptureExecutor = it
         }
-        cameraController?.takePicture(
-            executor,
-            object : ImageCapture.OnImageCapturedCallback() {
-                override fun onCaptureSuccess(image: ImageProxy) {
-                    val rotationDegrees = image.imageInfo.rotationDegrees
-                    val cameraBitmap = runCatching { image.toBitmap() }.getOrNull()
-                    image.close()
-                    if (cameraBitmap == null) {
-                        showCaptureError()
-                        return
+        runCatching {
+            controller.takePicture(
+                executor,
+                object : ImageCapture.OnImageCapturedCallback() {
+                    override fun onCaptureSuccess(image: ImageProxy) {
+                        val rotationDegrees = image.imageInfo.rotationDegrees
+                        val cameraBitmap = runCatching { image.toBitmap() }.getOrNull()
+                        image.close()
+                        if (cameraBitmap == null) {
+                            showCaptureErrorAndReset()
+                            return
+                        }
+                        view?.post { composeCameraAndOverlay(cameraBitmap, rotationDegrees) }
+                            ?: run {
+                                cameraBitmap.recycle()
+                                captureInProgress = false
+                            }
                     }
-                    view?.post { composeCameraAndOverlay(cameraBitmap, rotationDegrees) }
-                        ?: cameraBitmap.recycle()
-                }
 
-                override fun onError(exception: ImageCaptureException) = showCaptureError()
-            },
-        ) ?: showCaptureError()
+                    override fun onError(exception: ImageCaptureException) =
+                        showCaptureErrorAndReset()
+                },
+            )
+        }.onFailure { showCaptureErrorAndReset() }
     }
 
     private fun composeCameraAndOverlay(cameraBitmap: Bitmap, rotationDegrees: Int) {
         if (view == null) {
             cameraBitmap.recycle()
+            captureInProgress = false
             return
         }
         val width = binding.root.width
         val height = binding.root.height
         if (width <= 0 || height <= 0) {
             cameraBitmap.recycle()
+            captureInProgress = false
             return
         }
         binding.cameraOverlayContainer.visibility = View.INVISIBLE
@@ -478,8 +538,9 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         )
     }
 
-    private fun showCaptureError() {
+    private fun showCaptureErrorAndReset() {
         view?.post {
+            captureInProgress = false
             view?.let {
                 Snackbar.make(it, R.string.generic_error, Snackbar.LENGTH_SHORT).show()
             }
@@ -487,28 +548,31 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     }
 
     private fun captureCanvasDrawing() {
+        if (captureInProgress) return
         val width = binding.arDrawView.width
         val height = binding.arDrawView.height
         if (width <= 0 || height <= 0) return
+        captureInProgress = true
         binding.arDrawView.prepareExport {
             val bitmap = createBitmap(width, height)
             binding.arDrawView.draw(android.graphics.Canvas(bitmap))
             binding.arDrawView.setExportOnly(false)
-            saveCompositeBitmap(bitmap, DrawingCameraRatio.FULL)
+            saveCompositeBitmap(bitmap, latestState.cropRatio.outputRatio)
         }
     }
 
     private fun saveCompositeBitmap(
         bitmap: Bitmap,
-        ratio: DrawingCameraRatio = latestState.cameraRatio,
+        targetRatio: Float? = latestState.cameraRatio.outputRatio,
     ) {
         val file = newCaptureFile() ?: run {
             bitmap.recycle()
+            captureInProgress = false
             return
         }
         viewLifecycleOwner.lifecycleScope.launch {
             val saved = withContext(Dispatchers.IO) {
-                val outputBitmap = cropCapturedBitmap(bitmap, ratio)
+                val outputBitmap = cropCapturedBitmap(bitmap, targetRatio)
                 if (outputBitmap !== bitmap) bitmap.recycle()
                 val result = runCatching {
                     FileOutputStream(file).use {
@@ -522,6 +586,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                 outputBitmap.recycle()
                 result
             }
+            captureInProgress = false
             if (saved) dispatchCapturedFile(file)
             else {
                 file.delete()
@@ -530,25 +595,25 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         }
     }
 
-    private fun cropCapturedBitmap(bitmap: Bitmap, ratio: DrawingCameraRatio): Bitmap {
-        val targetRatio = when (ratio) {
-            DrawingCameraRatio.FULL -> return bitmap
-            DrawingCameraRatio.RATIO_16_9 -> 16f / 9f
-            DrawingCameraRatio.RATIO_4_3 -> 4f / 3f
-            DrawingCameraRatio.SQUARE -> 1f
-        }
+    private fun cropCapturedBitmap(bitmap: Bitmap, targetRatio: Float?): Bitmap {
+        if (targetRatio == null) return bitmap
         val sourceRatio = bitmap.width.toFloat() / bitmap.height
         return if (sourceRatio > targetRatio) {
-            val width = (bitmap.height * targetRatio).toInt()
+            val width = (bitmap.height * targetRatio).roundToInt()
             Bitmap.createBitmap(bitmap, (bitmap.width - width) / 2, 0, width, bitmap.height)
         } else {
-            val height = (bitmap.width / targetRatio).toInt()
+            val height = (bitmap.width / targetRatio).roundToInt()
             Bitmap.createBitmap(bitmap, 0, (bitmap.height - height) / 2, bitmap.width, height)
         }
     }
 
     private fun captureCameraPhoto() {
-        ensureCameraController()
+        if (runCatching { ensureCameraController() }.isFailure) {
+            viewModel.onAction(ArDrawAction.RecordingFinished)
+            Snackbar.make(binding.root, R.string.video_recording_error, Snackbar.LENGTH_SHORT)
+                .show()
+            return
+        }
         val file = newCaptureFile() ?: return
         val options = ImageCapture.OutputFileOptions.Builder(file).build()
         cameraController?.takePicture(
@@ -574,33 +639,41 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
             return
         }
         ensureCameraController()
-        val file = newVideoFile() ?: return
+        val file = newVideoFile() ?: run {
+            viewModel.onAction(ArDrawAction.RecordingFinished)
+            Snackbar.make(binding.root, R.string.video_recording_error, Snackbar.LENGTH_SHORT)
+                .show()
+            return
+        }
         val options = FileOutputOptions.Builder(file).build()
-        activeRecording = cameraController?.startRecording(
-            options,
-            AudioConfig.AUDIO_DISABLED,
-            ContextCompat.getMainExecutor(requireContext()),
-        ) { event ->
-            if (event is VideoRecordEvent.Finalize) {
-                activeRecording = null
-                viewModel.onAction(ArDrawAction.RecordingFinished)
-                if (event.hasError()) {
-                    file.delete()
-                    view?.let {
-                        Snackbar.make(
-                            it,
-                            R.string.video_recording_error,
-                            Snackbar.LENGTH_SHORT
-                        ).show()
-                    }
-                } else {
-                    view?.let {
-                        Snackbar.make(it, R.string.video_saved, Snackbar.LENGTH_SHORT).show()
+        activeRecording = runCatching {
+            cameraController?.startRecording(
+                options,
+                AudioConfig.AUDIO_DISABLED,
+                ContextCompat.getMainExecutor(requireContext()),
+            ) { event ->
+                if (event is VideoRecordEvent.Finalize) {
+                    activeRecording = null
+                    viewModel.onAction(ArDrawAction.RecordingFinished)
+                    if (event.hasError()) {
+                        file.delete()
+                        view?.let {
+                            Snackbar.make(
+                                it,
+                                R.string.video_recording_error,
+                                Snackbar.LENGTH_SHORT
+                            ).show()
+                        }
+                    } else {
+                        view?.let {
+                            Snackbar.make(it, R.string.video_saved, Snackbar.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
-        }
+        }.getOrNull()
         if (activeRecording == null) {
+            file.delete()
             viewModel.onAction(ArDrawAction.RecordingFinished)
             Snackbar.make(binding.root, R.string.video_recording_error, Snackbar.LENGTH_SHORT)
                 .show()
@@ -614,6 +687,31 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         return File(directory, "ar-drawing-${System.currentTimeMillis()}.jpg")
     }
 
+    private fun openSourceCamera() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            sourceCameraPermission.launch(Manifest.permission.CAMERA)
+            return
+        }
+        val directory =
+            requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES) ?: return
+        if (!directory.exists() && !directory.mkdirs()) return
+        val file = File(directory, "source-${System.currentTimeMillis()}.jpg")
+        sourceCaptureFile = file
+        try {
+            sourceCamera.launch(fileProviderUri(file))
+        } catch (_: ActivityNotFoundException) {
+            sourceCaptureFile = null
+            file.delete()
+            Snackbar.make(binding.root, R.string.generic_error, Snackbar.LENGTH_SHORT).show()
+        } catch (_: SecurityException) {
+            sourceCaptureFile = null
+            file.delete()
+            sourceCameraPermission.launch(Manifest.permission.CAMERA)
+        }
+    }
+
     private fun newVideoFile(): File? {
         val directory =
             requireContext().getExternalFilesDir(Environment.DIRECTORY_MOVIES) ?: return null
@@ -622,13 +720,14 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     }
 
     private fun dispatchCapturedFile(file: File) {
-        val uri = FileProvider.getUriForFile(
-            requireContext(),
-            "${requireContext().packageName}.files",
-            file,
-        )
-        viewModel.onAction(ArDrawAction.PhotoCaptured(uri.toString()))
+        viewModel.onAction(ArDrawAction.PhotoCaptured(fileProviderUri(file).toString()))
     }
+
+    private fun fileProviderUri(file: File) = FileProvider.getUriForFile(
+        requireContext(),
+        "${requireContext().packageName}.files",
+        file,
+    )
 
     private fun share(uriValue: String?) {
         val intent = Intent(Intent.ACTION_SEND).apply {
@@ -642,21 +741,41 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         startActivity(Intent.createChooser(intent, getString(R.string.share_drawing)))
     }
 
+    private fun deleteOwnedMedia(uriValue: String) {
+        val uri = uriValue.toUri()
+        val fileName = uri.lastPathSegment ?: return
+        if (uri.scheme != "content" ||
+            uri.authority != "${requireContext().packageName}.files" ||
+            !fileName.matches(OWNED_DRAWING_FILE_PATTERN)
+        ) {
+            return
+        }
+        val directory =
+            requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES) ?: return
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            File(directory, fileName).delete()
+        }
+    }
+
     private fun openExternal(target: String) {
         val uri = target.toUri()
         try {
             startActivity(Intent(Intent.ACTION_VIEW, uri))
         } catch (_: ActivityNotFoundException) {
-            if (uri.scheme == "market") {
-                startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        "https://play.google.com/store/apps/details?id=${requireContext().packageName}".toUri(),
-                    ),
+            val fallback = when (uri.scheme) {
+                "market" -> Intent(
+                    Intent.ACTION_VIEW,
+                    "https://play.google.com/store/apps/details?id=${requireContext().packageName}".toUri(),
                 )
-            } else if (uri.scheme == "package") {
-                startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, uri))
+
+                "package" -> Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, uri)
+                else -> null
             }
+            if (fallback == null || runCatching { startActivity(fallback) }.isFailure) {
+                Snackbar.make(binding.root, R.string.generic_error, Snackbar.LENGTH_SHORT).show()
+            }
+        } catch (_: SecurityException) {
+            Snackbar.make(binding.root, R.string.generic_error, Snackbar.LENGTH_SHORT).show()
         }
     }
 
@@ -683,6 +802,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
             ?.hideSoftInputFromWindow(binding.searchInput.windowToken, 0)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        sourceCaptureFile?.let { outState.putString(SOURCE_CAPTURE_FILE_KEY, it.absolutePath) }
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onDestroyView() {
         overlayImageLoadJob?.cancel()
         overlayImageLoadJob = null
@@ -690,17 +814,38 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
         releaseCameraController()
         imageCaptureExecutor?.shutdownNow()
         imageCaptureExecutor = null
+        captureInProgress = false
         super.onDestroyView()
     }
 
     private fun releaseCameraController() {
+        val wasRecording = activeRecording != null || latestState.isRecording
         activeRecording?.stop()
         activeRecording = null
         cameraController?.unbind()
         cameraController = null
+        if (wasRecording) viewModel.onAction(ArDrawAction.RecordingFinished)
     }
 
+    private val DrawingCameraRatio.outputRatio: Float?
+        get() = when (this) {
+            DrawingCameraRatio.FULL -> null
+            DrawingCameraRatio.RATIO_16_9 -> 16f / 9f
+            DrawingCameraRatio.RATIO_4_3 -> 4f / 3f
+            DrawingCameraRatio.SQUARE -> 1f
+        }
+
+    private val DrawingCropRatio.outputRatio: Float?
+        get() = when (this) {
+            DrawingCropRatio.RESET -> null
+            DrawingCropRatio.SQUARE -> 1f
+            DrawingCropRatio.PORTRAIT -> 9f / 16f
+            DrawingCropRatio.LANDSCAPE -> 16f / 9f
+        }
+
     private companion object {
+        const val SOURCE_CAPTURE_FILE_KEY = "source_capture_file"
+        val OWNED_DRAWING_FILE_PATTERN = Regex("""ar-drawing-\d+\.jpg""")
         val REMOVE_LIGHT_BACKGROUND_FILTER = ColorMatrixColorFilter(
             floatArrayOf(
                 0f, 0f, 0f, 0f, 22f,

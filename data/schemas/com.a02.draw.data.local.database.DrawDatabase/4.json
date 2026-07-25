@@ -1,0 +1,70 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 4,
+    "identityHash": "721b7950b3ebb5b13d57dfa6380e2556",
+    "entities": [
+      {
+        "tableName": "drawings",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `updatedAtEpochMillis` INTEGER NOT NULL, `mediaUri` TEXT, `artworkId` TEXT, `lessonId` TEXT, `lessonMinutes` INTEGER, `usesCamera` INTEGER NOT NULL DEFAULT 1)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAtEpochMillis",
+            "columnName": "updatedAtEpochMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mediaUri",
+            "columnName": "mediaUri",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "artworkId",
+            "columnName": "artworkId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lessonId",
+            "columnName": "lessonId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lessonMinutes",
+            "columnName": "lessonMinutes",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "usesCamera",
+            "columnName": "usesCamera",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '721b7950b3ebb5b13d57dfa6380e2556')"
+    ]
+  }
+}

@@ -8,6 +8,7 @@ import com.a02.draw.data.mapper.toDomain
 import com.a02.draw.data.remote.api.DrawApi
 import com.a02.draw.domain.model.ArCatalog
 import com.a02.draw.domain.repository.ArContentRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -24,7 +25,13 @@ class DefaultArContentRepository @Inject constructor(
         withContext(dispatchers.io) {
             if (!forceRefresh) memoryCache?.let { return@withContext AppResult.Success(it) }
             val dto = if (remoteIsConfigured()) {
-                runCatching { api.getCatalog() }.getOrElse { fixture.catalog() }
+                try {
+                    api.getCatalog()
+                } catch (cancellation: CancellationException) {
+                    throw cancellation
+                } catch (_: Throwable) {
+                    fixture.catalog()
+                }
             } else {
                 fixture.catalog()
             }

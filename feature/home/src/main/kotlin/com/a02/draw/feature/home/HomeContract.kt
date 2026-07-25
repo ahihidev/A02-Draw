@@ -6,7 +6,10 @@ import com.a02.draw.core.ui.base.UiState
 import com.a02.draw.domain.model.ArCatalog
 import com.a02.draw.domain.model.Artwork
 import com.a02.draw.domain.model.ArtworkStyle
+import com.a02.draw.domain.model.ContentImage
 import com.a02.draw.domain.model.Drawing
+import com.a02.draw.domain.model.DrawingLesson
+import com.a02.draw.domain.model.LessonCategory
 
 enum class ArDrawScreen {
     ONBOARDING_PROJECTOR,
@@ -41,7 +44,15 @@ enum class ArDrawScreen {
 
 enum class BottomDestination { HOME, LEARN, PROFILE, SETTINGS }
 enum class DeviceImageSource { GALLERY, CAMERA }
-enum class GalleryFilter { SAVED, ALL, EASY, PREMIUM }
+enum class GalleryFilter {
+    SAVED,
+    ALL,
+    EASY,
+    PREMIUM,
+    JUJUTSU_KAISEN,
+    ONE_PIECE,
+    DORAEMON,
+}
 enum class DrawingCropRatio { RESET, SQUARE, PORTRAIT, LANDSCAPE }
 enum class DrawingCanvasPanel { NONE, CROP, GRID }
 enum class DrawingCameraPanel { NONE, ZOOM, FLASH, CAPTURE, RECORD, RATIO }
@@ -75,6 +86,7 @@ sealed interface ArDrawAction {
     data object OpenLearnPath : ArDrawAction
     data object OpenLearnCategories : ArDrawAction
     data class OpenLearnDetail(val id: String? = null) : ArDrawAction
+    data class OpenLessonTutorial(val lessonId: String) : ArDrawAction
     data object OpenProfileFavorite : ArDrawAction
     data object OpenProfileAlbum : ArDrawAction
     data object OpenTutorial : ArDrawAction
@@ -107,6 +119,7 @@ sealed interface ArDrawAction {
     data object CompleteDrawing : ArDrawAction
     data object ShareDrawing : ArDrawAction
     data object RetakeDrawing : ArDrawAction
+    data class OpenDrawing(val drawingId: Long) : ArDrawAction
     data class OpenSetting(val settingId: String) : ArDrawAction
     data object Back : ArDrawAction
 }
@@ -123,6 +136,7 @@ data class HomeUiState(
     val selectedGalleryTopicId: String? = null,
     val selectedArtworkId: String? = null,
     val selectedLessonId: String? = null,
+    val selectedCategoryId: String? = null,
     val selectedDeviceSource: DeviceImageSource = DeviceImageSource.CAMERA,
     val selectedDifficulty: String? = null,
     val selectedDrawingStyle: ArtworkStyle? = null,
@@ -135,6 +149,9 @@ data class HomeUiState(
     val musicEnabled: Boolean = true,
     val pickedImageUri: String? = null,
     val capturedImageUri: String? = null,
+    val replacedMediaUri: String? = null,
+    val activeDrawingId: Long? = null,
+    val drawingCompleteOrigin: ArDrawScreen? = null,
     val cameraPermissionGranted: Boolean = false,
     val opacity: Float = 0.4f,
     val zoom: Float = 1f,
@@ -161,6 +178,41 @@ data class HomeUiState(
     val selectedArtwork: Artwork?
         get() = catalog?.artworks?.firstOrNull { it.id == selectedArtworkId }
 
+    val selectedLesson: DrawingLesson?
+        get() = catalog?.lessons?.firstOrNull { it.id == selectedLessonId }
+
+    val selectedCategory: LessonCategory?
+        get() = catalog?.categories?.firstOrNull { it.id == selectedCategoryId }
+
+    val selectedReferenceImage: ContentImage?
+        get() = selectedLesson?.image ?: selectedCategory?.image ?: selectedArtwork?.image
+
+    val selectedTraceImage: ContentImage?
+        get() = selectedLesson?.image ?: selectedCategory?.image
+        ?: selectedArtwork?.traceImage ?: selectedArtwork?.image
+
+    val selectedReferenceTitle: String?
+        get() = selectedLesson?.title ?: selectedCategory?.title ?: selectedArtwork?.title
+
+    val learningPathLessons: List<DrawingLesson>
+        get() = catalog?.lessons.orEmpty().filter(DrawingLesson::showInLearningPath)
+
+    val completedLessonCount: Int
+        get() = drawings.mapNotNull(Drawing::lessonId).distinct().size
+
+    val completedLessonMinutes: Int
+        get() = drawings
+            .filter { it.lessonId != null }
+            .distinctBy(Drawing::lessonId)
+            .sumOf { it.lessonMinutes ?: 0 }
+
+    fun lessonProgressPercent(lesson: DrawingLesson): Int =
+        if (drawings.any { it.lessonId == lesson.id }) {
+            100
+        } else {
+            lesson.completedPercent.coerceIn(0, 100)
+        }
+
     val visibleArtworks: List<Artwork>
         get() {
             val query = searchQuery.trim()
@@ -180,6 +232,9 @@ data class HomeUiState(
                 GalleryFilter.ALL -> true
                 GalleryFilter.EASY -> artwork.difficulty.equals("Easy", ignoreCase = true)
                 GalleryFilter.PREMIUM -> artwork.isPremium
+                GalleryFilter.JUJUTSU_KAISEN -> "jujutsu-kaisen" in artwork.tags
+                GalleryFilter.ONE_PIECE -> "one-piece" in artwork.tags
+                GalleryFilter.DORAEMON -> "doraemon" in artwork.tags
             }
             val difficultyMatches = selectedDifficulty == null ||
                     artwork.difficulty.equals(selectedDifficulty, ignoreCase = true)
@@ -191,6 +246,7 @@ data class HomeUiState(
 sealed interface HomeEffect : UiEffect {
     data class ShowMessage(@param:StringRes val messageRes: Int) : HomeEffect
     data object OpenPhotoPicker : HomeEffect
+    data object OpenSourceCamera : HomeEffect
     data object RequestCameraPermission : HomeEffect
     data object CapturePhoto : HomeEffect
     data object CaptureCanvas : HomeEffect
@@ -198,6 +254,7 @@ sealed interface HomeEffect : UiEffect {
     data class SetCameraZoom(val zoom: Float) : HomeEffect
     data class SetRecording(val enabled: Boolean) : HomeEffect
     data class Share(val uri: String?) : HomeEffect
+    data class DeleteMedia(val uri: String) : HomeEffect
     data class OpenExternal(val target: String) : HomeEffect
     data object OpenStoreListing : HomeEffect
     data object OpenSubscriptionManager : HomeEffect

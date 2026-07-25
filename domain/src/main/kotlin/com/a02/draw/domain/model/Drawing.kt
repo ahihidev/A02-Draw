@@ -6,4 +6,7 @@ data class Drawing(
     val updatedAtEpochMillis: Long,
     val mediaUri: String? = null,
     val artworkId: String? = null,
+    val lessonId: String? = null,
+    val lessonMinutes: Int? = null,
+    val usesCamera: Boolean = true,
 )

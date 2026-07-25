@@ -13,6 +13,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Shader
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.VelocityTracker
@@ -21,6 +22,7 @@ import android.view.ViewConfiguration
 import android.widget.OverScroller
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.scale
 import androidx.core.graphics.toColorInt
 import androidx.core.graphics.withClip
@@ -108,6 +110,7 @@ class ArDrawView @JvmOverloads constructor(
         ),
     )
     private val bitmaps = LinkedHashMap<Int, Bitmap>(16, 0.75f, true)
+    private val vectorDrawables = mutableMapOf<Int, Drawable>()
     private val contentBitmaps = LinkedHashMap<String, Bitmap>(16, 0.75f, true)
     private val loadingImages = mutableSetOf<String>()
     private val loadingDrawableResources = mutableSetOf<Int>()
@@ -169,7 +172,9 @@ class ArDrawView @JvmOverloads constructor(
     fun render(newState: HomeUiState) {
         if (newState.screen != state.screen &&
             !(newState.screen == ArDrawScreen.FILTER && state.screen == ArDrawScreen.GALLERY) &&
-            !(newState.screen == ArDrawScreen.GALLERY && state.screen == ArDrawScreen.FILTER)
+            !(newState.screen == ArDrawScreen.GALLERY && state.screen == ArDrawScreen.FILTER) &&
+            !(newState.screen == ArDrawScreen.HOME_SOURCE_MODAL && state.screen == ArDrawScreen.HOME) &&
+            !(newState.screen == ArDrawScreen.HOME && state.screen == ArDrawScreen.HOME_SOURCE_MODAL)
         ) {
             contentScrollOffset = 0f
             contentScroller.abortAnimation()
@@ -408,8 +413,8 @@ class ArDrawView @JvmOverloads constructor(
 
     private fun drawPaywall(canvas: Canvas) {
         fill(canvas, 0f, 0f, 360f, 800f, Color.rgb(254, 241, 255))
+        imageSourceCrop(canvas, R.drawable.onboarding_paywall_art, 0f, 0f, 360f, 334f, 0.885f)
         statusBar(canvas)
-        imageSourceCrop(canvas, R.drawable.onboarding_paywall_art, 0f, 46f, 360f, 276f, 0.885f)
         multiline(
             canvas,
             "Bring your imagination to\nlife with AR Drawing",
@@ -434,24 +439,24 @@ class ArDrawView @JvmOverloads constructor(
         state.catalog?.plans.orEmpty().take(3).forEachIndexed { index, item ->
             plan(
                 canvas,
-                20f,
-                486f + index * 62f,
+                16f,
+                468f + index * 74f,
                 item.title,
                 item.subtitle,
                 item.price,
                 state.selectedPlanId?.let { it == item.id } ?: item.isRecommended,
             )
         }
-        primaryButton(canvas, "Continue free", 18f, 688f, 324f, 48f)
+        primaryButton(canvas, "Continue", 16f, 694f, 328f, 44f)
         text(
             canvas,
-            "No payment is made in this demo",
-            180f,
-            758f,
+            "Term of use",
+            16f,
+            774f,
             10f,
-            MUTED,
-            align = Paint.Align.CENTER
+            NAVY,
         )
+        text(canvas, "Cancel anytime", 344f, 774f, 10f, NAVY, align = Paint.Align.RIGHT)
     }
 
     private fun drawHome(canvas: Canvas) {
@@ -487,7 +492,7 @@ class ArDrawView @JvmOverloads constructor(
                     R.drawable.figma_source_web,
                 )
                 text(canvas, "Choose topic", 16f, 311f, 16f, NAVY, true)
-                drawTopicGrid(canvas, 325f, rows = 3)
+                drawTopicGrid(canvas, 325f, rows = HOME_TOPIC_LIMIT / 2)
             }
         }
         bottomNavigation(canvas, BottomDestination.HOME)
@@ -596,10 +601,11 @@ class ArDrawView @JvmOverloads constructor(
             canvas.withTranslation(0f, -contentScrollOffset) {
                 drawArtworkGrid(
                     canvas,
-                    140f,
+                    142f,
                     rows = (state.visibleGalleryArtworks.size + 1) / 2,
                     state.visibleGalleryArtworks,
                     showHearts = true,
+                    showTitles = false,
                 )
             }
         }
@@ -608,17 +614,17 @@ class ArDrawView @JvmOverloads constructor(
         }
         if (state.screen == ArDrawScreen.FILTER) {
             fill(canvas, 0f, 0f, 360f, 800f, Color.argb(105, 0, 0, 0))
-            roundRect(canvas, 0f, 520f, 360f, 280f, 18f, Color.WHITE)
-            text(canvas, "Filter", 16f, 552f, 18f, NAVY, true)
-            text(canvas, "Difficulty level", 16f, 584f, 12f, NAVY)
-            chip(canvas, 16f, 598f, 98f, "Easy", state.selectedDifficulty == "Easy")
-            chip(canvas, 131f, 598f, 98f, "Medium", state.selectedDifficulty == "Medium")
-            chip(canvas, 246f, 598f, 98f, "Hard", state.selectedDifficulty == "Hard")
-            text(canvas, "Drawing style", 16f, 650f, 12f, NAVY)
+            roundRect(canvas, 0f, 478f, 360f, 322f, 18f, Color.WHITE)
+            text(canvas, "Filter", 16f, 519f, 18f, NAVY, true)
+            text(canvas, "Difficulty level", 16f, 559f, 12f, NAVY)
+            chip(canvas, 16f, 567f, 98f, "Easy", state.selectedDifficulty == "Easy")
+            chip(canvas, 131f, 567f, 98f, "Medium", state.selectedDifficulty == "Medium")
+            chip(canvas, 246f, 567f, 98f, "Hard", state.selectedDifficulty == "Hard")
+            text(canvas, "Difficulty level", 16f, 631f, 12f, NAVY)
             chip(
                 canvas,
                 16f,
-                664f,
+                639f,
                 156f,
                 "Line Sketch",
                 state.selectedDrawingStyle == ArtworkStyle.LINE_SKETCH
@@ -626,13 +632,13 @@ class ArDrawView @JvmOverloads constructor(
             chip(
                 canvas,
                 188f,
-                664f,
+                639f,
                 156f,
                 "Color",
                 state.selectedDrawingStyle == ArtworkStyle.COLOR
             )
-            primaryButton(canvas, "Continue", 16f, 714f, 328f, 38f)
-            outlineButton(canvas, "Reset filters", 16f, 758f, 328f, 34f)
+            primaryButton(canvas, "Continue", 16f, 686f, 328f, 44f)
+            outlineButton(canvas, "Reset filters", 16f, 740f, 328f, 44f)
         }
     }
 
@@ -643,7 +649,7 @@ class ArDrawView @JvmOverloads constructor(
         text(canvas, "Setting", 16f, 282f, 14f, NAVY, true)
         state.catalog?.settings.orEmpty().forEachIndexed { index, item ->
             val y = 315f + index * 40f
-            vectorIcon(canvas, settingIcon(item.id), 14f, y - 13f, 20f, MUTED)
+            settingVectorIcon(canvas, settingIconResource(item.id), 14f, y - 13f, 20f)
             text(canvas, item.title, 42f, y + 1f, 12f, NAVY)
             when (item.id) {
                 "gift" -> {
@@ -808,25 +814,31 @@ class ArDrawView @JvmOverloads constructor(
         whiteBackground(canvas)
         statusBar(canvas)
         val isCategory = state.screen == ArDrawScreen.LEARN_CATEGORY_DETAIL
-        val category = state.catalog?.categories?.firstOrNull { it.id == state.selectedLessonId }
-        val lesson = state.catalog?.lessons?.firstOrNull { it.id == state.selectedLessonId }
+        val category = state.selectedCategory
+        val lesson = state.selectedLesson
+        val levelNumber = state.learningPathLessons.indexOfFirst { it.id == lesson?.id }
+            .takeIf { it >= 0 }
+            ?.plus(1)
         backHeader(
             canvas,
-            if (isCategory) category?.title ?: "Category" else lesson?.title ?: "Lesson",
+            if (isCategory) category?.title ?: "Category" else "Level ${levelNumber ?: 1}",
             16f
         )
-        line(canvas, 0f, 92f, 360f, 92f, BORDER, 1f)
+        line(canvas, 0f, 88f, 360f, 88f, BORDER, 1f)
         if (isCategory) {
-            text(canvas, category?.title ?: "Category", 16f, 122f, 15f, PURPLE, true)
+            text(canvas, category?.title ?: "Category", 16f, 119f, 15f, PURPLE, true)
             multiline(
                 canvas,
-                "Discover an endless array of cool pictures to draw with\nour selection of plant, flower, and tree drawing tutorials.",
+                "Discover an endless array of cool pictures to draw with\n" +
+                        "our selection of plant, flower, and tree drawing tutorials.\n" +
+                        "How might you use these easy drawing guides, designed\n" +
+                        "for kids of all ages?",
                 16f,
-                146f,
+                140f,
                 11f,
                 MUTED,
                 Paint.Align.LEFT,
-                15f
+                18f,
             )
             state.catalog?.lessons.orEmpty()
                 .filter { category == null || it.categoryId == category.id }
@@ -834,7 +846,7 @@ class ArDrawView @JvmOverloads constructor(
                     lessonCard(
                         canvas,
                         16f,
-                        193f + index * 82f,
+                        216f + index * 100f,
                         item.title,
                         item.minutes,
                         item.image
@@ -842,7 +854,7 @@ class ArDrawView @JvmOverloads constructor(
                 }
         } else {
             lesson?.let { item ->
-                lessonCard(canvas, 16f, 112f, item.title, item.minutes, item.image)
+                lessonCard(canvas, 16f, 104f, item.title, item.minutes, item.image)
             }
         }
     }
@@ -868,7 +880,7 @@ class ArDrawView @JvmOverloads constructor(
             170f,
             101f,
             IconAsset.LESSON,
-            "0",
+            state.completedLessonCount.toString(),
             "Lessons",
             Color.rgb(235, 255, 243),
             Color.rgb(54, 199, 135)
@@ -879,7 +891,7 @@ class ArDrawView @JvmOverloads constructor(
             170f,
             101f,
             IconAsset.CLOCK,
-            "0",
+            state.completedLessonMinutes.toString(),
             "Time",
             Color.rgb(235, 247, 255),
             Color.rgb(105, 174, 249)
@@ -953,30 +965,54 @@ class ArDrawView @JvmOverloads constructor(
         statusBar(canvas)
         backHeader(canvas, "Select mode", 17f)
         val camera = state.screen == ArDrawScreen.TUTORIAL_CAMERA
-        card(canvas, 16f, 112f, 328f, 430f, 12f, PURPLE, 1.5f)
-        drawSelectedArtwork(canvas, 24f, 120f, 312f, 324f, 10f)
+        val offset = if (camera) 0f else -182f
+        canvas.withClip(0f, 104f, 360f, 570f) {
+            drawTutorialModeCard(canvas, 16f + offset, useCamera = true, selected = camera)
+            drawTutorialModeCard(canvas, 256f + offset, useCamera = false, selected = !camera)
+        }
+        primaryButton(canvas, "Draw now", 16f, 738f, 328f, 46f)
+    }
+
+    private fun drawTutorialModeCard(
+        canvas: Canvas,
+        x: Float,
+        useCamera: Boolean,
+        selected: Boolean,
+    ) {
+        card(
+            canvas,
+            x,
+            112f,
+            228f,
+            430f,
+            12f,
+            if (selected) PURPLE else BORDER,
+            if (selected) 1.5f else 1f
+        )
+        drawSelectedArtwork(canvas, x + 8f, 120f, 212f, 316f, 9f)
         text(
             canvas,
-            if (camera) "Draw with camera" else "Draw with screen",
-            24f,
-            473f,
-            17f,
+            if (useCamera) "Draw with camera" else "Draw with screen",
+            x + 8f,
+            466f,
+            14f,
             NAVY,
-            true
+            true,
         )
-        multiline(
-            canvas,
-            if (camera) "Use a cup to hold your phone steady to\ndraw through the camera" else "Place the paper on top of the phone and\ntrace the visible lines on the screen",
-            24f,
-            499f,
-            13f,
-            MUTED,
-            Paint.Align.LEFT,
-            18f,
+        wrappedText(
+            canvas = canvas,
+            value = if (useCamera) {
+                "Use a cup to hold your phone steady to draw through the camera"
+            } else {
+                "Place the paper on top of the phone and trace the visible lines on the screen"
+            },
+            x = x + 8f,
+            baseline = 489f,
+            maxWidth = 212f,
+            size = 11f,
+            color = MUTED,
+            lineHeight = 15f,
         )
-        chip(canvas, 64f, 574f, 106f, "Camera", camera)
-        chip(canvas, 190f, 574f, 106f, "Screen", !camera)
-        primaryButton(canvas, "Draw now", 16f, 738f, 328f, 46f)
     }
 
     private fun drawDrawing(canvas: Canvas) {
@@ -988,7 +1024,7 @@ class ArDrawView @JvmOverloads constructor(
         if (state.overlayVisible && (!cameraOverlayExternal || exportOnly)) drawDrawingOverlay(
             canvas
         )
-        drawDrawingGrid(canvas)
+        if (!exportOnly) drawDrawingGrid(canvas)
         if (exportOnly) return
         drawDrawingHeader(canvas)
         fill(canvas, 0f, 678f, 360f, 48f, Color.argb(174, 0, 0, 0))
@@ -1088,8 +1124,22 @@ class ArDrawView @JvmOverloads constructor(
     private fun drawCameraControls(canvas: Canvas) {
         when (state.cameraPanel) {
             DrawingCameraPanel.ZOOM -> {
-                optionPill(canvas, 222f, 650f, 34f, "0.5x", state.cameraZoom == 0.5f)
-                optionPill(canvas, 264f, 650f, 34f, "1.5x", state.cameraZoom == 1.5f)
+                optionPill(
+                    canvas,
+                    CAMERA_ZOOM_HALF_X,
+                    650f,
+                    CAMERA_ZOOM_OPTION_WIDTH,
+                    "0.5x",
+                    state.cameraZoom == 0.5f,
+                )
+                optionPill(
+                    canvas,
+                    CAMERA_ZOOM_ONE_AND_HALF_X,
+                    650f,
+                    CAMERA_ZOOM_OPTION_WIDTH,
+                    "1.5x",
+                    state.cameraZoom == 1.5f,
+                )
             }
 
             DrawingCameraPanel.FLASH -> drawDrawingStatus(canvas)
@@ -1143,7 +1193,14 @@ class ArDrawView @JvmOverloads constructor(
     }
 
     private fun drawCropOptions(canvas: Canvas) {
-        optionPill(canvas, 83f, 650f, 36f, "Reset", false)
+        optionPill(
+            canvas,
+            83f,
+            650f,
+            36f,
+            "Reset",
+            state.cropRatio == DrawingCropRatio.RESET,
+        )
         optionPill(canvas, 125f, 650f, 30f, "1:1", state.cropRatio == DrawingCropRatio.SQUARE)
         optionPill(canvas, 162f, 650f, 32f, "9:16", state.cropRatio == DrawingCropRatio.PORTRAIT)
         optionPill(canvas, 201f, 650f, 36f, "16:9", state.cropRatio == DrawingCropRatio.LANDSCAPE)
@@ -1186,7 +1243,7 @@ class ArDrawView @JvmOverloads constructor(
         }
         val display = "$label: ${if (enabled) "ON" else "OFF"}"
         paint.textSize = 10f
-        paint.typeface = Typeface.DEFAULT_BOLD
+        paint.typeface = ROUNDED_BOLD
         val width = paint.measureText(display) + 34f
         val x = (180f - width / 2f).coerceIn(10f, 350f - width)
         roundRect(canvas, x, 646f, width, 24f, 12f, Color.WHITE)
@@ -1342,18 +1399,22 @@ class ArDrawView @JvmOverloads constructor(
         statusBar(canvas)
         backHeader(canvas, "Back", 15f, bold = false, color = MUTED)
         vectorIcon(canvas, IconAsset.HOME, 316f, 64f, 24f, NAVY)
-        text(canvas, "Good Job", 16f, 132f, 19f, NAVY, true)
-        multiline(
-            canvas,
-            "Your drawing is saved and ready to share with\nfriends.",
-            16f,
-            162f,
-            14f,
-            MUTED,
-            Paint.Align.LEFT,
-            21f
-        )
+        text(canvas, "Good Job", 16f, 128f, 19f, NAVY, true)
         val captured = state.capturedImageUri
+        wrappedText(
+            canvas = canvas,
+            value = if (captured == null) {
+                "Take a photo of the finished drawing to share your\nfriend."
+            } else {
+                "Your drawing is saved and ready to share with your friend."
+            },
+            x = 16f,
+            baseline = 156f,
+            maxWidth = 328f,
+            size = 12f,
+            color = MUTED,
+            lineHeight = 17f,
+        )
         if (captured != null) image(canvas, captured, 52f, 218f, 256f, 360f, 12f)
         else image(canvas, R.drawable.complete_art, 82f, 230f, 196f, 252f, 0f)
         primaryButton(
@@ -1368,8 +1429,19 @@ class ArDrawView @JvmOverloads constructor(
     }
 
     private fun brandedHeader(canvas: Canvas, showSearch: Boolean) {
+        val height = if (showSearch) 168f else 130f
+        val bottomRadius = 20f
+        val right = LOGICAL_WIDTH + HEADER_RIGHT_BLEED
         paint.shader = headerGradient
-        canvas.drawRoundRect(0f, 0f, 360f, if (showSearch) 168f else 130f, 20f, 20f, paint)
+        scratchPath.reset()
+        scratchPath.moveTo(0f, 0f)
+        scratchPath.lineTo(right, 0f)
+        scratchPath.lineTo(right, height - bottomRadius)
+        scratchPath.quadTo(right, height, right - bottomRadius, height)
+        scratchPath.lineTo(bottomRadius, height)
+        scratchPath.quadTo(0f, height, 0f, height - bottomRadius)
+        scratchPath.close()
+        canvas.drawPath(scratchPath, paint)
         paint.shader = null
         statusBar(canvas, light = true)
         image(canvas, R.drawable.figma_app_icon, 16f, 57f, 46f, 46f, 10f)
@@ -1435,27 +1507,40 @@ class ArDrawView @JvmOverloads constructor(
         artworks: List<Artwork>,
         horizontalPadding: Float = 16f,
         showHearts: Boolean = false,
+        showTitles: Boolean = true,
     ) {
         val gap = 16f
         val width = (360f - horizontalPadding * 2f - gap) / 2f
+        val cardHeight = if (showTitles) 172f else 152f
+        val rowHeight = if (showTitles) 184f else 170f
         artworks.take(rows * 2).forEachIndexed { index, artwork ->
             val col = index % 2
             val row = index / 2
             val x = horizontalPadding + col * (width + gap)
-            val y = top + row * 184f
-            if (!isContentItemVisible(y, 172f)) return@forEachIndexed
-            card(canvas, x, y, width, 172f, 10f, BORDER, 1f)
-            image(canvas, artwork.image, x + 7f, y + 7f, width - 14f, 138f, 8f)
-            ellipsizedText(
+            val y = top + row * rowHeight
+            if (!isContentItemVisible(y, cardHeight)) return@forEachIndexed
+            card(canvas, x, y, width, cardHeight, 10f, BORDER, 1f)
+            image(
                 canvas,
-                artwork.title,
-                x + width / 2f,
-                y + 164f,
-                13f,
-                NAVY,
-                width - 12f,
-                true
+                artwork.image,
+                x + if (showTitles) 7f else 8f,
+                y + if (showTitles) 7f else 8f,
+                width - if (showTitles) 14f else 16f,
+                if (showTitles) 138f else 140f,
+                8f,
             )
+            if (showTitles) {
+                ellipsizedText(
+                    canvas,
+                    artwork.title,
+                    x + width / 2f,
+                    y + 164f,
+                    13f,
+                    NAVY,
+                    width - 12f,
+                    true
+                )
+            }
             if (showHearts) {
                 circle(canvas, x + width - 22f, y + 22f, 14f, Color.argb(170, 255, 255, 255))
                 vectorIcon(
@@ -1520,23 +1605,20 @@ class ArDrawView @JvmOverloads constructor(
     }
 
     private fun drawLevelRows(canvas: Canvas) {
-        state.catalog?.lessons.orEmpty().forEachIndexed { index, lesson ->
+        state.learningPathLessons.forEachIndexed { index, lesson ->
             val y = 436f + index * 70f
             if (!isContentItemVisible(y, 62f)) return@forEachIndexed
+            val progress = state.lessonProgressPercent(lesson)
+            val completed = if (progress == 100) lesson.totalLessons else lesson.completedLessons
             card(canvas, 16f, y, 328f, 62f, 10f, BORDER, 1f)
             image(canvas, lesson.image, 24f, y + 7f, 48f, 48f, 7f)
-            text(canvas, "Level ${index + 1}", 82f, y + 22f, 13f, NAVY, true)
-            text(
-                canvas,
-                "${lesson.completedPercent}% · ${lesson.minutes} mins",
-                82f,
-                y + 43f,
-                11f,
-                MUTED
-            )
-            roundRect(canvas, 82f, y + 50f, 226f, 4f, 2f, LIGHT_GRAY)
-            roundRect(canvas, 82f, y + 50f, 226f * lesson.completedPercent / 100f, 4f, 2f, PURPLE)
-            text(canvas, lesson.title, 328f, y + 45f, 10f, MUTED, align = Paint.Align.RIGHT)
+            text(canvas, "Level ${index + 1}", 82f, y + 20f, 13f, NAVY, true)
+            vectorIcon(canvas, IconAsset.LESSON, 82f, y + 26f, 12f, MUTED)
+            text(canvas, "$completed/${lesson.totalLessons} Lessons", 98f, y + 39f, 10.5f, MUTED)
+            roundRect(canvas, 82f, y + 48f, 226f, 4f, 2f, LIGHT_GRAY)
+            roundRect(canvas, 82f, y + 48f, 226f * progress / 100f, 4f, 2f, PURPLE)
+            // Keep a fixed gutter between the progress rail and its right-aligned percentage.
+            text(canvas, "$progress%", 336f, y + 55f, 10f, MUTED, align = Paint.Align.RIGHT)
         }
     }
 
@@ -1562,12 +1644,13 @@ class ArDrawView @JvmOverloads constructor(
         minutes: Int,
         image: ContentImage
     ) {
-        card(canvas, x, y, 328f, 70f, 10f, BORDER, 1f)
-        image(canvas, image, x + 8f, y + 8f, 54f, 54f, 8f)
-        text(canvas, title, x + 76f, y + 24f, 13f, NAVY, true)
-        vectorIcon(canvas, IconAsset.CLOCK, x + 76f, y + 31f, 12f, MUTED)
-        text(canvas, "$minutes mins", x + 92f, y + 43f, 11f, MUTED)
-        text(canvas, "Steps: 0/9 Complete", x + 76f, y + 61f, 11f, PURPLE)
+        card(canvas, x, y, 328f, 86f, 10f, BORDER, 1f)
+        image(canvas, image, x + 8f, y + 8f, 72f, 70f, 8f)
+        text(canvas, title, x + 92f, y + 26f, 13f, NAVY, true)
+        vectorIcon(canvas, IconAsset.CLOCK, x + 92f, y + 34f, 14f, NAVY)
+        text(canvas, "$minutes mins", x + 114f, y + 53f, 12f, NAVY)
+        text(canvas, "Steps:", x + 92f, y + 75f, 12f, NAVY)
+        text(canvas, "0/9 Complete", x + 138f, y + 75f, 12f, PURPLE)
     }
 
     private fun bottomNavigation(canvas: Canvas, selected: BottomDestination) {
@@ -1734,8 +1817,8 @@ class ArDrawView @JvmOverloads constructor(
             canvas,
             x,
             y,
-            320f,
-            52f,
+            328f,
+            62f,
             8f,
             if (selected) PURPLE else BORDER,
             1.2f,
@@ -1744,15 +1827,32 @@ class ArDrawView @JvmOverloads constructor(
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = 1.2f
         paint.color = PURPLE
-        canvas.drawCircle(x + 16f, y + 27f, 5f, paint)
+        canvas.drawCircle(x + 20f, y + 31f, 7f, paint)
         if (selected) {
             paint.style = Paint.Style.FILL
-            canvas.drawCircle(x + 16f, y + 27f, 2.7f, paint)
+            canvas.drawCircle(x + 20f, y + 31f, 3.5f, paint)
         }
         paint.style = Paint.Style.FILL
-        text(canvas, title, x + 32f, y + 21f, 12f, NAVY, true)
-        text(canvas, subtitle, x + 32f, y + 39f, 9f, MUTED)
-        text(canvas, price, x + 307f, y + 22f, 11f, NAVY, true, Paint.Align.RIGHT)
+        text(canvas, title, x + 40f, y + 27f, 12f, NAVY, true)
+        text(canvas, subtitle, x + 40f, y + 48f, 10f, NAVY)
+        val priceLines = price.lines()
+        text(
+            canvas,
+            priceLines.firstOrNull().orEmpty(),
+            x + 312f,
+            y + 27f,
+            11f,
+            NAVY,
+            true,
+            Paint.Align.RIGHT
+        )
+        priceLines.getOrNull(1)?.let {
+            text(canvas, it, x + 312f, y + 48f, 10f, NAVY, align = Paint.Align.RIGHT)
+        }
+        if (selected) {
+            roundRect(canvas, x + 232f, y - 19f, 84f, 27f, 10f, Color.rgb(221, 199, 255))
+            text(canvas, "Most popular", x + 274f, y - 1f, 10f, NAVY, true, Paint.Align.CENTER)
+        }
     }
 
     private fun stat(
@@ -1890,9 +1990,9 @@ class ArDrawView @JvmOverloads constructor(
                 corner
             )
 
-            state.selectedArtwork != null -> image(
+            state.selectedReferenceImage != null -> image(
                 canvas,
-                state.selectedArtwork!!.image,
+                state.selectedReferenceImage!!,
                 x,
                 y,
                 width,
@@ -1905,17 +2005,12 @@ class ArDrawView @JvmOverloads constructor(
     }
 
     private fun drawDrawingOverlay(canvas: Canvas) {
-        val traceImage = state.selectedArtwork?.traceImage
+        val traceImage = state.selectedTraceImage
         val bitmap = when {
             state.pickedImageUri != null -> contentBitmaps[state.pickedImageUri]
             traceImage?.url != null -> contentBitmaps[traceImage.url]
             traceImage?.localKey != null -> traceImage.localKey?.let(::localAssetDrawable)
                 ?.let(bitmaps::get)
-
-            state.selectedArtwork?.image?.url != null -> contentBitmaps[state.selectedArtwork?.image?.url]
-            state.selectedArtwork?.image?.localKey != null ->
-                state.selectedArtwork?.image?.localKey?.let(::localAssetDrawable)?.let(bitmaps::get)
-
             else -> bitmaps[R.drawable.drawing_trace_overlay]
         } ?: return
         val (overlayWidth, overlayHeight) = when (state.cropRatio) {
@@ -1985,17 +2080,33 @@ class ArDrawView @JvmOverloads constructor(
         roundRect(canvas, 329f, 26f, 4f, 9f, 1f, color)
     }
 
-    private fun settingIcon(id: String): IconAsset = when (id) {
-        "gift" -> IconAsset.GIFT
-        "music" -> IconAsset.MUSIC
-        "help" -> IconAsset.HELP
-        "subscription" -> IconAsset.SUBSCRIPTION
-        "update" -> IconAsset.REFRESH
-        "share" -> IconAsset.SHARE
-        "rate" -> IconAsset.STAR
-        "feedback" -> IconAsset.FEEDBACK
-        "privacy" -> IconAsset.SHIELD
-        else -> IconAsset.DOCUMENT
+    @DrawableRes
+    private fun settingIconResource(id: String): Int = when (id) {
+        "gift" -> R.drawable.icon_setting_gift_figma
+        "music" -> R.drawable.icon_setting_music_figma
+        "help" -> R.drawable.icon_setting_help_figma
+        "subscription" -> R.drawable.icon_setting_subscription_figma
+        "update" -> R.drawable.icon_setting_update_figma
+        "share" -> R.drawable.icon_setting_share_figma
+        "rate" -> R.drawable.icon_setting_rate_figma
+        "feedback" -> R.drawable.icon_setting_feedback_figma
+        "privacy" -> R.drawable.icon_setting_privacy_figma
+        else -> R.drawable.icon_setting_terms_figma
+    }
+
+    private fun settingVectorIcon(
+        canvas: Canvas,
+        @DrawableRes resource: Int,
+        x: Float,
+        y: Float,
+        size: Float,
+    ) {
+        val drawable = vectorDrawables.getOrPut(resource) {
+            checkNotNull(ResourcesCompat.getDrawable(resources, resource, context.theme)).mutate()
+        }
+        drawable.alpha = 255
+        drawable.setBounds(x.toInt(), y.toInt(), (x + size).toInt(), (y + size).toInt())
+        drawable.draw(canvas)
     }
 
     private fun vectorIcon(
@@ -2289,6 +2400,7 @@ class ArDrawView @JvmOverloads constructor(
         height: Float,
         @ColorInt color: Int
     ) {
+        resetPaintEffects()
         paint.style = Paint.Style.FILL
         paint.color = color
         paint.shader = null
@@ -2304,6 +2416,7 @@ class ArDrawView @JvmOverloads constructor(
         radius: Float,
         @ColorInt color: Int
     ) {
+        resetPaintEffects()
         paint.style = Paint.Style.FILL
         paint.color = color
         paint.shader = null
@@ -2320,6 +2433,7 @@ class ArDrawView @JvmOverloads constructor(
         color: Int,
         stroke: Float
     ) {
+        resetPaintEffects()
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = stroke
         paint.color = color
@@ -2344,6 +2458,7 @@ class ArDrawView @JvmOverloads constructor(
     }
 
     private fun circle(canvas: Canvas, x: Float, y: Float, radius: Float, color: Int) {
+        resetPaintEffects()
         paint.style = Paint.Style.FILL
         paint.color = color
         paint.shader = null
@@ -2359,6 +2474,7 @@ class ArDrawView @JvmOverloads constructor(
         color: Int,
         stroke: Float
     ) {
+        resetPaintEffects()
         paint.color = color
         paint.strokeWidth = stroke
         paint.style = Paint.Style.STROKE
@@ -2376,12 +2492,13 @@ class ArDrawView @JvmOverloads constructor(
         bold: Boolean = false,
         align: Paint.Align = Paint.Align.LEFT,
     ) {
+        resetPaintEffects()
         paint.shader = null
         paint.style = Paint.Style.FILL
         paint.color = color
         paint.textSize = size
         paint.textAlign = align
-        paint.typeface = if (bold) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+        paint.typeface = if (bold) ROUNDED_BOLD else ROUNDED_REGULAR
         canvas.drawText(value, x, baseline, paint)
     }
 
@@ -2396,7 +2513,7 @@ class ArDrawView @JvmOverloads constructor(
         bold: Boolean,
     ) {
         paint.textSize = size
-        paint.typeface = if (bold) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+        paint.typeface = if (bold) ROUNDED_BOLD else ROUNDED_REGULAR
         val display = if (paint.measureText(value) <= maxWidth) {
             value
         } else {
@@ -2436,7 +2553,7 @@ class ArDrawView @JvmOverloads constructor(
         bold: Boolean = false,
     ) {
         paint.textSize = size
-        paint.typeface = if (bold) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+        paint.typeface = if (bold) ROUNDED_BOLD else ROUNDED_REGULAR
         var lineIndex = 0
         value.split('\n').forEach { paragraph ->
             if (paragraph.isBlank()) {
@@ -2570,6 +2687,11 @@ class ArDrawView @JvmOverloads constructor(
         } else {
             canvas.drawBitmap(bitmap, bitmapSource, bitmapDestination, paint)
         }
+        paint.alpha = 255
+        paint.colorFilter = null
+    }
+
+    private fun resetPaintEffects() {
         paint.alpha = 255
         paint.colorFilter = null
     }
@@ -2873,7 +2995,7 @@ class ArDrawView @JvmOverloads constructor(
             ArDrawScreen.SETTINGS, ArDrawScreen.SETTINGS_DETAIL -> Unit
             ArDrawScreen.LEARN_PATH -> {
                 required += R.drawable.figma_learn_banner
-                newState.catalog?.lessons.orEmpty().forEach { addImage(it.image) }
+                newState.learningPathLessons.forEach { addImage(it.image) }
             }
 
             ArDrawScreen.LEARN_CATEGORIES -> {
@@ -2886,7 +3008,7 @@ class ArDrawView @JvmOverloads constructor(
                 .forEach { addImage(it.image) }
 
             ArDrawScreen.LEARN_CATEGORY_DETAIL -> {
-                val categoryId = newState.selectedLessonId
+                val categoryId = newState.selectedCategoryId
                 newState.catalog?.lessons.orEmpty().filter { it.categoryId == categoryId }
                     .forEach { addImage(it.image) }
             }
@@ -2900,17 +3022,17 @@ class ArDrawView @JvmOverloads constructor(
 
             ArDrawScreen.PROFILE_ALBUM -> Unit
             ArDrawScreen.TUTORIAL_CAMERA, ArDrawScreen.TUTORIAL_SCREEN -> {
-                addImage(newState.selectedArtwork?.image)
-                if (newState.selectedArtwork == null) required += R.drawable.topic_chibi
+                addImage(newState.selectedReferenceImage)
+                if (newState.selectedReferenceImage == null) required += R.drawable.topic_chibi
             }
 
             ArDrawScreen.DRAWING_CANVAS, ArDrawScreen.DRAWING_CAMERA, ArDrawScreen.DRAWING_OPACITY -> {
                 if (newState.drawingWithCamera && !newState.cameraPermissionGranted) {
                     required += R.drawable.drawing_camera_background
                 }
-                addImage(newState.selectedArtwork?.image)
-                addImage(newState.selectedArtwork?.traceImage)
-                if (newState.selectedArtwork == null && newState.pickedImageUri == null) {
+                addImage(newState.selectedReferenceImage)
+                addImage(newState.selectedTraceImage)
+                if (newState.selectedReferenceImage == null && newState.pickedImageUri == null) {
                     required += R.drawable.drawing_trace_overlay
                 }
                 required += drawingToolResources
@@ -2968,8 +3090,7 @@ class ArDrawView @JvmOverloads constructor(
 
             ArDrawScreen.SEARCH_RESULTS -> addArtworkImages(newState.visibleArtworks)
             ArDrawScreen.GALLERY, ArDrawScreen.FILTER -> addArtworkImages(newState.visibleGalleryArtworks)
-            ArDrawScreen.LEARN_PATH -> newState.catalog?.lessons.orEmpty()
-                .forEach { addImage(it.image) }
+            ArDrawScreen.LEARN_PATH -> newState.learningPathLessons.forEach { addImage(it.image) }
 
             ArDrawScreen.LEARN_CATEGORIES -> newState.catalog?.categories.orEmpty()
                 .forEach { addImage(it.image) }
@@ -2979,7 +3100,7 @@ class ArDrawView @JvmOverloads constructor(
                 .forEach { addImage(it.image) }
 
             ArDrawScreen.LEARN_CATEGORY_DETAIL -> newState.catalog?.lessons.orEmpty()
-                .filter { it.categoryId == newState.selectedLessonId }
+                .filter { it.categoryId == newState.selectedCategoryId }
                 .forEach { addImage(it.image) }
 
             ArDrawScreen.PROFILE_FAVORITE -> addArtworkImages(
@@ -2991,8 +3112,8 @@ class ArDrawView @JvmOverloads constructor(
             ArDrawScreen.TUTORIAL_CAMERA, ArDrawScreen.TUTORIAL_SCREEN,
             ArDrawScreen.DRAWING_CANVAS, ArDrawScreen.DRAWING_CAMERA, ArDrawScreen.DRAWING_OPACITY,
                 -> {
-                addImage(newState.selectedArtwork?.image)
-                addImage(newState.selectedArtwork?.traceImage)
+                addImage(newState.selectedReferenceImage)
+                addImage(newState.selectedTraceImage)
                 newState.pickedImageUri?.let(contentUris::add)
             }
 
@@ -3168,15 +3289,15 @@ class ArDrawView @JvmOverloads constructor(
                     target(
                         label = "${plan.title}, ${plan.price}",
                         left = 16f,
-                        top = 486f + index * 62f,
+                        top = 468f + index * 74f,
                         right = 344f,
-                        bottom = 544f + index * 62f,
+                        bottom = 530f + index * 74f,
                         checkable = true,
                         checked = state.selectedPlanId == plan.id,
                         action = { onAction(ArDrawAction.SelectPlan(plan.id)) },
                     )
                 }
-                target("Continue", 16f, 672f, 344f, 780f)
+                target("Continue", 16f, 686f, 344f, 746f)
             }
 
             ArDrawScreen.HOME -> {
@@ -3192,7 +3313,8 @@ class ArDrawView @JvmOverloads constructor(
                     292f - offset,
                     clipBottom = 740f
                 )
-                state.catalog?.topics.orEmpty().forEachIndexed { index, topic ->
+                state.catalog?.topics.orEmpty().take(HOME_TOPIC_LIMIT)
+                    .forEachIndexed { index, topic ->
                     val column = index % 2
                     val row = index / 2
                     target(
@@ -3277,18 +3399,13 @@ class ArDrawView @JvmOverloads constructor(
                     360f,
                     136f,
                     action = { onAction(ArDrawAction.OpenFilter) })
-                GalleryFilter.entries.forEachIndexed { index, filter ->
-                    val bounds = when (filter) {
-                        GalleryFilter.SAVED -> 8f to 72f
-                        GalleryFilter.ALL -> 72f to 128f
-                        GalleryFilter.EASY -> 128f to 240f
-                        GalleryFilter.PREMIUM -> 240f to 352f
-                    }
+                GALLERY_QUICK_FILTERS.forEachIndexed { index, (filter, label) ->
+                    val left = 16f + GALLERY_FILTER_X_OFFSETS[index]
                     target(
-                        filter.name.lowercase().replaceFirstChar(Char::uppercase),
-                        bounds.first,
+                        label,
+                        left,
                         96f,
-                        bounds.second,
+                        left + GALLERY_FILTER_WIDTHS[index],
                         140f,
                         selected = state.selectedGalleryFilter == filter,
                         action = { onAction(ArDrawAction.SelectGalleryFilter(filter)) },
@@ -3297,17 +3414,17 @@ class ArDrawView @JvmOverloads constructor(
                 state.visibleGalleryArtworks.forEachIndexed { index, artwork ->
                     val column = index % 2
                     val row = index / 2
-                    val left = if (column == 0) 8f else 184f
-                    val top = 140f + row * 184f - contentScrollOffset
+                    val left = if (column == 0) 16f else 188f
+                    val top = 142f + row * 170f - contentScrollOffset
                     target(
                         label = if (artwork.id in state.favoriteArtworkIds) {
                             "Remove ${artwork.title} from favorites"
                         } else {
                             "Add ${artwork.title} to favorites"
                         },
-                        left = left + 116f,
+                        left = left + 108f,
                         top = top,
-                        right = left + 168f,
+                        right = left + 156f,
                         bottom = top + 56f,
                         checkable = true,
                         checked = artwork.id in state.favoriteArtworkIds,
@@ -3318,8 +3435,8 @@ class ArDrawView @JvmOverloads constructor(
                         artwork.title,
                         left,
                         top,
-                        left + 168f,
-                        top + 172f,
+                        left + 156f,
+                        top + 152f,
                         clipTop = 132f,
                         action = { onAction(ArDrawAction.SelectArtwork(artwork.id)) },
                     )
@@ -3329,18 +3446,18 @@ class ArDrawView @JvmOverloads constructor(
             ArDrawScreen.FILTER -> {
                 target(
                     "Close filters",
-                    288f,
-                    464f,
+                    0f,
+                    0f,
                     360f,
-                    520f,
+                    478f,
                     action = { onAction(ArDrawAction.Back) })
                 listOf("Easy", "Medium", "Hard").forEachIndexed { index, value ->
                     target(
                         value,
                         index * 120f,
-                        592f,
+                        560f,
                         (index + 1) * 120f,
-                        640f,
+                        615f,
                         checkable = true,
                         checked = state.selectedDifficulty == value,
                         action = { onAction(ArDrawAction.SelectDifficulty(value)) },
@@ -3349,9 +3466,9 @@ class ArDrawView @JvmOverloads constructor(
                 target(
                     "Line sketch",
                     8f,
-                    648f,
+                    632f,
                     180f,
-                    704f,
+                    684f,
                     checkable = true,
                     checked = state.selectedDrawingStyle == ArtworkStyle.LINE_SKETCH,
                     action = { onAction(ArDrawAction.SelectDrawingStyle(ArtworkStyle.LINE_SKETCH)) },
@@ -3359,9 +3476,9 @@ class ArDrawView @JvmOverloads constructor(
                 target(
                     "Color",
                     180f,
-                    648f,
+                    632f,
                     352f,
-                    704f,
+                    684f,
                     checkable = true,
                     checked = state.selectedDrawingStyle == ArtworkStyle.COLOR,
                     action = { onAction(ArDrawAction.SelectDrawingStyle(ArtworkStyle.COLOR)) },
@@ -3369,16 +3486,16 @@ class ArDrawView @JvmOverloads constructor(
                 target(
                     "Apply filters",
                     16f,
-                    704f,
+                    682f,
                     344f,
-                    760f,
+                    735f,
                     action = { onAction(ArDrawAction.ApplyFilter) })
                 target(
                     "Reset filters",
                     16f,
-                    760f,
+                    736f,
                     344f,
-                    800f,
+                    792f,
                     action = { onAction(ArDrawAction.ClearFilters) })
             }
 
@@ -3405,8 +3522,17 @@ class ArDrawView @JvmOverloads constructor(
                 bottomNavigation()
             }
 
-            ArDrawScreen.SETTINGS_DETAIL ->
+            ArDrawScreen.SETTINGS_DETAIL -> {
                 target("Back", 0f, 48f, 72f, 112f, action = { onAction(ArDrawAction.Back) })
+                target(
+                    "Back to Settings",
+                    16f,
+                    720f,
+                    344f,
+                    792f,
+                    action = { onAction(ArDrawAction.Back) },
+                )
+            }
 
             ArDrawScreen.LEARN_PATH, ArDrawScreen.LEARN_CATEGORIES -> {
                 target(
@@ -3435,7 +3561,7 @@ class ArDrawView @JvmOverloads constructor(
                     action = { onAction(ArDrawAction.OpenLearnCategories) },
                 )
                 if (state.screen == ArDrawScreen.LEARN_PATH) {
-                    state.catalog?.lessons.orEmpty().forEachIndexed { index, lesson ->
+                    state.learningPathLessons.forEachIndexed { index, lesson ->
                         target(
                             "${lesson.title}, ${lesson.minutes} minutes",
                             16f,
@@ -3464,15 +3590,32 @@ class ArDrawView @JvmOverloads constructor(
                 bottomNavigation()
             }
 
-            ArDrawScreen.LEARN_LEVEL_DETAIL, ArDrawScreen.LEARN_CATEGORY_DETAIL -> {
+            ArDrawScreen.LEARN_LEVEL_DETAIL -> {
                 target("Back", 0f, 48f, 72f, 112f, action = { onAction(ArDrawAction.Back) })
                 target(
                     "Start drawing lesson",
                     16f,
-                    640f,
+                    104f,
                     344f,
-                    760f,
+                    190f,
                     action = { onAction(ArDrawAction.OpenTutorial) })
+            }
+
+            ArDrawScreen.LEARN_CATEGORY_DETAIL -> {
+                target("Back", 0f, 48f, 72f, 112f, action = { onAction(ArDrawAction.Back) })
+                val categoryId = state.selectedCategoryId
+                state.catalog?.lessons.orEmpty()
+                    .filter { it.categoryId == categoryId }
+                    .forEachIndexed { index, lesson ->
+                        target(
+                            "${lesson.title}, ${lesson.minutes} minutes",
+                            16f,
+                            216f + index * 100f,
+                            344f,
+                            302f + index * 100f,
+                            action = { onAction(ArDrawAction.OpenLessonTutorial(lesson.id)) },
+                        )
+                    }
             }
 
             ArDrawScreen.PROFILE_FAVORITE_EMPTY, ArDrawScreen.PROFILE_ALBUM_EMPTY,
@@ -3514,6 +3657,21 @@ class ArDrawView @JvmOverloads constructor(
                                 action = { onAction(ArDrawAction.SelectArtwork(artwork.id)) },
                             )
                         }
+                } else if (state.screen == ArDrawScreen.PROFILE_ALBUM) {
+                    state.drawings.forEachIndexed { index, drawing ->
+                        val column = index % 2
+                        val row = index / 2
+                        target(
+                            drawing.title,
+                            if (column == 0) 16f else 188f,
+                            366f + row * 184f - contentScrollOffset,
+                            if (column == 0) 172f else 344f,
+                            538f + row * 184f - contentScrollOffset,
+                            clipTop = 358f,
+                            clipBottom = 740f,
+                            action = { onAction(ArDrawAction.OpenDrawing(drawing.id)) },
+                        )
+                    }
                 }
                 bottomNavigation()
             }
@@ -3523,18 +3681,18 @@ class ArDrawView @JvmOverloads constructor(
                 target("Back", 0f, 48f, 72f, 112f, action = { onAction(ArDrawAction.Back) })
                 target(
                     "Draw with camera",
-                    8f,
-                    544f,
-                    180f,
-                    656f,
+                    if (cameraSelected) 16f else 0f,
+                    104f,
+                    if (cameraSelected) 244f else 62f,
+                    570f,
                     selected = cameraSelected,
                     action = { onAction(ArDrawAction.SelectTutorialMode(true)) })
                 target(
                     "Draw with screen",
-                    180f,
-                    544f,
-                    352f,
-                    656f,
+                    if (cameraSelected) 256f else 74f,
+                    104f,
+                    if (cameraSelected) 360f else 302f,
+                    570f,
                     selected = !cameraSelected,
                     action = { onAction(ArDrawAction.SelectTutorialMode(false)) })
                 target(
@@ -3582,36 +3740,48 @@ class ArDrawView @JvmOverloads constructor(
                         DrawingCameraPanel.ZOOM -> {
                             target(
                                 "0.5 times zoom",
-                                24f,
+                                CAMERA_ZOOM_TOUCH_LEFT,
                                 632f,
-                                260f,
-                                668f,
+                                CAMERA_ZOOM_TOUCH_SPLIT,
+                                680f,
                                 selected = state.cameraZoom == 0.5f,
                                 action = { onAction(ArDrawAction.SelectCameraZoom(0.5f)) })
                             target(
                                 "1.5 times zoom",
-                                260f,
+                                CAMERA_ZOOM_TOUCH_SPLIT,
                                 632f,
-                                344f,
-                                668f,
+                                CAMERA_ZOOM_TOUCH_RIGHT,
+                                680f,
                                 selected = state.cameraZoom == 1.5f,
                                 action = { onAction(ArDrawAction.SelectCameraZoom(1.5f)) })
                         }
 
-                        DrawingCameraPanel.RATIO -> listOf(
-                            DrawingCameraRatio.FULL to "Full",
-                            DrawingCameraRatio.RATIO_16_9 to "16 by 9",
-                            DrawingCameraRatio.RATIO_4_3 to "4 by 3",
-                            DrawingCameraRatio.SQUARE to "Square",
-                        ).forEachIndexed { index, item ->
-                            target(
-                                item.second,
-                                16f + index * 82f,
-                                632f,
-                                98f + index * 82f,
-                                668f,
-                                selected = state.cameraRatio == item.first,
-                                action = { onAction(ArDrawAction.SelectCameraRatio(item.first)) })
+                        DrawingCameraPanel.RATIO -> {
+                            val ratios = listOf(
+                                DrawingCameraRatio.FULL to "Full",
+                                DrawingCameraRatio.RATIO_16_9 to "16 by 9",
+                                DrawingCameraRatio.RATIO_4_3 to "4 by 3",
+                                DrawingCameraRatio.SQUARE to "Square",
+                            )
+                            val ratioBounds = arrayOf(
+                                54f to 116f,
+                                116f to 178f,
+                                178f to 240f,
+                                240f to 302f,
+                            )
+                            ratios.forEachIndexed { index, item ->
+                                target(
+                                    item.second,
+                                    ratioBounds[index].first,
+                                    632f,
+                                    ratioBounds[index].second,
+                                    680f,
+                                    selected = state.cameraRatio == item.first,
+                                    action = {
+                                        onAction(ArDrawAction.SelectCameraRatio(item.first))
+                                    },
+                                )
+                            }
                         }
 
                         DrawingCameraPanel.CAPTURE -> target(
@@ -3642,7 +3812,7 @@ class ArDrawView @JvmOverloads constructor(
                         target(
                             item.second,
                             index * 72f,
-                            668f,
+                            680f,
                             (index + 1) * 72f,
                             726f,
                             selected = state.cameraPanel == item.first,
@@ -3652,31 +3822,51 @@ class ArDrawView @JvmOverloads constructor(
 
                 if (state.screen == ArDrawScreen.DRAWING_CANVAS) {
                     when (state.canvasPanel) {
-                        DrawingCanvasPanel.CROP -> listOf(
-                            DrawingCropRatio.RESET to "Reset crop",
-                            DrawingCropRatio.SQUARE to "Square crop",
-                            DrawingCropRatio.PORTRAIT to "Portrait crop",
-                            DrawingCropRatio.LANDSCAPE to "Landscape crop",
-                        ).forEachIndexed { index, item ->
-                            target(
-                                item.second,
-                                16f + index * 82f,
-                                632f,
-                                98f + index * 82f,
-                                668f,
-                                selected = state.cropRatio == item.first,
-                                action = { onAction(ArDrawAction.SelectCropRatio(item.first)) })
+                        DrawingCanvasPanel.CROP -> {
+                            val cropRatios = listOf(
+                                DrawingCropRatio.RESET to "Reset crop",
+                                DrawingCropRatio.SQUARE to "Square crop",
+                                DrawingCropRatio.PORTRAIT to "Portrait crop",
+                                DrawingCropRatio.LANDSCAPE to "Landscape crop",
+                            )
+                            val cropBounds = arrayOf(
+                                77f to 122f,
+                                122f to 158f,
+                                158f to 198f,
+                                198f to 246f,
+                            )
+                            cropRatios.forEachIndexed { index, item ->
+                                target(
+                                    item.second,
+                                    cropBounds[index].first,
+                                    632f,
+                                    cropBounds[index].second,
+                                    680f,
+                                    selected = state.cropRatio == item.first,
+                                    action = {
+                                        onAction(ArDrawAction.SelectCropRatio(item.first))
+                                    },
+                                )
+                            }
                         }
 
-                        DrawingCanvasPanel.GRID -> listOf(3, 4, 5).forEachIndexed { index, size ->
-                            target(
-                                "$size by $size grid",
-                                204f + index * 48f,
-                                632f,
-                                252f + index * 48f,
-                                668f,
-                                selected = state.gridSize == size,
-                                action = { onAction(ArDrawAction.SelectGridSize(size)) })
+                        DrawingCanvasPanel.GRID -> {
+                            val gridBounds = arrayOf(
+                                204f to 259f,
+                                259f to 302f,
+                                302f to 350f,
+                            )
+                            listOf(3, 4, 5).forEachIndexed { index, size ->
+                                target(
+                                    "$size by $size grid",
+                                    gridBounds[index].first,
+                                    632f,
+                                    gridBounds[index].second,
+                                    680f,
+                                    selected = state.gridSize == size,
+                                    action = { onAction(ArDrawAction.SelectGridSize(size)) },
+                                )
+                            }
                         }
 
                         DrawingCanvasPanel.NONE -> Unit
@@ -3691,7 +3881,7 @@ class ArDrawView @JvmOverloads constructor(
                         target(
                             item.first,
                             index * 72f,
-                            668f,
+                            680f,
                             (index + 1) * 72f,
                             726f,
                             action = item.second
@@ -3746,7 +3936,7 @@ class ArDrawView @JvmOverloads constructor(
                     112f,
                     action = { onAction(ArDrawAction.OpenBottomDestination(BottomDestination.HOME)) })
                 target(
-                    if (state.capturedImageUri == null) "Save drawing" else "Share drawing",
+                    if (state.capturedImageUri == null) "Take a photo" else "Share drawing",
                     16f,
                     656f,
                     344f,
@@ -3757,7 +3947,7 @@ class ArDrawView @JvmOverloads constructor(
                         )
                     })
                 target(
-                    "Retake drawing",
+                    "It’s not finished yet",
                     16f,
                     728f,
                     344f,
@@ -3790,13 +3980,15 @@ class ArDrawView @JvmOverloads constructor(
                 -> if (y > 0.84f) onAction(ArDrawAction.Continue)
 
             ArDrawScreen.ONBOARDING_PAYWALL -> when {
-                y in 0.60f..0.84f -> {
-                    val index = ((y * 800f - 486f) / 62f).toInt().coerceIn(0, 2)
+                y in 468f / 800f..678f / 800f -> {
+                    val relativeY = y * 800f - 468f
+                    if (relativeY % 74f > 62f) return
+                    val index = (relativeY / 74f).toInt().coerceIn(0, 2)
                     state.catalog?.plans?.getOrNull(index)
                         ?.let { onAction(ArDrawAction.SelectPlan(it.id)) }
                 }
 
-                y > 0.84f -> onAction(ArDrawAction.Continue)
+                y in 686f / 800f..746f / 800f -> onAction(ArDrawAction.Continue)
             }
 
             ArDrawScreen.ONBOARDING_TOPICS -> if (y > 0.89f) {
@@ -3861,25 +4053,31 @@ class ArDrawView @JvmOverloads constructor(
             }
 
             ArDrawScreen.GALLERY -> when {
-                y < 0.13f && x < 0.22f -> onAction(ArDrawAction.Back)
-                y < 0.17f && x > 0.78f -> onAction(ArDrawAction.OpenFilter)
-                y in 0.12f..0.17f -> onAction(
-                    ArDrawAction.SelectGalleryFilter(
-                        when {
-                            x < 0.20f -> GalleryFilter.SAVED
-                            x < 0.36f -> GalleryFilter.ALL
-                            x < 0.69f -> GalleryFilter.EASY
-                            else -> GalleryFilter.PREMIUM
-                        },
-                    ),
-                )
+                y < 0.12f && x < 0.22f -> onAction(ArDrawAction.Back)
+                y < 0.12f && x > 0.78f -> onAction(ArDrawAction.OpenFilter)
+                y in 0.12f..0.17f -> {
+                    val logicalX = x * LOGICAL_WIDTH
+                    GALLERY_QUICK_FILTERS.indices.firstOrNull { index ->
+                        val left = 16f + GALLERY_FILTER_X_OFFSETS[index]
+                        logicalX in left..left + GALLERY_FILTER_WIDTHS[index]
+                    }?.let { index ->
+                        onAction(
+                            ArDrawAction.SelectGalleryFilter(
+                                GALLERY_QUICK_FILTERS[index].first
+                            ),
+                        )
+                    }
+                }
 
                 y > 0.17f -> {
                     val adjustedY = y + contentScrollOffset / LOGICAL_HEIGHT
-                    val index = gridIndex(x, adjustedY, 0.175f, 0.23f)
+                    val index = gridIndex(x, adjustedY, 142f / 800f, 170f / 800f)
                     state.visibleGalleryArtworks.getOrNull(index)?.let { artwork ->
                         val cardX = if (index % 2 == 0) 0.044f else 0.522f
-                        if (x > cardX + 0.32f && (adjustedY - 0.175f) % 0.23f < 0.075f) {
+                        if (
+                            x > cardX + 108f / 360f &&
+                            (adjustedY - 142f / 800f) % (170f / 800f) < 56f / 800f
+                        ) {
                             onAction(ArDrawAction.ToggleFavorite(artwork.id))
                         } else {
                             onAction(ArDrawAction.SelectArtwork(artwork.id))
@@ -3889,8 +4087,8 @@ class ArDrawView @JvmOverloads constructor(
             }
 
             ArDrawScreen.FILTER -> when {
-                y < 0.65f -> onAction(ArDrawAction.Back)
-                y in 0.74f..0.80f -> onAction(
+                y < 478f / 800f -> onAction(ArDrawAction.Back)
+                y in 560f / 800f..615f / 800f -> onAction(
                     ArDrawAction.SelectDifficulty(
                         when {
                             x < 0.33f -> "Easy"
@@ -3900,14 +4098,14 @@ class ArDrawView @JvmOverloads constructor(
                     ),
                 )
 
-                y in 0.81f..0.88f -> onAction(
+                y in 632f / 800f..684f / 800f -> onAction(
                     ArDrawAction.SelectDrawingStyle(
                         if (x < 0.5f) ArtworkStyle.LINE_SKETCH else ArtworkStyle.COLOR,
                     ),
                 )
 
-                y > 0.945f -> onAction(ArDrawAction.ClearFilters)
-                y > 0.87f -> onAction(ArDrawAction.ApplyFilter)
+                y in 736f / 800f..792f / 800f -> onAction(ArDrawAction.ClearFilters)
+                y in 682f / 800f..735f / 800f -> onAction(ArDrawAction.ApplyFilter)
             }
 
             ArDrawScreen.SETTINGS -> when {
@@ -3926,7 +4124,7 @@ class ArDrawView @JvmOverloads constructor(
                 y in 0.535f..BOTTOM_NAV_TOP -> {
                     val index =
                         ((y * 800f + contentScrollOffset - 436f) / 70f).toInt().coerceAtLeast(0)
-                    state.catalog?.lessons?.getOrNull(index)
+                    state.learningPathLessons.getOrNull(index)
                         ?.let { onAction(ArDrawAction.OpenLearnDetail(it.id)) }
                 }
             }
@@ -3942,9 +4140,24 @@ class ArDrawView @JvmOverloads constructor(
                 }
             }
 
-            ArDrawScreen.LEARN_LEVEL_DETAIL,
-            ArDrawScreen.LEARN_CATEGORY_DETAIL,
-                -> if (y < 0.15f) onAction(ArDrawAction.Back) else onAction(ArDrawAction.OpenTutorial)
+            ArDrawScreen.LEARN_LEVEL_DETAIL -> when {
+                y < 0.12f -> onAction(ArDrawAction.Back)
+                y in 104f / 800f..190f / 800f -> onAction(ArDrawAction.OpenTutorial)
+            }
+
+            ArDrawScreen.LEARN_CATEGORY_DETAIL -> when {
+                y < 0.12f -> onAction(ArDrawAction.Back)
+                y >= 216f / 800f -> {
+                    val relativeY = y * 800f - 216f
+                    if (relativeY % 100f > 86f) return
+                    val index = (relativeY / 100f).toInt().coerceAtLeast(0)
+                    val categoryId = state.selectedCategoryId
+                    state.catalog?.lessons.orEmpty()
+                        .filter { it.categoryId == categoryId }
+                        .getOrNull(index)
+                        ?.let { onAction(ArDrawAction.OpenLessonTutorial(it.id)) }
+                }
+            }
 
             ArDrawScreen.PROFILE_FAVORITE,
             ArDrawScreen.PROFILE_FAVORITE_EMPTY,
@@ -3967,14 +4180,34 @@ class ArDrawView @JvmOverloads constructor(
                         )
                     )
                     ?.let { onAction(ArDrawAction.SelectArtwork(it.id)) }
+
+                y in 0.447f..BOTTOM_NAV_TOP && screen in setOf(
+                    ArDrawScreen.PROFILE_ALBUM,
+                    ArDrawScreen.PROFILE_ALBUM_EMPTY,
+                ) -> state.drawings.getOrNull(
+                    gridIndex(
+                        x,
+                        y + contentScrollOffset / LOGICAL_HEIGHT,
+                        0.4575f,
+                        0.23f,
+                    ),
+                )?.let { onAction(ArDrawAction.OpenDrawing(it.id)) }
             }
 
             ArDrawScreen.TUTORIAL_CAMERA,
             ArDrawScreen.TUTORIAL_SCREEN,
                 -> when {
                 y < 0.13f -> onAction(ArDrawAction.Back)
-                y in 0.68f..0.82f && x < 0.5f -> onAction(ArDrawAction.SelectTutorialMode(true))
-                y in 0.68f..0.82f -> onAction(ArDrawAction.SelectTutorialMode(false))
+                y in 0.13f..0.72f && screen == ArDrawScreen.TUTORIAL_CAMERA && x < 0.69f ->
+                    onAction(ArDrawAction.SelectTutorialMode(true))
+
+                y in 0.13f..0.72f && screen == ArDrawScreen.TUTORIAL_CAMERA ->
+                    onAction(ArDrawAction.SelectTutorialMode(false))
+
+                y in 0.13f..0.72f && x < 0.2f ->
+                    onAction(ArDrawAction.SelectTutorialMode(true))
+
+                y in 0.13f..0.72f -> onAction(ArDrawAction.SelectTutorialMode(false))
                 y > 0.84f -> onAction(ArDrawAction.StartDrawing)
             }
 
@@ -4005,11 +4238,17 @@ class ArDrawView @JvmOverloads constructor(
                         else -> Unit
                     }
 
-                screen == ArDrawScreen.DRAWING_CAMERA && y in 0.79f..0.835f -> when (state.cameraPanel) {
-                    DrawingCameraPanel.ZOOM -> if (x < 0.72f) {
-                        onAction(ArDrawAction.SelectCameraZoom(0.5f))
-                    } else {
-                        onAction(ArDrawAction.SelectCameraZoom(1.5f))
+                screen == ArDrawScreen.DRAWING_CAMERA && y in 0.79f..0.85f -> when (state.cameraPanel) {
+                    DrawingCameraPanel.ZOOM -> when {
+                        x in CAMERA_ZOOM_TOUCH_LEFT / LOGICAL_WIDTH..
+                                CAMERA_ZOOM_TOUCH_SPLIT / LOGICAL_WIDTH ->
+                            onAction(ArDrawAction.SelectCameraZoom(0.5f))
+
+                        x in CAMERA_ZOOM_TOUCH_SPLIT / LOGICAL_WIDTH..
+                                CAMERA_ZOOM_TOUCH_RIGHT / LOGICAL_WIDTH ->
+                            onAction(ArDrawAction.SelectCameraZoom(1.5f))
+
+                        else -> Unit
                     }
 
                     DrawingCameraPanel.RATIO -> when {
@@ -4022,7 +4261,7 @@ class ArDrawView @JvmOverloads constructor(
                     else -> Unit
                 }
 
-                screen == ArDrawScreen.DRAWING_CAMERA && y in 0.835f..0.9075f -> when {
+                screen == ArDrawScreen.DRAWING_CAMERA && y in 0.85f..0.9075f -> when {
                     x < 0.215f -> onAction(ArDrawAction.OpenCameraPanel(DrawingCameraPanel.ZOOM))
                     x < 0.40f -> onAction(ArDrawAction.OpenCameraPanel(DrawingCameraPanel.FLASH))
                     x < 0.595f -> onAction(ArDrawAction.OpenCameraPanel(DrawingCameraPanel.CAPTURE))
@@ -4030,7 +4269,7 @@ class ArDrawView @JvmOverloads constructor(
                     else -> onAction(ArDrawAction.OpenCameraPanel(DrawingCameraPanel.RATIO))
                 }
 
-                screen == ArDrawScreen.DRAWING_CANVAS && y in 0.79f..0.835f -> when (state.canvasPanel) {
+                screen == ArDrawScreen.DRAWING_CANVAS && y in 0.79f..0.85f -> when (state.canvasPanel) {
                     DrawingCanvasPanel.CROP -> when {
                         x < 0.34f -> onAction(ArDrawAction.SelectCropRatio(DrawingCropRatio.RESET))
                         x < 0.44f -> onAction(ArDrawAction.SelectCropRatio(DrawingCropRatio.SQUARE))
@@ -4047,7 +4286,7 @@ class ArDrawView @JvmOverloads constructor(
                     DrawingCanvasPanel.NONE -> Unit
                 }
 
-                screen == ArDrawScreen.DRAWING_CANVAS && y in 0.835f..0.9075f -> when {
+                screen == ArDrawScreen.DRAWING_CANVAS && y in 0.85f..0.9075f -> when {
                     x < 0.195f -> onAction(ArDrawAction.ToggleLock)
                     x < 0.387f -> onAction(ArDrawAction.ToggleFlip)
                     x < 0.612f -> onAction(ArDrawAction.ToggleRemoveImage)
@@ -4127,7 +4366,15 @@ class ArDrawView @JvmOverloads constructor(
 
     private fun maxContentScroll(): Float {
         val contentBottom = when (state.screen) {
-            ArDrawScreen.HOME -> 930f
+            ArDrawScreen.HOME -> {
+                val count = state.catalog?.topics.orEmpty().take(HOME_TOPIC_LIMIT).size
+                val rows = (count + 1) / 2
+                if (rows == 0) {
+                    contentViewportBottom()
+                } else {
+                    325f + (rows - 1) * 184f + 172f
+                }
+            }
             ArDrawScreen.SEARCH_RESULTS -> {
                 val rows = (state.visibleArtworks.size + 1) / 2
                 if (rows == 0) contentViewportBottom() else 160f + (rows - 1) * 184f + 172f
@@ -4135,11 +4382,15 @@ class ArDrawView @JvmOverloads constructor(
 
             ArDrawScreen.GALLERY -> {
                 val rows = (state.visibleGalleryArtworks.size + 1) / 2
-                if (rows == 0) contentViewportBottom() else 140f + (rows - 1) * 184f + 172f
+                if (rows == 0) {
+                    contentViewportBottom()
+                } else {
+                    142f + (rows - 1) * 170f + 152f
+                }
             }
 
             ArDrawScreen.LEARN_PATH -> {
-                val count = state.catalog?.lessons.orEmpty().size
+                val count = state.learningPathLessons.size
                 if (count == 0) contentViewportBottom() else 436f + (count - 1) * 70f + 62f
             }
 
@@ -4213,11 +4464,21 @@ class ArDrawView @JvmOverloads constructor(
     private companion object {
         const val LOGICAL_WIDTH = 360f
         const val LOGICAL_HEIGHT = 800f
+        const val HEADER_RIGHT_BLEED = 1f
+        const val CAMERA_ZOOM_HALF_X = 8f
+        const val CAMERA_ZOOM_ONE_AND_HALF_X = 50f
+        const val CAMERA_ZOOM_OPTION_WIDTH = 34f
+        const val CAMERA_ZOOM_TOUCH_LEFT = 2f
+        const val CAMERA_ZOOM_TOUCH_SPLIT = 47f
+        const val CAMERA_ZOOM_TOUCH_RIGHT = 92f
+        const val HOME_TOPIC_LIMIT = 6
         const val BOTTOM_NAV_TOP = 0.925f
         const val ACCESSIBILITY_ID_STRIDE = 1_000
         const val MAX_DRAWABLE_CACHE_BYTES = 24L * 1024L * 1024L
         const val MAX_CONTENT_BITMAP_CACHE_BYTES = 32L * 1024L * 1024L
         const val MAX_CONTENT_BITMAP_DIMENSION = 2_048
+        val ROUNDED_REGULAR: Typeface = Typeface.create("sans-serif-rounded", Typeface.NORMAL)
+        val ROUNDED_BOLD: Typeface = Typeface.create("sans-serif-rounded", Typeface.BOLD)
         val NAVY = Color.rgb(28, 40, 61)
         val MUTED = Color.rgb(104, 123, 151)
         val PURPLE = Color.rgb(147, 94, 237)
@@ -4264,13 +4525,14 @@ class ArDrawView @JvmOverloads constructor(
             R.drawable.icon_eye,
         )
         val GALLERY_QUICK_FILTERS = arrayOf(
-            GalleryFilter.SAVED to "Saved",
+            GalleryFilter.SAVED to "Save",
             GalleryFilter.ALL to "All",
-            GalleryFilter.EASY to "Easy",
-            GalleryFilter.PREMIUM to "Premium",
+            GalleryFilter.JUJUTSU_KAISEN to "Jujutsu Kaisen",
+            GalleryFilter.ONE_PIECE to "One Piece",
+            GalleryFilter.DORAEMON to "Doraemon",
         )
-        val GALLERY_FILTER_WIDTHS = floatArrayOf(48f, 43f, 90f, 70f)
-        val GALLERY_FILTER_X_OFFSETS = floatArrayOf(0f, 55f, 105f, 202f)
+        val GALLERY_FILTER_WIDTHS = floatArrayOf(44f, 44f, 92f, 82f, 82f)
+        val GALLERY_FILTER_X_OFFSETS = floatArrayOf(0f, 52f, 104f, 204f, 294f)
         val bottomNavigationItems = listOf(
             Triple(BottomDestination.HOME, R.drawable.icon_nav_home, "Home"),
             Triple(BottomDestination.LEARN, R.drawable.icon_nav_learn, "Learn"),

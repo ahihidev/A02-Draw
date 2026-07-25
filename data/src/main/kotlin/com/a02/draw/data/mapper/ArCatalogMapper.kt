@@ -46,6 +46,9 @@ internal fun ArCatalogDto.toDomain(): ArCatalog = ArCatalog(
             it.minutes,
             it.completedPercent.coerceIn(0, 100),
             it.image.toDomain(),
+            it.completedLessons.coerceAtLeast(0),
+            it.totalLessons.coerceAtLeast(1),
+            it.showInLearningPath,
         )
     },
     categories = categories.map {
