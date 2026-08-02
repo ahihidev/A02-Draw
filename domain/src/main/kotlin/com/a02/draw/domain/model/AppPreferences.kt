@@ -4,6 +4,7 @@ data class AppPreferences(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val onboardingCompleted: Boolean = false,
     val favoriteArtworkIds: Set<String> = emptySet(),
+    val lessonCompletedSteps: Map<String, Int> = emptyMap(),
     val musicEnabled: Boolean = true,
 )
 

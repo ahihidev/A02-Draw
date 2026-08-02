@@ -13,6 +13,9 @@ class UpdateAppPreferencesUseCase @Inject constructor(
     suspend fun setFavorites(ids: Set<String>): AppResult<Unit> =
         repository.setFavoriteArtworkIds(ids)
 
+    suspend fun setLessonCompletedSteps(lessonId: String, completedSteps: Int): AppResult<Unit> =
+        repository.setLessonCompletedSteps(lessonId, completedSteps)
+
     suspend fun setMusicEnabled(enabled: Boolean): AppResult<Unit> =
         repository.setMusicEnabled(enabled)
 }

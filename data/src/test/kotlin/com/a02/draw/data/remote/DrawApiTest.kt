@@ -53,4 +53,44 @@ class DrawApiTest {
         api.getDrawings()
         Unit
     }
+
+    @Test
+    fun `assets request parses JSON and sends documented query parameters`() = runBlocking {
+        server.enqueue(MockResponse(body = """{"data":{"items":[],"total":0}}"""))
+
+        val result = api.getAssets(
+            category = "animal",
+            subcategory = "dog",
+            search = "puppy",
+            page = 2,
+            limit = 50,
+        )
+
+        val request = server.takeRequest()
+        assertEquals(0, result.data.total)
+        assertEquals(null, request.headers["X-Enable-AES"])
+        assertEquals(
+            "/api/v1/assets?category=animal&subcategory=dog&search=puppy&page=2&limit=50",
+            request.url.encodedPath + "?" + request.url.encodedQuery,
+        )
+    }
+
+    @Test
+    fun `lessons request parses JSON and sends pagination parameters`() = runBlocking {
+        server.enqueue(
+            MockResponse(
+                body = """{"data":{"items":[],"page":2,"limit":20,"total":0,"totalPages":0}}""",
+            ),
+        )
+
+        val result = api.getLessons(category = "animal", page = 2, limit = 20)
+
+        val request = server.takeRequest()
+        assertEquals(2, result.data.page)
+        assertEquals(null, request.headers["X-Enable-AES"])
+        assertEquals(
+            "/api/v1/lessons?category=animal&page=2&limit=20",
+            request.url.encodedPath + "?" + request.url.encodedQuery,
+        )
+    }
 }

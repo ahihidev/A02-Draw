@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottom_navigation"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:background="@drawable/bg_bottom_navigation"
+    android:baselineAligned="false"
+    android:elevation="0dp"
+    android:orientation="horizontal"
+    tools:ignore="Overdraw,UseCompoundDrawables">
+
+    <LinearLayout
+        android:id="@+id/nav_home"
+        style="@style/HomeBottomNavigationItem">
+
+        <ImageView
+            android:id="@+id/nav_home_icon"
+            style="@style/HomeBottomNavigationIcon"
+            android:contentDescription="@null"
+            android:src="@drawable/icon_nav_home_state" />
+
+        <TextView
+            android:id="@+id/nav_home_label"
+            style="@style/HomeBottomNavigationLabel"
+            android:text="@string/main_home" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_learn"
+        style="@style/HomeBottomNavigationItem">
+
+        <ImageView
+            android:id="@+id/nav_learn_icon"
+            style="@style/HomeBottomNavigationIcon"
+            android:contentDescription="@null"
+            android:src="@drawable/icon_nav_learn_state" />
+
+        <TextView
+            android:id="@+id/nav_learn_label"
+            style="@style/HomeBottomNavigationLabel"
+            android:text="@string/main_learn" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_profile"
+        style="@style/HomeBottomNavigationItem">
+
+        <ImageView
+            android:id="@+id/nav_profile_icon"
+            style="@style/HomeBottomNavigationIcon"
+            android:contentDescription="@null"
+            android:src="@drawable/icon_nav_profile_state" />
+
+        <TextView
+            android:id="@+id/nav_profile_label"
+            style="@style/HomeBottomNavigationLabel"
+            android:text="@string/main_profile" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_settings"
+        style="@style/HomeBottomNavigationItem">
+
+        <ImageView
+            android:id="@+id/nav_settings_icon"
+            style="@style/HomeBottomNavigationIcon"
+            android:contentDescription="@null"
+            android:src="@drawable/icon_nav_settings_state" />
+
+        <TextView
+            android:id="@+id/nav_settings_label"
+            style="@style/HomeBottomNavigationLabel"
+            android:text="@string/main_settings" />
+    </LinearLayout>
+</LinearLayout>

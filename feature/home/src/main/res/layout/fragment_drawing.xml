@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.a02.draw.feature.home.common.drawing.ArDrawView
+        android:id="@+id/ar_draw_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/ar_draw_experience"
+        android:keepScreenOn="true" />
+
+    <include
+        android:id="@+id/drawing_controls"
+        layout="@layout/screen_drawing_controls"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</FrameLayout>

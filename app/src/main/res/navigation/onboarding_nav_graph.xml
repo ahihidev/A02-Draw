@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/onboarding_nav_graph"
+    app:startDestination="@id/projectorFragment">
+
+    <fragment
+        android:id="@+id/projectorFragment"
+        android:name="com.a02.draw.onboarding.projector.ProjectorFragment" />
+    <fragment
+        android:id="@+id/lightboxFragment"
+        android:name="com.a02.draw.onboarding.lightbox.LightboxFragment" />
+    <fragment
+        android:id="@+id/lessonsFragment"
+        android:name="com.a02.draw.onboarding.lessons.LessonsFragment" />
+    <fragment
+        android:id="@+id/topicsFragment"
+        android:name="com.a02.draw.onboarding.topics.TopicsFragment" />
+    <fragment
+        android:id="@+id/preparingFragment"
+        android:name="com.a02.draw.onboarding.preparing.PreparingFragment" />
+</navigation>

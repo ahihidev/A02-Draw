@@ -30,12 +30,19 @@ data class LessonDto(
     val id: String,
     val categoryId: String,
     val title: String,
-    val minutes: Int,
+    val minutes: Int?,
     val completedPercent: Int = 0,
     val image: ContentImageDto,
     val completedLessons: Int = 0,
     val totalLessons: Int = 1,
     val showInLearningPath: Boolean = true,
+    val totalSteps: Int = 9,
+    val steps: List<LessonStepDto> = emptyList(),
+)
+
+data class LessonStepDto(
+    val stepNumber: Int,
+    val image: ContentImageDto,
 )
 
 data class LessonCategoryDto(

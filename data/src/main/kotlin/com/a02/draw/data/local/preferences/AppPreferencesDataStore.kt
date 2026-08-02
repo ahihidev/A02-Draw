@@ -14,6 +14,7 @@ import com.a02.draw.domain.model.AppPreferences
 import com.a02.draw.domain.model.ThemeMode
 import com.a02.draw.domain.repository.AppPreferencesRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
@@ -50,6 +51,17 @@ class AppPreferencesDataStore @Inject constructor(
         it[Keys.FAVORITE_ARTWORK_IDS] = ids
     }
 
+    override suspend fun setLessonCompletedSteps(
+        lessonId: String,
+        completedSteps: Int,
+    ): AppResult<Unit> = update { preferences ->
+        val progress = decodeLessonProgress(preferences[Keys.LESSON_COMPLETED_STEPS].orEmpty())
+            .toMutableMap()
+        if (completedSteps <= 0) progress.remove(lessonId)
+        else progress[lessonId] = maxOf(progress[lessonId] ?: 0, completedSteps)
+        preferences[Keys.LESSON_COMPLETED_STEPS] = encodeLessonProgress(progress)
+    }
+
     override suspend fun setMusicEnabled(enabled: Boolean): AppResult<Unit> = update {
         it[Keys.MUSIC_ENABLED] = enabled
     }
@@ -60,7 +72,9 @@ class AppPreferencesDataStore @Inject constructor(
         try {
             context.appPreferencesDataStore.edit(transform)
             AppResult.Success(Unit)
-        } catch (throwable: IOException) {
+        } catch (throwable: CancellationException) {
+            throw throwable
+        } catch (throwable: Throwable) {
             AppResult.Failure(AppError.Database(throwable.message))
         }
     }
@@ -73,6 +87,9 @@ class AppPreferencesDataStore @Inject constructor(
             themeMode = theme,
             onboardingCompleted = preferences[Keys.ONBOARDING_COMPLETED] ?: false,
             favoriteArtworkIds = preferences[Keys.FAVORITE_ARTWORK_IDS].orEmpty(),
+            lessonCompletedSteps = decodeLessonProgress(
+                preferences[Keys.LESSON_COMPLETED_STEPS].orEmpty(),
+            ),
             musicEnabled = preferences[Keys.MUSIC_ENABLED] ?: true,
         )
     }
@@ -81,6 +98,21 @@ class AppPreferencesDataStore @Inject constructor(
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val FAVORITE_ARTWORK_IDS = stringSetPreferencesKey("favorite_artwork_ids")
+        val LESSON_COMPLETED_STEPS = stringSetPreferencesKey("lesson_completed_steps")
         val MUSIC_ENABLED = booleanPreferencesKey("music_enabled")
+    }
+}
+
+private fun encodeLessonProgress(progress: Map<String, Int>): Set<String> =
+    progress.mapTo(mutableSetOf()) {
+        "${it.key}=${it.value}"
+    }
+
+private fun decodeLessonProgress(values: Set<String>): Map<String, Int> = buildMap {
+    values.forEach { value ->
+        val separator = value.lastIndexOf('=')
+        if (separator <= 0) return@forEach
+        val steps = value.substring(separator + 1).toIntOrNull() ?: return@forEach
+        if (steps > 0) put(value.substring(0, separator), steps)
     }
 }

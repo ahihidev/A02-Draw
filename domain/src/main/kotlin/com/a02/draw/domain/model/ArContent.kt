@@ -40,12 +40,19 @@ data class DrawingLesson(
     val id: String,
     val categoryId: String,
     val title: String,
-    val minutes: Int,
+    val minutes: Int?,
     val completedPercent: Int = 0,
     val image: ContentImage,
     val completedLessons: Int = 0,
     val totalLessons: Int = 1,
     val showInLearningPath: Boolean = true,
+    val totalSteps: Int = 9,
+    val steps: List<DrawingLessonStep> = emptyList(),
+)
+
+data class DrawingLessonStep(
+    val stepNumber: Int,
+    val image: ContentImage,
 )
 
 data class LessonCategory(

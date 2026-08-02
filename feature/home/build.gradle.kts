@@ -6,6 +6,12 @@ plugins {
 android {
     namespace = "com.a02.draw.feature.home"
     testNamespace = "com.a02.draw.feature.home.test"
+
+    lint {
+        // Destination layouts own their Figma surface while the host Activity is transparent.
+        // The Overdraw detector cannot infer that relationship for library Fragments.
+        disable += "Overdraw"
+    }
 }
 
 dependencies {
@@ -13,6 +19,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.material)

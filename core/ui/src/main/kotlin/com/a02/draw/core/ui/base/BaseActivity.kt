@@ -8,6 +8,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
+import com.a02.draw.core.ui.extensions.applySystemBarsPadding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -23,12 +24,15 @@ abstract class BaseActivity<VB : ViewBinding>(
         super.onCreate(savedInstanceState)
         internalBinding = inflate(layoutInflater)
         setContentView(binding.root)
+        binding.root.applySystemBarsPadding(includeTop = includeTopSystemBarPadding())
         setupViews(savedInstanceState)
         setupListeners()
         observeData()
     }
 
     protected abstract fun setupViews(savedInstanceState: Bundle?)
+
+    protected open fun includeTopSystemBarPadding(): Boolean = true
 
     protected open fun setupListeners() = Unit
 

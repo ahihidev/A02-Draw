@@ -6,7 +6,6 @@ import com.a02.draw.data.remote.dto.ContentImageDto
 import com.a02.draw.data.remote.dto.LessonCategoryDto
 import com.a02.draw.data.remote.dto.LessonDto
 import com.a02.draw.data.remote.dto.SettingItemDto
-import com.a02.draw.data.remote.dto.SubscriptionPlanDto
 import com.a02.draw.data.remote.dto.TopicDto
 import com.a02.draw.data.remote.dto.TrendingSearchDto
 import javax.inject.Inject
@@ -155,32 +154,10 @@ class FixtureArContentDataSource @Inject constructor() {
                 category("sports", "Art Direction", "Easy", "topic_flower"),
                 category("nature", "Plant", "Easy", "topic_flower"),
             ),
-            plans = listOf(
-                SubscriptionPlanDto(
-                    id = "yearly",
-                    title = "Yearly",
-                    subtitle = "3-day free trial then",
-                    price = "600.000 VNĐ\nper year",
-                    recommended = true,
-                ),
-                SubscriptionPlanDto(
-                    id = "monthly",
-                    title = "Monthly",
-                    subtitle = "600.000vnd/year",
-                    price = "600.000 VNĐ\nper year",
-                ),
-                SubscriptionPlanDto(
-                    id = "weekly",
-                    title = "Weekly",
-                    subtitle = "105.000vnd/year",
-                    price = "600.000 VNĐ\nper week",
-                ),
-            ),
+            plans = emptyList(),
             settings = listOf(
-                SettingItemDto("gift", "Gift Code Lifetime"),
                 SettingItemDto("music", "Music", "toggle"),
                 SettingItemDto("help", "Help & FAQs"),
-                SettingItemDto("subscription", "Manage Subscription"),
                 SettingItemDto("update", "Update version"),
                 SettingItemDto("share", "Share to your friends", "share"),
                 SettingItemDto("rate", "Rate 5 stars", "rate"),
@@ -204,7 +181,7 @@ class FixtureArContentDataSource @Inject constructor() {
         completedPercent: Int = 0,
         completedLessons: Int = 0,
         totalLessons: Int = 1,
-        showInLearningPath: Boolean = true,
+        showInLearningPath: Boolean = false,
     ) = LessonDto(
         id = id,
         categoryId = category,

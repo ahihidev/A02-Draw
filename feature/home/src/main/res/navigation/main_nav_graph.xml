@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_nav_graph"
+    app:startDestination="@id/mainHomeFragment">
+
+    <fragment
+        android:id="@+id/mainHomeFragment"
+        android:name="com.a02.draw.feature.home.screen.home.HomeFragment" />
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.a02.draw.feature.home.screen.search.SearchFragment" />
+    <fragment
+        android:id="@+id/searchResultsFragment"
+        android:name="com.a02.draw.feature.home.screen.searchresults.SearchResultsFragment">
+        <argument
+            android:name="query"
+            android:defaultValue=""
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/galleryFragment"
+        android:name="com.a02.draw.feature.home.screen.gallery.GalleryFragment">
+        <argument
+            android:name="topicId"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/filterFragment"
+        android:name="com.a02.draw.feature.home.screen.filter.FilterFragment" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.a02.draw.feature.home.screen.settings.SettingsFragment" />
+    <fragment
+        android:id="@+id/settingsDetailFragment"
+        android:name="com.a02.draw.feature.home.screen.settingsdetail.SettingsDetailFragment">
+        <argument
+            android:name="settingId"
+            android:defaultValue=""
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/learnFragment"
+        android:name="com.a02.draw.feature.home.screen.learn.LearnFragment" />
+    <fragment
+        android:id="@+id/learnLevelDetailFragment"
+        android:name="com.a02.draw.feature.home.screen.learnleveldetail.LearnLevelDetailFragment">
+        <argument
+            android:name="lessonId"
+            android:defaultValue=""
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/learnCategoryDetailFragment"
+        android:name="com.a02.draw.feature.home.screen.learncategorydetail.LearnCategoryDetailFragment">
+        <argument
+            android:name="categoryId"
+            android:defaultValue=""
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/profileFavoriteFragment"
+        android:name="com.a02.draw.feature.home.screen.profilefavorite.ProfileFavoriteFragment" />
+    <fragment
+        android:id="@+id/profileAlbumFragment"
+        android:name="com.a02.draw.feature.home.screen.profilealbum.ProfileAlbumFragment" />
+    <fragment
+        android:id="@+id/tutorialCameraFragment"
+        android:name="com.a02.draw.feature.home.screen.tutorialcamera.TutorialCameraFragment">
+        <action
+            android:id="@+id/action_tutorialCameraFragment_to_tutorialScreenFragment"
+            app:destination="@id/tutorialScreenFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/tutorialCameraFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/tutorialScreenFragment"
+        android:name="com.a02.draw.feature.home.screen.tutorialscreen.TutorialScreenFragment">
+        <action
+            android:id="@+id/action_tutorialScreenFragment_to_tutorialCameraFragment"
+            app:destination="@id/tutorialCameraFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/tutorialScreenFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/drawingCanvasFragment"
+        android:name="com.a02.draw.feature.home.screen.drawingcanvas.DrawingCanvasFragment" />
+    <fragment
+        android:id="@+id/drawingOpacityFragment"
+        android:name="com.a02.draw.feature.home.screen.drawingopacity.DrawingOpacityFragment" />
+    <fragment
+        android:id="@+id/drawingCompleteFragment"
+        android:name="com.a02.draw.feature.home.screen.drawingcomplete.DrawingCompleteFragment" />
+</navigation>

@@ -37,16 +37,21 @@ graph TD
 - `feature:home`: runnable XML/Fragment/ViewModel example.
 - `build-logic`: convention plugins shared by Android and Kotlin modules.
 
-Saved drawings and captured image URIs are stored in Room. Favorites, onboarding and music state
-are stored in DataStore. Catalog content is requested from `GET /v1/catalog` when a backend URL is
-configured and falls back to bundled fixture data when the server is absent or unavailable:
+Saved drawings, API lessons and their ordered drawing steps are stored in Room. Favorites,
+onboarding and music state are stored in DataStore. Categories, AR assets and step-by-step lessons
+are requested from the Toro AR JSON API. A complete lesson response replaces the Room lesson cache
+in one transaction, while an offline or failed refresh reads the last valid snapshot. Settings
+remain bundled; premium and in-app purchase UI is disabled in this version.
+The public Toro AR endpoint is the default. To point a build at another compatible server, create
+an ignored `secrets.properties` file:
 
-```bash
-./gradlew assembleDebug -PAPI_BASE_URL=https://api.your-domain.com/
+```properties
+API_BASE_URL=https://api.your-domain.com/
 ```
 
-The URL must end in `/`. The committed `https://example.com/` default is treated as unconfigured
-and is never called.
+The same values can be supplied with Gradle `-P` properties or `A02_`-prefixed environment
+variables. The URL must end in `/`; network failures fall back to the Room lesson cache and bundled
+content.
 
 The response contract is represented by `ArCatalogDto`: `topics`, `artworks`, `lessons`,
 `categories`, `plans`, and `settings`. Images accept an HTTPS `url`; `localKey` exists only for the
@@ -55,7 +60,7 @@ offline fixture. Artwork supports `tags`, `premium`, and `difficulty` (`Easy`, `
 ## AR Draw UI flow
 
 `feature:home` implements the Figma flow as a state-driven experience: onboarding and
-personalization, Home/search/filter, Learn paths and categories, Profile/Album, Settings, mode
+personalization, Home/search/filter, Learn categories, Profile/Album, Settings, mode
 selection, camera/canvas tools, and drawing completion. Android Photo Picker imports device images
 without broad storage permission. CameraX supplies the live preview, while capture exports the
 composited camera and AR overlay into the private Pictures directory and exposes it through a

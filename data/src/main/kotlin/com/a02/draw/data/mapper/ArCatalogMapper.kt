@@ -8,6 +8,7 @@ import com.a02.draw.domain.model.Artwork
 import com.a02.draw.domain.model.ArtworkStyle
 import com.a02.draw.domain.model.ContentImage
 import com.a02.draw.domain.model.DrawingLesson
+import com.a02.draw.domain.model.DrawingLessonStep
 import com.a02.draw.domain.model.DrawingTopic
 import com.a02.draw.domain.model.LessonCategory
 import com.a02.draw.domain.model.SettingType
@@ -40,15 +41,19 @@ internal fun ArCatalogDto.toDomain(): ArCatalog = ArCatalog(
     },
     lessons = lessons.map {
         DrawingLesson(
-            it.id,
-            it.categoryId,
-            it.title,
-            it.minutes,
-            it.completedPercent.coerceIn(0, 100),
-            it.image.toDomain(),
-            it.completedLessons.coerceAtLeast(0),
-            it.totalLessons.coerceAtLeast(1),
-            it.showInLearningPath,
+            id = it.id,
+            categoryId = it.categoryId,
+            title = it.title,
+            minutes = it.minutes,
+            completedPercent = it.completedPercent.coerceIn(0, 100),
+            image = it.image.toDomain(),
+            completedLessons = it.completedLessons.coerceAtLeast(0),
+            totalLessons = it.totalLessons.coerceAtLeast(1),
+            showInLearningPath = it.showInLearningPath,
+            totalSteps = it.totalSteps.coerceAtLeast(0),
+            steps = it.steps.map { step ->
+                DrawingLessonStep(step.stepNumber, step.image.toDomain())
+            },
         )
     },
     categories = categories.map {

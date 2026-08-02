@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="TutorialModeCard">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">370dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="cardCornerRadius">12dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@color/tutorial_mode_stroke</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+</resources>

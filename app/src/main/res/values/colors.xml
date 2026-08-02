@@ -4,4 +4,12 @@
     <color name="brand_secondary">#6750A4</color>
     <color name="brand_background">#FCF8FF</color>
     <color name="brand_surface">#FCF8FF</color>
+    <color name="app_icon_background">#F7B5D2</color>
+    <color name="splash_title">#44305F</color>
+    <color name="onboarding_navy">#1C283D</color>
+    <color name="onboarding_muted">#687B97</color>
+    <color name="onboarding_purple">#935EED</color>
+    <color name="onboarding_pink">#F74989</color>
+    <color name="onboarding_green">#2CB873</color>
+    <color name="onboarding_border">#DCE3ED</color>
 </resources>

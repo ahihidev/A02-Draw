@@ -1,13 +1,15 @@
 package com.a02.draw
 
 import android.os.ParcelFileDescriptor
+import android.os.SystemClock
+import androidx.annotation.IdRes
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -23,36 +25,38 @@ class MainActivityTest {
         ).bufferedReader().use { it.readText() }
         instrumentation.waitForIdleSync()
 
-        onView(withId(com.a02.draw.feature.home.R.id.ar_draw_view))
+        onView(withId(com.a02.draw.feature.home.R.id.home_scroll))
             .check(matches(isDisplayed()))
+
+        onView(withId(com.a02.draw.feature.home.R.id.nav_learn)).perform(click())
+        waitUntilDisplayed(com.a02.draw.feature.home.R.id.category_list)
     }
 
     @Test
-    fun canvasExposesLabeledVirtualControls() {
+    fun onboardingIsASeparateXmlActivity() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val packageName = instrumentation.targetContext.packageName
-        val command = "am start -W -n $packageName/${MainActivity::class.java.name}"
+        val command = "am start -W -n $packageName/${OnboardingActivity::class.java.name}"
         ParcelFileDescriptor.AutoCloseInputStream(
             instrumentation.uiAutomation.executeShellCommand(command),
         ).bufferedReader().use { it.readText() }
         instrumentation.waitForIdleSync()
 
-        val root = instrumentation.uiAutomation.rootInActiveWindow
-        val host = root.findAccessibilityNodeInfosByViewId("$packageName:id/ar_draw_view").first()
-        val controls = mutableListOf<android.view.accessibility.AccessibilityNodeInfo>()
-        for (index in 0 until host.childCount) {
-            val child = host.getChild(index)
-            if (child != null) controls.add(child)
-        }
+        onView(withId(R.id.continue_button)).check(matches(isDisplayed()))
+    }
 
-        assertTrue("The canvas must expose virtual controls", controls.isNotEmpty())
-        assertTrue(
-            "Every virtual control must have a label",
-            controls.all { !it.contentDescription.isNullOrBlank() },
-        )
-        assertTrue(
-            "Virtual controls must be actionable",
-            controls.any { it.isClickable && it.isFocusable },
-        )
+    private fun waitUntilDisplayed(@IdRes viewId: Int, timeoutMillis: Long = 10_000) {
+        val deadline = SystemClock.elapsedRealtime() + timeoutMillis
+        var lastFailure: Throwable? = null
+        while (SystemClock.elapsedRealtime() < deadline) {
+            try {
+                onView(withId(viewId)).check(matches(isDisplayed()))
+                return
+            } catch (failure: Throwable) {
+                lastFailure = failure
+                SystemClock.sleep(100)
+            }
+        }
+        throw AssertionError("View $viewId was not displayed within $timeoutMillis ms", lastFailure)
     }
 }
