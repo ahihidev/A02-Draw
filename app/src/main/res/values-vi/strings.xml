@@ -13,6 +13,7 @@
     <string name="onboarding_topics_title">Chọn chủ đề yêu thích</string>
     <string name="onboarding_topics_subtitle">Chọn tối đa 3 chủ đề</string>
     <string name="onboarding_topics_error">Không thể tải chủ đề vẽ.</string>
+    <string name="onboarding_topics_selection_required">Hãy chọn ít nhất một chủ đề để tiếp tục.</string>
     <string name="onboarding_retry">Thử lại</string>
     <string name="onboarding_preparing_title">Đang chuẩn bị studio…</string>
     <string name="onboarding_preparing_subtitle">Thiết lập nội dung theo lựa chọn của bạn</string>

@@ -2,6 +2,7 @@ package com.a02.draw.onboarding.topics
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.a02.draw.R
@@ -41,14 +42,24 @@ class TopicsFragment : BaseFragment<ScreenOnboardingTopicsBinding>(
         collectWhenStarted {
             launch { viewModel.state.collect(::render) }
             launch {
-                viewModel.effects.collect {
-                    findNavController().navigate(R.id.preparingFragment)
+                viewModel.effects.collect { effect ->
+                    when (effect) {
+                        TopicsEffect.NavigateNext -> findNavController().navigate(R.id.preparingFragment)
+                        TopicsEffect.ShowSelectionRequired -> Toast.makeText(
+                            requireContext(),
+                            R.string.onboarding_topics_selection_required,
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                    }
                 }
             }
         }
     }
 
     private fun render(state: TopicsUiState) {
+        val canContinue = state.selectedTopicIds.isNotEmpty() &&
+                !state.isLoading &&
+                !state.hasError
         binding.loadingIndicator.visibility = if (state.isLoading) View.VISIBLE else View.GONE
         binding.errorPanel.visibility = if (state.hasError) View.VISIBLE else View.GONE
         binding.topicList.visibility = if (!state.isLoading && !state.hasError) {
@@ -61,6 +72,8 @@ class TopicsFragment : BaseFragment<ScreenOnboardingTopicsBinding>(
                 OnboardingTopicItem(topic, topic.id in state.selectedTopicIds)
             },
         )
+        binding.continueButton.isEnabled = canContinue
+        binding.continueButton.alpha = if (canContinue) 1f else DISABLED_BUTTON_ALPHA
     }
 
     override fun onDestroyView() {
@@ -71,5 +84,6 @@ class TopicsFragment : BaseFragment<ScreenOnboardingTopicsBinding>(
 
     private companion object {
         const val MINIMUM_TOPIC_COLUMNS = 2
+        const val DISABLED_BUTTON_ALPHA = 0.48f
     }
 }

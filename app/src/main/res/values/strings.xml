@@ -14,6 +14,7 @@
     <string name="onboarding_topics_title">Choose Favourite Topic</string>
     <string name="onboarding_topics_subtitle">Select up to 3 options</string>
     <string name="onboarding_topics_error">Could not load drawing topics.</string>
+    <string name="onboarding_topics_selection_required">Choose at least one topic to continue.</string>
     <string name="onboarding_retry">Try again</string>
     <string name="onboarding_preparing_title">Preparing your studio…</string>
     <string name="onboarding_preparing_subtitle">Setting up content based on your choices</string>

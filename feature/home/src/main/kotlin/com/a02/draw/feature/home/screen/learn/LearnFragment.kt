@@ -18,10 +18,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class LearnFragment : BaseFragment<ScreenLearnBinding>(
-    ScreenLearnBinding::inflate,
-    useScreenTransitions = false,
-) {
+class LearnFragment : BaseFragment<ScreenLearnBinding>(ScreenLearnBinding::inflate) {
+    override val useScreenTransitions: Boolean = false
+
     private val viewModel: LearnViewModel by viewModels()
     private val imageLoader = HomeImageLoader()
     private val adapter by lazy {

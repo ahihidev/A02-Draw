@@ -15,8 +15,9 @@ import kotlinx.coroutines.launch
 
 abstract class BaseFragment<VB : ViewBinding>(
     private val inflate: (LayoutInflater, ViewGroup?, Boolean) -> VB,
-    private val useScreenTransitions: Boolean = true,
 ) : Fragment() {
+    protected open val useScreenTransitions: Boolean = true
+
     private var internalBinding: VB? = null
     protected val binding: VB
         get() = requireNotNull(internalBinding) {

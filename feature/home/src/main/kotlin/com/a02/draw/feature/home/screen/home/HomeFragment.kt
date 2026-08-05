@@ -29,10 +29,9 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 @AndroidEntryPoint
-class HomeFragment : BaseFragment<ScreenMainHomeBinding>(
-    ScreenMainHomeBinding::inflate,
-    useScreenTransitions = false,
-) {
+class HomeFragment : BaseFragment<ScreenMainHomeBinding>(ScreenMainHomeBinding::inflate) {
+    override val useScreenTransitions: Boolean = false
+
     private val viewModel: HomeViewModel by viewModels()
     private val imageLoader = HomeImageLoader()
     private var sourceCaptureFile: File? = null

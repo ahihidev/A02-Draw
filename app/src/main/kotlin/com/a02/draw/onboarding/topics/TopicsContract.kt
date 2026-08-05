@@ -19,4 +19,5 @@ sealed interface TopicsAction {
 
 sealed interface TopicsEffect : UiEffect {
     data object NavigateNext : TopicsEffect
+    data object ShowSelectionRequired : TopicsEffect
 }

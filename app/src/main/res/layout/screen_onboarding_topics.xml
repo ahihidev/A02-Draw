@@ -94,6 +94,8 @@
         android:layout_width="0dp"
         android:layout_height="@dimen/onboarding_continue_button_height"
         android:layout_marginBottom="@dimen/onboarding_continue_button_bottom_margin"
+        android:alpha="0.48"
+        android:enabled="false"
         android:text="@string/onboarding_continue"
         android:textAllCaps="false"
         android:textSize="16sp"

@@ -28,7 +28,12 @@ class TopicsViewModel @Inject constructor(
         when (action) {
             is TopicsAction.ToggleTopic -> sessionStore.toggleTopic(action.topicId)
             TopicsAction.Continue -> viewModelScope.launch {
-                sendEffect(TopicsEffect.NavigateNext)
+                val effect = if (sessionStore.state.value.selectedTopicIds.isEmpty()) {
+                    TopicsEffect.ShowSelectionRequired
+                } else {
+                    TopicsEffect.NavigateNext
+                }
+                sendEffect(effect)
             }
 
             TopicsAction.Retry -> load(forceRefresh = true)

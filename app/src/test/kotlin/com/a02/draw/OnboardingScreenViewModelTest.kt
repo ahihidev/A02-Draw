@@ -92,6 +92,19 @@ class OnboardingScreenViewModelTest {
     }
 
     @Test
+    fun `topics requires a selection before navigating next`() = runTest {
+        val viewModel = TopicsViewModel(
+            GetArCatalogUseCase(FakeContentRepository()),
+            DefaultOnboardingSessionStore(),
+        )
+        advanceUntilIdle()
+
+        viewModel.onAction(TopicsAction.Continue)
+
+        assertEquals(TopicsEffect.ShowSelectionRequired, viewModel.effects.first())
+    }
+
+    @Test
     fun `onboarding store limits topic selection and shares selected topic`() {
         val store = DefaultOnboardingSessionStore()
         store.setTopics(

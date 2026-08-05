@@ -20,10 +20,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class SettingsFragment : BaseFragment<ScreenSettingsBinding>(
-    ScreenSettingsBinding::inflate,
-    useScreenTransitions = false,
-) {
+class SettingsFragment : BaseFragment<ScreenSettingsBinding>(ScreenSettingsBinding::inflate) {
+    override val useScreenTransitions: Boolean = false
+
     private val viewModel: SettingsViewModel by viewModels()
     private val adapter = SettingAdapter { viewModel.onAction(SettingsAction.OpenItem(it)) }
 
