@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 
 abstract class BaseFragment<VB : ViewBinding>(
     private val inflate: (LayoutInflater, ViewGroup?, Boolean) -> VB,
+    private val useScreenTransitions: Boolean = true,
 ) : Fragment() {
     private var internalBinding: VB? = null
     protected val binding: VB
@@ -24,6 +25,7 @@ abstract class BaseFragment<VB : ViewBinding>(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!useScreenTransitions) return
         enterTransition = sharedAxis(forward = true, durationMillis = SCREEN_ENTER_DURATION_MILLIS)
         reenterTransition =
             sharedAxis(forward = false, durationMillis = SCREEN_ENTER_DURATION_MILLIS)

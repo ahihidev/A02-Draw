@@ -1,24 +1,30 @@
 package com.a02.draw.feature.home.common.navigation
 
 import android.graphics.Typeface
+import android.os.SystemClock
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
-import com.a02.draw.core.ui.extensions.setDebouncedClickListener
 import com.a02.draw.feature.home.R
 import com.a02.draw.feature.home.common.model.BottomDestination
-import com.a02.draw.feature.home.common.motion.HomeMotion
-import com.a02.draw.feature.home.common.motion.dp
 import com.a02.draw.feature.home.databinding.ViewBottomNavigationBinding
 
 fun ViewBottomNavigationBinding.bindBottomNavigation(
     selected: BottomDestination,
     onDestinationSelected: (BottomDestination) -> Unit,
 ) {
-    navHome.setDebouncedClickListener { onDestinationSelected(BottomDestination.HOME) }
-    navLearn.setDebouncedClickListener { onDestinationSelected(BottomDestination.LEARN) }
-    navProfile.setDebouncedClickListener { onDestinationSelected(BottomDestination.PROFILE) }
-    navSettings.setDebouncedClickListener { onDestinationSelected(BottomDestination.SETTINGS) }
+    var lastClickAt = 0L
+    fun select(destination: BottomDestination) {
+        val now = SystemClock.elapsedRealtime()
+        if (now - lastClickAt < NAVIGATION_DEBOUNCE_MILLIS) return
+        lastClickAt = now
+        onDestinationSelected(destination)
+    }
+
+    navHome.setOnClickListener { select(BottomDestination.HOME) }
+    navLearn.setOnClickListener { select(BottomDestination.LEARN) }
+    navProfile.setOnClickListener { select(BottomDestination.PROFILE) }
+    navSettings.setOnClickListener { select(BottomDestination.SETTINGS) }
     renderBottomNavigation(selected)
 }
 
@@ -38,25 +44,15 @@ fun ViewBottomNavigationBinding.renderBottomNavigation(selected: BottomDestinati
         views.third.isSelected = isSelected
         views.third.setTextColor(color)
         views.third.setTypeface(null, if (isSelected) Typeface.BOLD else Typeface.NORMAL)
+        views.first.animate().cancel()
         views.second.animate().cancel()
         views.third.animate().cancel()
-        if (isSelected && HomeMotion.enabled()) {
-            views.second.translationY = views.second.dp(3f)
-            views.second.scaleX = 0.9f
-            views.second.scaleY = 0.9f
-            views.third.alpha = 0.55f
-            views.second.animate().translationY(-views.second.dp(2f)).scaleX(1.06f).scaleY(1.06f)
-                .setDuration(HomeMotion.MICRO).withEndAction {
-                    views.second.animate().translationY(0f).scaleX(1f).scaleY(1f)
-                        .setDuration(HomeMotion.MICRO / 2).start()
-                }.start()
-            views.third.animate().alpha(1f).setDuration(HomeMotion.MICRO).start()
-        } else {
-            views.second.translationY = 0f
-            views.second.scaleX = 1f
-            views.second.scaleY = 1f
-            views.third.alpha = 1f
-        }
+        views.first.scaleX = 1f
+        views.first.scaleY = 1f
+        views.second.translationY = 0f
+        views.second.scaleX = 1f
+        views.second.scaleY = 1f
+        views.third.alpha = 1f
     }
 }
 
@@ -68,16 +64,15 @@ fun NavController.navigateBottom(destination: BottomDestination) {
         BottomDestination.SETTINGS -> R.id.settingsFragment
     }
     if (currentDestination?.id == destinationId) return
-    if (destination == BottomDestination.HOME) {
-        popBackStack(R.id.mainHomeFragment, false)
-        return
-    }
     navigate(
         destinationId,
         null,
         NavOptions.Builder()
             .setLaunchSingleTop(true)
-            .setPopUpTo(R.id.mainHomeFragment, false)
+            .setRestoreState(true)
+            .setPopUpTo(graph.startDestinationId, false, true)
             .build(),
     )
 }
+
+private const val NAVIGATION_DEBOUNCE_MILLIS = 300L

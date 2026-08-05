@@ -9,6 +9,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.a02.draw.core.ui.base.BaseFragment
@@ -18,10 +19,6 @@ import com.a02.draw.feature.home.R
 import com.a02.draw.feature.home.common.image.HomeImageLoader
 import com.a02.draw.feature.home.common.model.BottomDestination
 import com.a02.draw.feature.home.common.model.DeviceImageSource
-import com.a02.draw.feature.home.common.motion.animateFirstVisibleItems
-import com.a02.draw.feature.home.common.motion.crossfadeVisible
-import com.a02.draw.feature.home.common.motion.playStaggeredEntrance
-import com.a02.draw.feature.home.common.motion.slideFadeVisible
 import com.a02.draw.feature.home.common.navigation.bindBottomNavigation
 import com.a02.draw.feature.home.common.navigation.bindMainTabHeader
 import com.a02.draw.feature.home.common.navigation.navigateBottom
@@ -32,12 +29,13 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 @AndroidEntryPoint
-class HomeFragment : BaseFragment<ScreenMainHomeBinding>(ScreenMainHomeBinding::inflate) {
+class HomeFragment : BaseFragment<ScreenMainHomeBinding>(
+    ScreenMainHomeBinding::inflate,
+    useScreenTransitions = false,
+) {
     private val viewModel: HomeViewModel by viewModels()
     private val imageLoader = HomeImageLoader()
     private var sourceCaptureFile: File? = null
-    private var hasAnimatedTopics = false
-    private var modalVisible: Boolean? = null
     private val topicAdapter by lazy {
         HomeTopicAdapter(imageLoader) { viewModel.onAction(HomeAction.OpenTopic(it)) }
     }
@@ -92,14 +90,6 @@ class HomeFragment : BaseFragment<ScreenMainHomeBinding>(ScreenMainHomeBinding::
         binding.bottomNavigationInclude.bindBottomNavigation(BottomDestination.HOME) {
             viewModel.onAction(HomeAction.OpenBottomDestination(it))
         }
-        if (savedInstanceState == null) {
-            playStaggeredEntrance(
-                listOf(
-                    binding.header.root,
-                    binding.gallerySource,
-                ),
-            )
-        }
     }
 
     override fun observeData() {
@@ -108,12 +98,8 @@ class HomeFragment : BaseFragment<ScreenMainHomeBinding>(ScreenMainHomeBinding::
                 viewModel.state.collect { state ->
                     val showSkeleton = state.isLoading && state.topics.isEmpty()
                     topicAdapter.submitList(state.topics)
-                    binding.topicLoadingSkeleton.crossfadeVisible(showSkeleton)
-                    binding.topicList.crossfadeVisible(!showSkeleton)
-                    if (!showSkeleton && state.topics.isNotEmpty() && !hasAnimatedTopics) {
-                        hasAnimatedTopics = true
-                        binding.topicList.animateFirstVisibleItems()
-                    }
+                    binding.topicLoadingSkeleton.isVisible = showSkeleton
+                    binding.topicList.isVisible = !showSkeleton
                     renderSourceModal(state.isSourceModalVisible)
                     binding.cameraSourceOption.isChecked =
                         state.selectedSource == DeviceImageSource.CAMERA
@@ -126,15 +112,8 @@ class HomeFragment : BaseFragment<ScreenMainHomeBinding>(ScreenMainHomeBinding::
     }
 
     private fun renderSourceModal(visible: Boolean) {
-        if (modalVisible == visible) return
-        modalVisible = visible
-        if (visible) {
-            binding.sourceModal.crossfadeVisible(true, 180L)
-            binding.sourceModalPanel.slideFadeVisible(true)
-        } else {
-            binding.sourceModalPanel.slideFadeVisible(false)
-            binding.sourceModal.crossfadeVisible(false, 220L)
-        }
+        binding.sourceModal.isVisible = visible
+        binding.sourceModalPanel.isVisible = visible
     }
 
     private fun handleEffect(effect: HomeScreenEffect) {
@@ -195,8 +174,6 @@ class HomeFragment : BaseFragment<ScreenMainHomeBinding>(ScreenMainHomeBinding::
     }
 
     override fun onDestroyView() {
-        binding.sourceModal.animate().cancel()
-        binding.sourceModalPanel.animate().cancel()
         binding.topicList.adapter = null
         imageLoader.close()
         super.onDestroyView()

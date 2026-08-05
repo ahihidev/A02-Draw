@@ -23,7 +23,10 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 
 @AndroidEntryPoint
-class ProfileFavoriteFragment : BaseFragment<ScreenProfileBinding>(ScreenProfileBinding::inflate) {
+class ProfileFavoriteFragment : BaseFragment<ScreenProfileBinding>(
+    ScreenProfileBinding::inflate,
+    useScreenTransitions = false,
+) {
     private val viewModel: ProfileFavoriteViewModel by viewModels()
     private val imageLoader = HomeImageLoader()
     private val favoriteAdapter by lazy {

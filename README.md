@@ -84,16 +84,20 @@ Room schemas are exported to `data/schemas` and must be committed with database 
 
 ## Release signing
 
-Unsigned release bundles build without local credentials. To sign a release, provide all four environment variables:
+Unsigned release builds do not require local credentials. To create a publishable, signed AAB,
+provide all four values as environment variables, Gradle properties, or entries in the ignored
+root-level `keystore.properties` file:
 
-```text
-A02_RELEASE_STORE_FILE
-A02_RELEASE_STORE_PASSWORD
-A02_RELEASE_KEY_ALIAS
-A02_RELEASE_KEY_PASSWORD
+```properties
+A02_RELEASE_STORE_FILE=/absolute/path/to/release.jks
+A02_RELEASE_STORE_PASSWORD=store-password
+A02_RELEASE_KEY_ALIAS=key-alias
+A02_RELEASE_KEY_PASSWORD=key-password
 ```
 
-Never commit keystores or credentials. The repository ignores common signing and secrets files.
+Environment variables take precedence over Gradle properties, which take precedence over
+`keystore.properties`. Never commit keystores or credentials. The repository ignores common
+signing and secrets files.
 
 ## Adding a feature
 
