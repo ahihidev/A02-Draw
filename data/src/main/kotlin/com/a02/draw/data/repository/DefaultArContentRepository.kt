@@ -9,6 +9,7 @@ import com.a02.draw.data.mapper.toAppError
 import com.a02.draw.data.mapper.toCacheEntities
 import com.a02.draw.data.mapper.toDomain
 import com.a02.draw.data.mapper.toRemoteLessons
+import com.a02.draw.data.mapper.toRemoteLessonsFromAssets
 import com.a02.draw.data.mapper.withRemoteContent
 import com.a02.draw.data.mapper.withRemoteLessons
 import com.a02.draw.data.remote.api.DrawApi
@@ -97,19 +98,27 @@ class DefaultArContentRepository @Inject constructor(
     }
 
     private suspend fun loadAllLessons(): List<RemoteLessonDto> {
-        val firstPage = api.getLessons(page = 1, limit = COMPLETE_LESSON_LIMIT).data
-        val lessons = buildList {
+        val firstPage = api.getAssets(
+            rootFamily = LESSON_ROOT_FAMILY,
+            page = 1,
+            limit = LESSON_PAGE_SIZE,
+        ).data
+        val lessonAssets = buildList {
             addAll(firstPage.items)
             for (pageNumber in 2..firstPage.totalPages.coerceAtLeast(1)) {
-                val page = api.getLessons(page = pageNumber, limit = COMPLETE_LESSON_LIMIT).data
-                check(page.page == pageNumber) { "Lesson API returned the wrong page" }
+                val page = api.getAssets(
+                    rootFamily = LESSON_ROOT_FAMILY,
+                    page = pageNumber,
+                    limit = LESSON_PAGE_SIZE,
+                ).data
+                check(page.page == pageNumber) { "Lesson asset API returned the wrong page" }
                 addAll(page.items)
             }
-        }.distinctBy(RemoteLessonDto::lessonId)
-        check(firstPage.total <= 0 || lessons.size == firstPage.total) {
-            "Refusing to replace the lesson cache with an incomplete snapshot"
+        }.distinctBy(RemoteAssetDto::assetId)
+        check(firstPage.total <= 0 || lessonAssets.size == firstPage.total) {
+            "Refusing to build lessons from an incomplete asset snapshot"
         }
-        return lessons
+        return lessonAssets.toRemoteLessonsFromAssets()
     }
 
     private suspend fun loadCachedLessonsOrEmpty(): List<RemoteLessonDto> = try {
@@ -121,12 +130,15 @@ class DefaultArContentRepository @Inject constructor(
     }
 
     private fun remoteIsConfigured(): Boolean =
-        BuildConfig.API_BASE_URL.startsWith("http", ignoreCase = true)
+        BuildConfig.API_BASE_URL.startsWith("http", ignoreCase = true) &&
+                BuildConfig.API_AES_KEY.isNotBlank() &&
+                BuildConfig.API_AES_IV.isNotBlank()
 
     private companion object {
         // The current UI owns local filtering and scrolling, so one complete snapshot keeps
         // search/category filters complete without issuing a request for every keystroke.
         const val COMPLETE_CATALOG_LIMIT = 5_000
-        const val COMPLETE_LESSON_LIMIT = 5_000
+        const val LESSON_PAGE_SIZE = 20
+        const val LESSON_ROOT_FAMILY = "lesson"
     }
 }

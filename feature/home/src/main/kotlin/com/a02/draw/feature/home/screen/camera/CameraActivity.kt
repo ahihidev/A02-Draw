@@ -42,6 +42,7 @@ import com.a02.draw.feature.home.common.image.HomeImageLoader
 import com.a02.draw.feature.home.common.model.DrawingCameraPanel
 import com.a02.draw.feature.home.common.model.DrawingCameraRatio
 import com.a02.draw.feature.home.common.model.DrawingCropRatio
+import com.a02.draw.feature.home.common.motion.HomeMotion
 import com.a02.draw.feature.home.common.session.DrawingSession
 import com.a02.draw.feature.home.databinding.ActivityCameraBinding
 import com.google.android.material.snackbar.Snackbar
@@ -107,6 +108,13 @@ class CameraActivity : BaseActivity<ActivityCameraBinding>(ActivityCameraBinding
     private fun handleEffect(effect: CameraEffect) {
         when (effect) {
             CameraEffect.Finish -> finishCamera()
+            CameraEffect.FinishDrawing -> {
+                setResult(
+                    RESULT_OK,
+                    Intent().putExtra(EXTRA_DRAWING_FINISHED, true),
+                )
+                finish()
+            }
             is CameraEffect.Capture -> scheduleCompositePhoto(effect.delaySeconds)
             is CameraEffect.SetTorch -> runCatching {
                 cameraController?.enableTorch(effect.enabled)
@@ -192,7 +200,7 @@ class CameraActivity : BaseActivity<ActivityCameraBinding>(ActivityCameraBinding
             binding.cameraCountdown.isVisible = true
             try {
                 for (remaining in delaySeconds downTo 1) {
-                    binding.cameraCountdown.text = remaining.toString()
+                    binding.cameraCountdown.text = getString(R.string.countdown_number, remaining)
                     binding.cameraCountdown.alpha = 0f
                     binding.cameraCountdown.scaleX = 0.78f
                     binding.cameraCountdown.scaleY = 0.78f
@@ -236,6 +244,7 @@ class CameraActivity : BaseActivity<ActivityCameraBinding>(ActivityCameraBinding
     private fun captureCompositePhoto() {
         if (captureInProgress) return
         captureInProgress = true
+        playCaptureFlash()
         val controller = cameraController ?: return showCaptureError()
         val executor = imageCaptureExecutor ?: Executors.newSingleThreadExecutor().also {
             imageCaptureExecutor = it
@@ -252,6 +261,18 @@ class CameraActivity : BaseActivity<ActivityCameraBinding>(ActivityCameraBinding
 
             override fun onError(exception: ImageCaptureException) = showCaptureError()
         })
+    }
+
+    private fun playCaptureFlash() {
+        binding.captureFlash.animate().cancel()
+        if (!HomeMotion.enabled()) {
+            binding.captureFlash.alpha = 0f
+            return
+        }
+        binding.captureFlash.alpha = 0f
+        binding.captureFlash.animate().alpha(0.72f).setDuration(70L).withEndAction {
+            binding.captureFlash.animate().alpha(0f).setDuration(110L).start()
+        }.start()
     }
 
     private fun composeAndSave(cameraBitmap: Bitmap, rotationDegrees: Int) {
@@ -422,6 +443,7 @@ class CameraActivity : BaseActivity<ActivityCameraBinding>(ActivityCameraBinding
         const val EXTRA_LESSON_COUNT = "camera.lesson_count"
         const val EXTRA_LESSON_STEP_URLS = "camera.lesson_step_urls"
         const val EXTRA_LESSON_STEP_LOCAL_KEYS = "camera.lesson_step_local_keys"
+        const val EXTRA_DRAWING_FINISHED = "camera.drawing_finished"
 
         fun intent(context: Context, session: DrawingSession) =
             Intent(context, CameraActivity::class.java).apply {

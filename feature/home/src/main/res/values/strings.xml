@@ -25,8 +25,6 @@
     <string name="main_search_icon" translatable="false">⌕</string>
     <string name="main_my_gallery">My Gallery</string>
     <string name="main_hot_trend">Hot trend</string>
-    <string name="main_ai_emoji_mix">AI Emoji Mix</string>
-    <string name="main_web_browser">Web Browser</string>
     <string name="main_choose_topic">Choose topic</string>
     <string name="main_home">Home</string>
     <string name="main_learn">Learn</string>
@@ -87,6 +85,7 @@
     <string name="timer_off">Off</string>
     <string name="timer_3" translatable="false">3s</string>
     <string name="timer_10" translatable="false">10s</string>
+    <string name="countdown_number" translatable="false">%d</string>
     <string name="front_camera">Front</string>
     <string name="back_camera">Back</string>
     <string name="guide">Guide</string>
@@ -96,9 +95,17 @@
     <string name="reset">Reset</string>
     <string name="full">Full</string>
     <string name="good_job">Good Job</string>
+    <string name="drawing_complete_title">Your drawing is complete!</string>
     <string name="take_photo">Take a photo</string>
     <string name="take_photo_description">Take a photo of the finished drawing to share with your friend.</string>
+    <string name="take_photo_save_share">Take a photo to save and share your artwork.</string>
     <string name="drawing_saved_description">Your drawing is saved and ready to share with your friend.</string>
+    <string name="photo_saved_title">Your artwork is ready</string>
+    <string name="retake_photo">Retake photo</string>
+    <string name="saving_drawing">Saving your drawing…</string>
+    <string name="drawing_saved">Saved to My Album</string>
+    <string name="capture_result">Capture result</string>
+    <string name="switch_camera">Switch camera</string>
     <string name="not_finished">It’s not finished yet</string>
     <string name="back_to_settings">Back to Settings</string>
     <string name="your_privacy">Your privacy</string>

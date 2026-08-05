@@ -2,11 +2,11 @@ package com.a02.draw.feature.home
 
 import androidx.lifecycle.SavedStateHandle
 import com.a02.draw.core.common.result.AppResult
+import com.a02.draw.domain.model.AppPreferences
 import com.a02.draw.domain.model.ArCatalog
 import com.a02.draw.domain.model.Artwork
 import com.a02.draw.domain.model.ContentImage
 import com.a02.draw.domain.model.Drawing
-import com.a02.draw.domain.model.AppPreferences
 import com.a02.draw.domain.model.ThemeMode
 import com.a02.draw.domain.repository.AppPreferencesRepository
 import com.a02.draw.domain.repository.ArContentRepository
@@ -83,12 +83,48 @@ class ScreenArchitectureTest {
         viewModel.onAction(
             DrawingCanvasAction.Control(DrawingControlAction.ChangeOpacity(0.8f)),
         )
-        viewModel.onAction(DrawingCanvasAction.Captured("content://drawing/result"))
+        viewModel.onAction(DrawingCanvasAction.Control(DrawingControlAction.Complete))
         advanceUntilIdle()
 
         assertEquals(0.8f, store.state.value.opacity)
-        assertEquals("content://drawing/result", store.state.value.capturedImageUri)
+        assertEquals(null, store.state.value.capturedImageUri)
         assertEquals(DrawingCanvasEffect.NavigateComplete, viewModel.effects.first())
+    }
+
+    @Test
+    fun `complete view model asks for a result photo before saving`() = runTest {
+        val store = DefaultDrawingSessionStore()
+        val repository = RecordingDrawingRepository()
+        val viewModel = DrawingCompleteViewModel(store, SaveDrawingUseCase(repository))
+
+        viewModel.onAction(DrawingCompleteAction.TakePhoto)
+        assertEquals(DrawingCompleteEffect.LaunchResultCamera, viewModel.effects.first())
+        assertTrue(repository.saved.isEmpty())
+
+        viewModel.onAction(DrawingCompleteAction.PhotoCaptured("content://drawing/photo"))
+        advanceUntilIdle()
+
+        assertEquals("content://drawing/photo", viewModel.state.value.capturedUri)
+        assertTrue(viewModel.state.value.isSaved)
+        assertEquals(listOf("content://drawing/photo"), repository.saved.map(Drawing::mediaUri))
+    }
+
+    @Test
+    fun `complete view model returns to the active drawing when it is not finished`() = runTest {
+        val store = DefaultDrawingSessionStore().apply {
+            reset(DrawingSession(mode = DrawingMode.CAMERA))
+        }
+        val viewModel = DrawingCompleteViewModel(
+            store,
+            SaveDrawingUseCase(RecordingDrawingRepository()),
+        )
+
+        viewModel.onAction(DrawingCompleteAction.ContinueDrawing)
+
+        assertEquals(
+            DrawingCompleteEffect.ContinueDrawing(DrawingMode.CAMERA),
+            viewModel.effects.first(),
+        )
     }
 
     @Test

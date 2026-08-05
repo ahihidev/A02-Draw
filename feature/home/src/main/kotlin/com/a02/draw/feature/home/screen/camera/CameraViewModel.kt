@@ -51,7 +51,7 @@ class CameraViewModel @Inject constructor(
     private fun handleControl(action: DrawingControlAction) {
         when (action) {
             DrawingControlAction.Back -> send(CameraEffect.Finish)
-            DrawingControlAction.Complete -> send(CameraEffect.Capture())
+            DrawingControlAction.Complete -> send(CameraEffect.FinishDrawing)
             DrawingControlAction.Shutter -> {
                 if (state.value.session.cameraPanel == DrawingCameraPanel.RECORD) toggleRecording()
                 else send(CameraEffect.Capture(state.value.session.captureDelaySeconds))
@@ -67,7 +67,7 @@ class CameraViewModel @Inject constructor(
                     session.lessonStepIndex >= session.lessonStepCount - 1
                 ) {
                     saveLessonProgress(session.lessonStepCount)
-                    send(CameraEffect.Capture())
+                    send(CameraEffect.FinishDrawing)
                 } else {
                     saveLessonProgress(session.lessonStepIndex + 1)
                     mutate { atLessonStep(lessonStepIndex + 1) }

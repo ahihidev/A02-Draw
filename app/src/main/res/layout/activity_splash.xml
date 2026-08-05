@@ -13,17 +13,31 @@
         android:importantForAccessibility="no"
         android:scaleType="fitCenter"
         android:src="@drawable/app_launcher_icon"
-        app:layout_constraintBottom_toTopOf="@id/splash_title"
+        app:layout_constraintBottom_toTopOf="@id/splash_progress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed" />
 
+    <ProgressBar
+        android:id="@+id/splash_progress"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="18dp"
+        android:importantForAccessibility="no"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/onboarding_purple"
+        app:layout_constraintBottom_toTopOf="@id/splash_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/splash_icon" />
+
     <TextView
         android:id="@+id/splash_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="14dp"
         android:fontFamily="sans-serif-rounded"
         android:includeFontPadding="false"
         android:letterSpacing="0.02"
@@ -34,6 +48,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/splash_icon" />
+        app:layout_constraintTop_toBottomOf="@id/splash_progress" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

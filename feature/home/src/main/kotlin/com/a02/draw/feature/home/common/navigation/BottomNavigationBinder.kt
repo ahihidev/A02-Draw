@@ -7,6 +7,8 @@ import androidx.navigation.NavOptions
 import com.a02.draw.core.ui.extensions.setDebouncedClickListener
 import com.a02.draw.feature.home.R
 import com.a02.draw.feature.home.common.model.BottomDestination
+import com.a02.draw.feature.home.common.motion.HomeMotion
+import com.a02.draw.feature.home.common.motion.dp
 import com.a02.draw.feature.home.databinding.ViewBottomNavigationBinding
 
 fun ViewBottomNavigationBinding.bindBottomNavigation(
@@ -36,6 +38,25 @@ fun ViewBottomNavigationBinding.renderBottomNavigation(selected: BottomDestinati
         views.third.isSelected = isSelected
         views.third.setTextColor(color)
         views.third.setTypeface(null, if (isSelected) Typeface.BOLD else Typeface.NORMAL)
+        views.second.animate().cancel()
+        views.third.animate().cancel()
+        if (isSelected && HomeMotion.enabled()) {
+            views.second.translationY = views.second.dp(3f)
+            views.second.scaleX = 0.9f
+            views.second.scaleY = 0.9f
+            views.third.alpha = 0.55f
+            views.second.animate().translationY(-views.second.dp(2f)).scaleX(1.06f).scaleY(1.06f)
+                .setDuration(HomeMotion.MICRO).withEndAction {
+                    views.second.animate().translationY(0f).scaleX(1f).scaleY(1f)
+                        .setDuration(HomeMotion.MICRO / 2).start()
+                }.start()
+            views.third.animate().alpha(1f).setDuration(HomeMotion.MICRO).start()
+        } else {
+            views.second.translationY = 0f
+            views.second.scaleX = 1f
+            views.second.scaleY = 1f
+            views.third.alpha = 1f
+        }
     }
 }
 

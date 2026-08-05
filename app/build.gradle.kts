@@ -64,6 +64,12 @@ android {
                 storePassword = releaseSigningEnvironment["A02_RELEASE_STORE_PASSWORD"]
                 keyAlias = releaseSigningEnvironment["A02_RELEASE_KEY_ALIAS"]
                 keyPassword = releaseSigningEnvironment["A02_RELEASE_KEY_PASSWORD"]
+                // Some OEM package scanners still inspect the legacy JAR certificate.
+                // Keep direct-distribution APKs on v1 + v2 for broad installer compatibility.
+                enableV1Signing = true
+                enableV2Signing = true
+                enableV3Signing = false
+                enableV4Signing = false
             }
         }
     }

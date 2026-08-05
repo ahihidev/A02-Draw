@@ -33,7 +33,10 @@ class DrawingCanvasViewModel @Inject constructor(
                 }
                 when (sessionStore.reduce(action.action)) {
                     DrawingNavigation.BACK -> send(DrawingCanvasEffect.NavigateBack)
-                    DrawingNavigation.CAPTURE -> send(DrawingCanvasEffect.CaptureCanvas)
+                    DrawingNavigation.CAPTURE -> {
+                        sessionStore.update { copy(capturedImageUri = null) }
+                        send(DrawingCanvasEffect.NavigateComplete)
+                    }
                     DrawingNavigation.OPACITY -> send(DrawingCanvasEffect.NavigateOpacity)
                     else -> Unit
                 }
@@ -47,10 +50,6 @@ class DrawingCanvasViewModel @Inject constructor(
                 )
             }
 
-            is DrawingCanvasAction.Captured -> {
-                sessionStore.update { copy(capturedImageUri = action.uri) }
-                send(DrawingCanvasEffect.NavigateComplete)
-            }
         }
     }
 

@@ -11,13 +11,11 @@ data class DrawingCanvasUiState(val session: DrawingSession = DrawingSession()) 
 sealed interface DrawingCanvasAction {
     data class Control(val action: DrawingControlAction) : DrawingCanvasAction
     data class Transform(val value: OverlayTransform) : DrawingCanvasAction
-    data class Captured(val uri: String) : DrawingCanvasAction
 }
 
 sealed interface DrawingCanvasEffect : UiEffect {
     data object NavigateBack : DrawingCanvasEffect
     data object NavigateOpacity : DrawingCanvasEffect
-    data object CaptureCanvas : DrawingCanvasEffect
     data object NavigateComplete : DrawingCanvasEffect
     data object ShowProgressError : DrawingCanvasEffect
 }

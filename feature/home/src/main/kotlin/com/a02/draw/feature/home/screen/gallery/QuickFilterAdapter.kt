@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.a02.draw.feature.home.R
 import com.a02.draw.feature.home.common.model.GalleryFilter
+import com.a02.draw.feature.home.common.motion.pulse
 import com.a02.draw.feature.home.databinding.ItemFilterChipBinding
 
 data class QuickFilterItem(val filter: GalleryFilter, val isSelected: Boolean)
@@ -32,7 +33,10 @@ class QuickFilterAdapter(
                     if (item.isSelected) R.color.home_purple else R.color.home_navy,
                 ),
             )
-            binding.root.setOnClickListener { onClick(item.filter) }
+            binding.root.setOnClickListener {
+                binding.root.pulse(1.05f)
+                onClick(item.filter)
+            }
         }
 
         private fun GalleryFilter.label() = binding.root.context.getString(

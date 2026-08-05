@@ -29,6 +29,7 @@ dependencies {
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.camera.video)
+    implementation(libs.lottie)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

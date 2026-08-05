@@ -21,37 +21,49 @@ class DrawingCompleteViewModel @Inject constructor(
     DrawingCompleteUiState(
         capturedUri = drawingSession.state.value.capturedImageUri,
         mode = drawingSession.state.value.mode,
+        isSaved = drawingSession.state.value.capturedImageUri != null &&
+                drawingSession.state.value.activeDrawingId != null,
     ),
 ) {
     private val saveMutex = Mutex()
-    private var saveStarted = false
+    private var lastSavedUri: String? = null
 
     init {
-        saveOnce()
+        val session = drawingSession.state.value
+        if (session.activeDrawingId == null) saveCapturedDrawing(session.capturedImageUri)
     }
 
     fun onAction(action: DrawingCompleteAction) {
         when (action) {
-            DrawingCompleteAction.Back -> send(DrawingCompleteEffect.NavigateBack)
+            DrawingCompleteAction.Back -> send(DrawingCompleteEffect.ContinueDrawing(state.value.mode))
             DrawingCompleteAction.Home -> send(DrawingCompleteEffect.NavigateHome)
+            DrawingCompleteAction.TakePhoto,
+            DrawingCompleteAction.RetakePhoto
+                -> send(DrawingCompleteEffect.LaunchResultCamera)
+
+            is DrawingCompleteAction.PhotoCaptured -> {
+                drawingSession.update { copy(capturedImageUri = action.uri) }
+                updateState { copy(capturedUri = action.uri, isSaved = false) }
+                saveCapturedDrawing(action.uri)
+            }
+
             DrawingCompleteAction.Share -> state.value.capturedUri?.let {
                 send(DrawingCompleteEffect.Share(it))
             }
 
-            DrawingCompleteAction.Retake -> {
+            DrawingCompleteAction.ContinueDrawing -> {
                 drawingSession.update { copy(capturedImageUri = null) }
-                send(DrawingCompleteEffect.Retake(state.value.mode))
+                send(DrawingCompleteEffect.ContinueDrawing(state.value.mode))
             }
         }
     }
 
-    private fun saveOnce() {
-        if (saveStarted) return
-        saveStarted = true
-        val session = drawingSession.state.value
-        val uri = session.capturedImageUri ?: return
+    private fun saveCapturedDrawing(uri: String?) {
+        if (uri == null || uri == lastSavedUri) return
         viewModelScope.launch {
             saveMutex.withLock {
+                if (uri == lastSavedUri) return@withLock
+                val session = drawingSession.state.value
                 updateState { copy(isSaving = true) }
                 val drawing = Drawing(
                     id = session.activeDrawingId ?: 0,
@@ -65,6 +77,7 @@ class DrawingCompleteViewModel @Inject constructor(
                 )
                 when (val result = saveDrawing(drawing)) {
                     is AppResult.Success -> {
+                        lastSavedUri = uri
                         drawingSession.update { copy(activeDrawingId = result.data) }
                         updateState { copy(isSaving = false, isSaved = true) }
                     }

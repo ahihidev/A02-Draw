@@ -64,9 +64,6 @@
         android:id="@+id/profileFavoriteFragment"
         android:name="com.a02.draw.feature.home.screen.profilefavorite.ProfileFavoriteFragment" />
     <fragment
-        android:id="@+id/profileAlbumFragment"
-        android:name="com.a02.draw.feature.home.screen.profilealbum.ProfileAlbumFragment" />
-    <fragment
         android:id="@+id/tutorialCameraFragment"
         android:name="com.a02.draw.feature.home.screen.tutorialcamera.TutorialCameraFragment">
         <action

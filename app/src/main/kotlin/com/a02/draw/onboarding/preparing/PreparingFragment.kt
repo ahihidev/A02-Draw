@@ -21,8 +21,15 @@ class PreparingFragment : BaseFragment<ScreenOnboardingPreparingBinding>(
 
     override fun observeData() {
         collectWhenStarted {
+            launch { viewModel.state.collect(::render) }
             launch { viewModel.effects.collect(::handleEffect) }
         }
+    }
+
+    private fun render(state: PreparingUiState) = with(binding) {
+        preparingFavoritesProgress.progress = state.favoritesProgress
+        preparingReferencesProgress.progress = state.referencesProgress
+        preparingToolsProgress.progress = state.toolsProgress
     }
 
     private fun handleEffect(effect: PreparingEffect) {

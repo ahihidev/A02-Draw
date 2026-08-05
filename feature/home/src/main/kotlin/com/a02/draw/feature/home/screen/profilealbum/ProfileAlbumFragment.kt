@@ -5,19 +5,19 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.a02.draw.core.ui.base.BaseFragment
-import com.a02.draw.core.ui.extensions.applyStatusBarPadding
-import com.a02.draw.core.ui.extensions.setDebouncedClickListener
 import com.a02.draw.core.ui.extensions.setAdaptiveGridLayoutManager
+import com.a02.draw.core.ui.extensions.setDebouncedClickListener
 import com.a02.draw.feature.home.R
 import com.a02.draw.feature.home.common.component.ProfileDrawingAdapter
 import com.a02.draw.feature.home.common.image.HomeImageLoader
 import com.a02.draw.feature.home.common.model.BottomDestination
 import com.a02.draw.feature.home.common.navigation.bindBottomNavigation
+import com.a02.draw.feature.home.common.navigation.bindMainTabHeader
 import com.a02.draw.feature.home.common.navigation.navigateBottom
 import com.a02.draw.feature.home.databinding.ScreenProfileBinding
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.NumberFormat
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
 
 @AndroidEntryPoint
 class ProfileAlbumFragment : BaseFragment<ScreenProfileBinding>(ScreenProfileBinding::inflate) {
@@ -28,7 +28,7 @@ class ProfileAlbumFragment : BaseFragment<ScreenProfileBinding>(ScreenProfileBin
     }
 
     override fun setupViews(savedInstanceState: Bundle?) {
-        binding.header.applyStatusBarPadding(lightStatusBarIcons = false)
+        binding.header.bindMainTabHeader()
         binding.contentList.setAdaptiveGridLayoutManager(
             minimumItemWidth = resources.getDimensionPixelSize(R.dimen.artwork_min_cell_width),
             minimumSpanCount = 2,

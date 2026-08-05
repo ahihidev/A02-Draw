@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.inputmethod.EditorInfo
-import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,6 +12,8 @@ import com.a02.draw.core.ui.extensions.applyStatusBarPadding
 import com.a02.draw.core.ui.extensions.setDebouncedClickListener
 import com.a02.draw.feature.home.R
 import com.a02.draw.feature.home.common.component.TrendingSearchAdapter
+import com.a02.draw.feature.home.common.motion.animateFirstVisibleItems
+import com.a02.draw.feature.home.common.motion.crossfadeVisible
 import com.a02.draw.feature.home.databinding.ScreenSearchBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 class SearchFragment : BaseFragment<ScreenSearchBinding>(ScreenSearchBinding::inflate) {
     private val viewModel: SearchViewModel by viewModels()
     private var rendering = false
+    private var hasAnimatedInitialItems = false
     private val adapter by lazy {
         TrendingSearchAdapter { viewModel.onAction(SearchAction.SelectTrending(it)) }
     }
@@ -68,9 +70,13 @@ class SearchFragment : BaseFragment<ScreenSearchBinding>(ScreenSearchBinding::in
                     val showSkeleton = state.isLoading && state.trending.isEmpty()
                     adapter.submitList(state.trending)
                     binding.sectionTitle.setText(R.string.trending)
-                    binding.loadingSkeleton.isVisible = showSkeleton
-                    binding.contentList.isVisible = !showSkeleton
-                    binding.emptyMessage.isVisible = false
+                    binding.loadingSkeleton.crossfadeVisible(showSkeleton)
+                    binding.contentList.crossfadeVisible(!showSkeleton)
+                    binding.emptyMessage.crossfadeVisible(false)
+                    if (!showSkeleton && state.trending.isNotEmpty() && !hasAnimatedInitialItems) {
+                        hasAnimatedInitialItems = true
+                        binding.contentList.animateFirstVisibleItems()
+                    }
                 }
             }
             launch {

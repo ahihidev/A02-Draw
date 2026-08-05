@@ -17,6 +17,7 @@ sealed interface CameraAction {
 
 sealed interface CameraEffect : UiEffect {
     data object Finish : CameraEffect
+    data object FinishDrawing : CameraEffect
     data class Capture(val delaySeconds: Int = 0) : CameraEffect
     data class SetTorch(val enabled: Boolean) : CameraEffect
     data class SetZoom(val zoom: Float) : CameraEffect

@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -12,6 +13,10 @@ import com.a02.draw.core.ui.extensions.applyStatusBarPadding
 import com.a02.draw.core.ui.extensions.setDebouncedClickListener
 import com.a02.draw.feature.home.R
 import com.a02.draw.feature.home.common.image.HomeImageLoader
+import com.a02.draw.feature.home.common.motion.HomeMotion
+import com.a02.draw.feature.home.common.motion.enterFromBottom
+import com.a02.draw.feature.home.common.motion.playStaggeredEntrance
+import com.a02.draw.feature.home.common.motion.renderSelectedCard
 import com.a02.draw.feature.home.databinding.ScreenTutorialBinding
 import com.a02.draw.feature.home.screen.camera.CameraActivity
 import com.google.android.material.snackbar.Snackbar
@@ -36,18 +41,40 @@ class TutorialCameraFragment : BaseFragment<ScreenTutorialBinding>(ScreenTutoria
     private val camera = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
     ) { result ->
-        result.data?.data?.takeIf { result.resultCode == android.app.Activity.RESULT_OK }?.let {
-            viewModel.onAction(TutorialCameraAction.CameraCaptured(it.toString()))
+        if (result.resultCode != android.app.Activity.RESULT_OK) return@registerForActivityResult
+        if (result.data?.getBooleanExtra(CameraActivity.EXTRA_DRAWING_FINISHED, false) == true) {
+            viewModel.onAction(TutorialCameraAction.DrawingFinished)
+        } else {
+            result.data?.data?.let {
+                viewModel.onAction(TutorialCameraAction.CameraCaptured(it.toString()))
+            }
         }
     }
 
     override fun setupViews(savedInstanceState: Bundle?) {
         binding.toolbar.applyStatusBarPadding()
-        binding.cameraMode.isSelected = true
+        binding.cameraMode.renderSelectedCard(true)
+        binding.screenMode.renderSelectedCard(false)
         binding.backButton.setDebouncedClickListener { viewModel.onAction(TutorialCameraAction.Back) }
         binding.cameraMode.setOnClickListener { }
         binding.screenMode.setDebouncedClickListener { viewModel.onAction(TutorialCameraAction.SelectScreenMode) }
         binding.drawButton.setDebouncedClickListener { viewModel.onAction(TutorialCameraAction.Start) }
+        if (savedInstanceState == null) {
+            playStaggeredEntrance(
+                listOf(binding.cameraMode, binding.screenMode),
+                horizontalDirections = listOf(-1, 1),
+                verticalDp = 0f,
+            )
+            binding.cameraMode.scaleX = 1f
+            binding.cameraMode.scaleY = 1f
+            binding.screenMode.scaleX = 0.97f
+            binding.screenMode.scaleY = 0.97f
+            binding.drawButton.enterFromBottom(HomeMotion.CONTENT + HomeMotion.STAGGER)
+        }
+        val shouldResumeDrawing = findNavController().currentBackStackEntry
+            ?.savedStateHandle
+            ?.remove<Boolean>(RESUME_CAMERA_REQUEST_KEY) == true
+        if (shouldResumeDrawing) binding.root.post(::requestOrLaunchCamera)
     }
 
     override fun observeData() {
@@ -80,7 +107,14 @@ class TutorialCameraFragment : BaseFragment<ScreenTutorialBinding>(ScreenTutoria
     }
 
     private fun launchCamera() {
-        camera.launch(CameraActivity.intent(requireContext(), viewModel.state.value.session))
+        camera.launch(
+            CameraActivity.intent(requireContext(), viewModel.state.value.session),
+            ActivityOptionsCompat.makeCustomAnimation(
+                requireContext(),
+                R.anim.motion_camera_enter,
+                R.anim.motion_screen_fade_out,
+            ),
+        )
     }
 
     private fun loadReference(uri: String?, image: com.a02.draw.domain.model.ContentImage?) {

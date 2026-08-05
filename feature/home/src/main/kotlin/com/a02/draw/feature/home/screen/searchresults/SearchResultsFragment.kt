@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.inputmethod.EditorInfo
-import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.a02.draw.core.ui.base.BaseFragment
@@ -16,6 +15,8 @@ import com.a02.draw.feature.home.R
 import com.a02.draw.feature.home.common.component.ArtworkAdapter
 import com.a02.draw.feature.home.common.component.ArtworkRow
 import com.a02.draw.feature.home.common.image.HomeImageLoader
+import com.a02.draw.feature.home.common.motion.animateFirstVisibleItems
+import com.a02.draw.feature.home.common.motion.crossfadeVisible
 import com.a02.draw.feature.home.databinding.ScreenSearchBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -25,6 +26,7 @@ class SearchResultsFragment : BaseFragment<ScreenSearchBinding>(ScreenSearchBind
     private val viewModel: SearchResultsViewModel by viewModels()
     private val imageLoader = HomeImageLoader()
     private var rendering = false
+    private var hasAnimatedInitialItems = false
     private val adapter by lazy {
         ArtworkAdapter(imageLoader, { viewModel.onAction(SearchResultsAction.OpenArtwork(it)) }, {})
     }
@@ -78,9 +80,14 @@ class SearchResultsFragment : BaseFragment<ScreenSearchBinding>(ScreenSearchBind
                     }
                     binding.sectionTitle.setText(R.string.search_results)
                     adapter.submitList(state.results.map { ArtworkRow(it, false, false) })
-                    binding.loadingSkeleton.isVisible = showSkeleton
-                    binding.contentList.isVisible = !showSkeleton
-                    binding.emptyMessage.isVisible = state.results.isEmpty() && !state.isLoading
+                    val showEmpty = state.results.isEmpty() && !state.isLoading
+                    binding.loadingSkeleton.crossfadeVisible(showSkeleton)
+                    binding.contentList.crossfadeVisible(!showSkeleton && !showEmpty)
+                    binding.emptyMessage.crossfadeVisible(showEmpty)
+                    if (!showSkeleton && state.results.isNotEmpty() && !hasAnimatedInitialItems) {
+                        hasAnimatedInitialItems = true
+                        binding.contentList.animateFirstVisibleItems()
+                    }
                 }
             }
             launch {

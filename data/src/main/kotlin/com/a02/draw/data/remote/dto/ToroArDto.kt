@@ -16,6 +16,8 @@ data class RemoteAssetDto(
     val assetId: String,
     val name: String,
     val itemNumber: Int = 0,
+    val variantNumber: Int? = null,
+    val rootFamily: String? = null,
     val categorySlug: String,
     val categoryName: String,
     val subcategorySlug: String? = null,
@@ -52,21 +54,6 @@ data class RemoteLessonDto(
     val totalSteps: Int = 0,
     val coverImageUrl: String,
     val steps: List<RemoteLessonStepDto> = emptyList(),
-)
-
-data class RemoteLessonPageDto(
-    val items: List<RemoteLessonDto> = emptyList(),
-    val page: Int = 1,
-    val limit: Int = 20,
-    val total: Int = 0,
-    val totalPages: Int = 0,
-) {
-    val isCompleteSnapshot: Boolean
-        get() = page == 1 && totalPages <= 1 && items.size == total
-}
-
-data class RemoteLessonsEnvelopeDto(
-    val data: RemoteLessonPageDto = RemoteLessonPageDto(),
 )
 
 data class RemoteAssetEnvelopeDto(

@@ -1,6 +1,9 @@
 package com.a02.draw.data.remote
 
 import com.a02.draw.data.remote.api.DrawApi
+import com.a02.draw.data.remote.api.EncryptedDrawApiAdapter
+import com.a02.draw.data.remote.api.ToroArApi
+import com.a02.draw.data.remote.crypto.AesPayloadDecryptor
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.runBlocking
 import mockwebserver3.MockResponse
@@ -11,20 +14,31 @@ import org.junit.Before
 import org.junit.Test
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.nio.charset.StandardCharsets
+import javax.crypto.Cipher
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
+import kotlin.io.encoding.Base64
 
 class DrawApiTest {
     private lateinit var server: MockWebServer
+    private lateinit var toroArApi: ToroArApi
     private lateinit var api: DrawApi
 
     @Before
     fun setUp() {
         server = MockWebServer()
         server.start()
-        api = Retrofit.Builder()
+        val gson = GsonBuilder().create()
+        toroArApi = Retrofit.Builder()
             .baseUrl(server.url("/"))
-            .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
-            .create(DrawApi::class.java)
+            .create(ToroArApi::class.java)
+        api = EncryptedDrawApiAdapter(
+            api = toroArApi,
+            decryptor = AesPayloadDecryptor(gson, AES_KEY, AES_IV),
+        )
     }
 
     @After
@@ -56,7 +70,7 @@ class DrawApiTest {
 
     @Test
     fun `assets request parses JSON and sends documented query parameters`() = runBlocking {
-        server.enqueue(MockResponse(body = """{"data":{"items":[],"total":0}}"""))
+        server.enqueue(encryptedResponse("""{"data":{"items":[],"total":0}}"""))
 
         val result = api.getAssets(
             category = "animal",
@@ -68,7 +82,7 @@ class DrawApiTest {
 
         val request = server.takeRequest()
         assertEquals(0, result.data.total)
-        assertEquals(null, request.headers["X-Enable-AES"])
+        assertEquals("true", request.headers["X-Enable-AES"])
         assertEquals(
             "/api/v1/assets?category=animal&subcategory=dog&search=puppy&page=2&limit=50",
             request.url.encodedPath + "?" + request.url.encodedQuery,
@@ -76,21 +90,60 @@ class DrawApiTest {
     }
 
     @Test
-    fun `lessons request parses JSON and sends pagination parameters`() = runBlocking {
+    fun `lesson assets request sends root family and pagination parameters`() = runBlocking {
         server.enqueue(
-            MockResponse(
-                body = """{"data":{"items":[],"page":2,"limit":20,"total":0,"totalPages":0}}""",
+            encryptedResponse(
+                """{"data":{"items":[],"page":2,"limit":20,"total":0,"totalPages":0}}""",
             ),
         )
 
-        val result = api.getLessons(category = "animal", page = 2, limit = 20)
+        val result = api.getAssets(
+            rootFamily = "lesson",
+            category = "animal",
+            page = 2,
+            limit = 20,
+        )
 
         val request = server.takeRequest()
         assertEquals(2, result.data.page)
-        assertEquals(null, request.headers["X-Enable-AES"])
+        assertEquals("true", request.headers["X-Enable-AES"])
         assertEquals(
-            "/api/v1/lessons?category=animal&page=2&limit=20",
+            "/api/v1/assets?rootFamily=lesson&category=animal&page=2&limit=20",
             request.url.encodedPath + "?" + request.url.encodedQuery,
         )
+    }
+
+    @Test
+    fun `categories request decrypts all category fields`() = runBlocking {
+        server.enqueue(
+            encryptedResponse(
+                """{"data":[{"slug":"anime","name":"Anime","count":275}]}""",
+            ),
+        )
+
+        val result = api.getCategories()
+
+        val request = server.takeRequest()
+        assertEquals("/api/v1/categories", request.url.encodedPath)
+        assertEquals("true", request.headers["X-Enable-AES"])
+        assertEquals("anime", result.data.single().slug)
+        assertEquals("Anime", result.data.single().name)
+        assertEquals(275, result.data.single().count)
+    }
+
+    private fun encryptedResponse(json: String): MockResponse {
+        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+        cipher.init(
+            Cipher.ENCRYPT_MODE,
+            SecretKeySpec(AES_KEY.toByteArray(StandardCharsets.UTF_8), "AES"),
+            IvParameterSpec(AES_IV.toByteArray(StandardCharsets.UTF_8)),
+        )
+        val payload = Base64.encode(cipher.doFinal(json.toByteArray(StandardCharsets.UTF_8)))
+        return MockResponse(body = """{"payload":"$payload"}""")
+    }
+
+    private companion object {
+        const val AES_KEY = "0123456789abcdef0123456789abcdef"
+        const val AES_IV = "abcdef0123456789"
     }
 }

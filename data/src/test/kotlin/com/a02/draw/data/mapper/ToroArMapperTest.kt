@@ -11,6 +11,47 @@ import org.junit.Test
 
 class ToroArMapperTest {
     @Test
+    fun `lesson assets are grouped and ordered while thumbnails are excluded`() {
+        val common = RemoteAssetDto(
+            assetId = "step-10",
+            name = "Animal 1 10",
+            itemNumber = 1,
+            variantNumber = 10,
+            rootFamily = "lesson",
+            categorySlug = "animal",
+            categoryName = "Animal",
+            subcategorySlug = "animal-1",
+            subcategoryName = "Animal 1",
+            imageUrl = "https://example.test/animal_1_10.webp",
+            storageKey = "lesson/animal_1_10.webp",
+        )
+
+        val result = listOf(
+            common,
+            common.copy(
+                assetId = "thumb",
+                name = "Animal 1 Thumb",
+                variantNumber = null,
+                imageUrl = "https://example.test/animal_1_thumb.webp",
+                storageKey = "lesson/animal_1_thumb.webp",
+            ),
+            common.copy(
+                assetId = "step-1",
+                name = "Animal 1 1",
+                variantNumber = 1,
+                imageUrl = "https://example.test/animal_1_1.webp",
+                storageKey = "lesson/animal_1_1.webp",
+            ),
+        ).toRemoteLessonsFromAssets().single()
+
+        assertEquals("animal-1", result.lessonId)
+        assertEquals("Animal 1", result.name)
+        assertEquals(2, result.totalSteps)
+        assertEquals(listOf(1, 10), result.steps.map { it.stepNumber })
+        assertEquals("https://example.test/animal_1_10.webp", result.coverImageUrl)
+    }
+
+    @Test
     fun `remote categories and assets replace only catalog backed content`() {
         val fixture = FixtureArContentDataSource().catalog()
         val result = fixture.withRemoteContent(

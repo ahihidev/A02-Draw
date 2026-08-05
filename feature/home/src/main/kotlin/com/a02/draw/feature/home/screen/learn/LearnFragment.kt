@@ -6,13 +6,12 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.a02.draw.core.ui.base.BaseFragment
-import com.a02.draw.core.ui.extensions.applyStatusBarPadding
-import com.a02.draw.core.ui.extensions.setDebouncedClickListener
 import com.a02.draw.feature.home.R
 import com.a02.draw.feature.home.common.component.CategoryAdapter
 import com.a02.draw.feature.home.common.image.HomeImageLoader
 import com.a02.draw.feature.home.common.model.BottomDestination
 import com.a02.draw.feature.home.common.navigation.bindBottomNavigation
+import com.a02.draw.feature.home.common.navigation.bindMainTabHeader
 import com.a02.draw.feature.home.common.navigation.navigateBottom
 import com.a02.draw.feature.home.databinding.ScreenLearnBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,10 +26,9 @@ class LearnFragment : BaseFragment<ScreenLearnBinding>(ScreenLearnBinding::infla
     }
 
     override fun setupViews(savedInstanceState: Bundle?) {
-        binding.header.applyStatusBarPadding(lightStatusBarIcons = false)
+        binding.header.bindMainTabHeader { viewModel.onAction(LearnAction.OpenSearch) }
         binding.categoryList.layoutManager = LinearLayoutManager(requireContext())
         binding.categoryList.adapter = adapter
-        binding.searchCard.setDebouncedClickListener { viewModel.onAction(LearnAction.OpenSearch) }
         binding.bottomNavigationInclude.bindBottomNavigation(BottomDestination.LEARN) {
             viewModel.onAction(LearnAction.OpenBottom(it))
         }

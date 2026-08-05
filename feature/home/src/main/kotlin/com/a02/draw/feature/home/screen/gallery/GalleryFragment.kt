@@ -13,6 +13,8 @@ import com.a02.draw.feature.home.R
 import com.a02.draw.feature.home.common.component.ArtworkAdapter
 import com.a02.draw.feature.home.common.component.ArtworkRow
 import com.a02.draw.feature.home.common.image.HomeImageLoader
+import com.a02.draw.feature.home.common.motion.animateFirstVisibleItems
+import com.a02.draw.feature.home.common.motion.crossfadeVisible
 import com.a02.draw.feature.home.databinding.ScreenGalleryBinding
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,6 +34,7 @@ class GalleryFragment : BaseFragment<ScreenGalleryBinding>(ScreenGalleryBinding:
     private val quickFilterAdapter = QuickFilterAdapter {
         viewModel.onAction(GalleryAction.SelectQuickFilter(it))
     }
+    private var hasAnimatedInitialItems = false
 
     override fun setupViews(savedInstanceState: Bundle?) {
         binding.toolbar.applyStatusBarPadding()
@@ -65,10 +68,15 @@ class GalleryFragment : BaseFragment<ScreenGalleryBinding>(ScreenGalleryBinding:
                     quickFilterAdapter.submitList(state.quickFilters.map {
                         QuickFilterItem(it, it == state.selectedQuickFilter)
                     })
-                    binding.loadingSkeleton.isVisible = showSkeleton
-                    binding.quickFilterList.isVisible = !showSkeleton
-                    binding.artworkList.isVisible = !showSkeleton
-                    binding.emptyMessage.isVisible = state.artworks.isEmpty() && !state.isLoading
+                    val showEmpty = state.artworks.isEmpty() && !state.isLoading
+                    binding.loadingSkeleton.crossfadeVisible(showSkeleton)
+                    binding.quickFilterList.crossfadeVisible(!showSkeleton)
+                    binding.artworkList.crossfadeVisible(!showSkeleton && !showEmpty)
+                    binding.emptyMessage.crossfadeVisible(showEmpty)
+                    if (!showSkeleton && state.artworks.isNotEmpty() && !hasAnimatedInitialItems) {
+                        hasAnimatedInitialItems = true
+                        binding.artworkList.animateFirstVisibleItems()
+                    }
                 }
             }
             launch {

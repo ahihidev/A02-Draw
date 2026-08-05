@@ -72,6 +72,8 @@ class HomeImageLoader {
         imageView: ImageView,
         uri: String?,
         @DrawableRes fallback: Int,
+        retainDrawableWhileLoading: Boolean = false,
+        onLoaded: (() -> Unit)? = null,
     ) {
         imageView.scaleType = ImageView.ScaleType.FIT_CENTER
         if (uri.isNullOrBlank()) {
@@ -82,21 +84,28 @@ class HomeImageLoader {
         }
         val previousRequestKey = imageView.tag
         if (previousRequestKey != uri) loadedKeys.remove(imageView)
-        if (loadedKeys[imageView] == uri && imageView.drawable != null) return
+        if (loadedKeys[imageView] == uri && imageView.drawable != null) {
+            onLoaded?.invoke()
+            return
+        }
         imageView.tag = uri
         val contentResolver = imageView.context.contentResolver
         SharedImageBitmapStore.getContentUri(uri)?.let {
             imageView.setImageBitmap(it)
             loadedKeys[imageView] = uri
+            onLoaded?.invoke()
             return
         }
         activeScope().launch {
-            if (previousRequestKey != uri) imageView.setImageDrawable(null)
+            if (!retainDrawableWhileLoading && previousRequestKey != uri) {
+                imageView.setImageDrawable(null)
+            }
             val bitmap = SharedImageBitmapStore.loadContentUri(contentResolver, uri)
             if (imageView.tag == uri) {
                 if (bitmap != null) {
                     imageView.setImageBitmap(bitmap)
                     loadedKeys[imageView] = uri
+                    onLoaded?.invoke()
                 } else {
                     imageView.tag = fallback.toString()
                     loadedKeys[imageView] = fallback.toString()

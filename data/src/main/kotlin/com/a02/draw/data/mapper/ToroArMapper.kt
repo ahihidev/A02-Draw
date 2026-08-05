@@ -9,6 +9,7 @@ import com.a02.draw.data.remote.dto.LessonStepDto
 import com.a02.draw.data.remote.dto.RemoteAssetDto
 import com.a02.draw.data.remote.dto.RemoteCategoryDto
 import com.a02.draw.data.remote.dto.RemoteLessonDto
+import com.a02.draw.data.remote.dto.RemoteLessonStepDto
 import com.a02.draw.data.remote.dto.TopicDto
 import com.a02.draw.data.remote.dto.TrendingSearchDto
 
@@ -69,6 +70,36 @@ internal fun ArCatalogDto.withRemoteLessons(remoteLessons: List<RemoteLessonDto>
         categories = apiCategories,
     )
 }
+
+internal fun List<RemoteAssetDto>.toRemoteLessonsFromAssets(): List<RemoteLessonDto> =
+    groupBy(RemoteAssetDto::subcategorySlug)
+        .mapNotNull { (subcategorySlug, lessonAssets) ->
+            if (subcategorySlug == null) return@mapNotNull null
+            val lessonSteps = lessonAssets
+                .filterNot { it.storageKey?.contains("_thumb", ignoreCase = true) == true }
+                .sortedWith(
+                    compareBy<RemoteAssetDto> { it.variantNumber ?: Int.MAX_VALUE }
+                        .thenBy(RemoteAssetDto::name),
+                )
+            val firstAsset = lessonSteps.firstOrNull() ?: lessonAssets.firstOrNull()
+            ?: return@mapNotNull null
+            RemoteLessonDto(
+                lessonId = subcategorySlug,
+                name = firstAsset.subcategoryName ?: firstAsset.name,
+                categorySlug = firstAsset.categorySlug,
+                categoryName = firstAsset.categoryName,
+                subcategorySlug = subcategorySlug,
+                totalSteps = lessonSteps.size,
+                coverImageUrl = lessonSteps.lastOrNull()?.imageUrl ?: firstAsset.imageUrl,
+                steps = lessonSteps.mapIndexed { index, asset ->
+                    RemoteLessonStepDto(
+                        stepNumber = asset.variantNumber ?: index + 1,
+                        imageUrl = asset.imageUrl,
+                        storageKey = asset.storageKey.orEmpty(),
+                    )
+                },
+            )
+        }
 
 private fun RemoteLessonDto.toLesson(): LessonDto {
     val instructionSteps = steps

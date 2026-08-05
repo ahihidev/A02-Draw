@@ -8,6 +8,10 @@ import com.a02.draw.core.ui.extensions.applyStatusBarPadding
 import com.a02.draw.core.ui.extensions.setDebouncedClickListener
 import com.a02.draw.feature.home.R
 import com.a02.draw.feature.home.common.image.HomeImageLoader
+import com.a02.draw.feature.home.common.motion.HomeMotion
+import com.a02.draw.feature.home.common.motion.enterFromBottom
+import com.a02.draw.feature.home.common.motion.playStaggeredEntrance
+import com.a02.draw.feature.home.common.motion.renderSelectedCard
 import com.a02.draw.feature.home.databinding.ScreenTutorialBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -19,11 +23,24 @@ class TutorialScreenFragment : BaseFragment<ScreenTutorialBinding>(ScreenTutoria
 
     override fun setupViews(savedInstanceState: Bundle?) {
         binding.toolbar.applyStatusBarPadding()
-        binding.screenMode.isSelected = true
+        binding.cameraMode.renderSelectedCard(false)
+        binding.screenMode.renderSelectedCard(true)
         binding.backButton.setDebouncedClickListener { viewModel.onAction(TutorialScreenAction.Back) }
         binding.cameraMode.setDebouncedClickListener { viewModel.onAction(TutorialScreenAction.SelectCameraMode) }
         binding.screenMode.setOnClickListener { }
         binding.drawButton.setDebouncedClickListener { viewModel.onAction(TutorialScreenAction.Start) }
+        if (savedInstanceState == null) {
+            playStaggeredEntrance(
+                listOf(binding.cameraMode, binding.screenMode),
+                horizontalDirections = listOf(-1, 1),
+                verticalDp = 0f,
+            )
+            binding.cameraMode.scaleX = 0.97f
+            binding.cameraMode.scaleY = 0.97f
+            binding.screenMode.scaleX = 1f
+            binding.screenMode.scaleY = 1f
+            binding.drawButton.enterFromBottom(HomeMotion.CONTENT + HomeMotion.STAGGER)
+        }
     }
 
     override fun observeData() {

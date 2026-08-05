@@ -11,13 +11,11 @@ data class DrawingOpacityUiState(val session: DrawingSession = DrawingSession())
 sealed interface DrawingOpacityAction {
     data class Control(val action: DrawingControlAction) : DrawingOpacityAction
     data class Transform(val value: OverlayTransform) : DrawingOpacityAction
-    data class Captured(val uri: String) : DrawingOpacityAction
 }
 
 sealed interface DrawingOpacityEffect : UiEffect {
     data object NavigateBack : DrawingOpacityEffect
     data object NavigateCanvas : DrawingOpacityEffect
-    data object CaptureCanvas : DrawingOpacityEffect
     data object NavigateComplete : DrawingOpacityEffect
     data object ShowProgressError : DrawingOpacityEffect
 }

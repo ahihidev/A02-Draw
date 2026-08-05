@@ -1,13 +1,13 @@
 package com.a02.draw
 
 import com.a02.draw.core.common.result.AppResult
-import com.a02.draw.domain.model.ArCatalog
 import com.a02.draw.domain.model.AppPreferences
+import com.a02.draw.domain.model.ArCatalog
 import com.a02.draw.domain.model.ContentImage
 import com.a02.draw.domain.model.DrawingTopic
 import com.a02.draw.domain.model.ThemeMode
-import com.a02.draw.domain.repository.ArContentRepository
 import com.a02.draw.domain.repository.AppPreferencesRepository
+import com.a02.draw.domain.repository.ArContentRepository
 import com.a02.draw.domain.usecase.GetArCatalogUseCase
 import com.a02.draw.domain.usecase.UpdateAppPreferencesUseCase
 import com.a02.draw.onboarding.common.session.DefaultOnboardingSessionStore
@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -111,11 +112,41 @@ class OnboardingScreenViewModelTest {
             DefaultOnboardingSessionStore(),
         )
 
-        advanceTimeBy(1_500)
-        advanceUntilIdle()
+        advanceTimeBy(6_000)
+        runCurrent()
 
         assertTrue(preferences.value.onboardingCompleted)
         assertEquals(PreparingEffect.OpenMain, viewModel.effects.first())
+    }
+
+    @Test
+    fun `preparing fills each progress bar sequentially over two seconds`() = runTest {
+        val viewModel = PreparingViewModel(
+            UpdateAppPreferencesUseCase(FakePreferencesRepository(MutableStateFlow(AppPreferences()))),
+            DefaultOnboardingSessionStore(),
+        )
+
+        advanceTimeBy(1_000)
+        runCurrent()
+        assertEquals(50, viewModel.state.value.favoritesProgress)
+        assertEquals(0, viewModel.state.value.referencesProgress)
+        assertEquals(0, viewModel.state.value.toolsProgress)
+
+        advanceTimeBy(2_000)
+        runCurrent()
+        assertEquals(100, viewModel.state.value.favoritesProgress)
+        assertEquals(50, viewModel.state.value.referencesProgress)
+        assertEquals(0, viewModel.state.value.toolsProgress)
+
+        advanceTimeBy(2_000)
+        runCurrent()
+        assertEquals(100, viewModel.state.value.favoritesProgress)
+        assertEquals(100, viewModel.state.value.referencesProgress)
+        assertEquals(50, viewModel.state.value.toolsProgress)
+
+        advanceTimeBy(1_000)
+        runCurrent()
+        assertEquals(100, viewModel.state.value.toolsProgress)
     }
 
     @Test
@@ -126,8 +157,8 @@ class OnboardingScreenViewModelTest {
             DefaultOnboardingSessionStore(),
         )
 
-        advanceTimeBy(1_500)
-        advanceUntilIdle()
+        advanceTimeBy(6_000)
+        runCurrent()
 
         assertEquals(false, preferences.value.onboardingCompleted)
         assertEquals(PreparingEffect.ShowMessage(R.string.generic_error), viewModel.effects.first())

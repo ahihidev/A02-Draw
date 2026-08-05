@@ -2,4 +2,6 @@
 <resources>
     <dimen name="artwork_min_cell_width">156dp</dimen>
     <dimen name="home_topic_min_cell_width">156dp</dimen>
+    <dimen name="main_tab_header_height">152dp</dimen>
+    <dimen name="main_tab_header_compact_height">100dp</dimen>
 </resources>

@@ -9,11 +9,13 @@ import com.a02.draw.domain.usecase.GetArCatalogUseCase
 import com.a02.draw.domain.usecase.ObserveAppPreferencesUseCase
 import com.a02.draw.domain.usecase.ObserveDrawingsUseCase
 import com.a02.draw.domain.usecase.UpdateAppPreferencesUseCase
+import com.a02.draw.feature.home.common.component.ProfileDrawingRow
+import com.a02.draw.feature.home.common.model.DrawingMode
 import com.a02.draw.feature.home.common.session.DrawingSession
 import com.a02.draw.feature.home.common.session.DrawingSessionStore
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class ProfileFavoriteViewModel @Inject constructor(
@@ -55,8 +57,9 @@ class ProfileFavoriteViewModel @Inject constructor(
     fun onAction(action: ProfileFavoriteAction) {
         when (action) {
             is ProfileFavoriteAction.OpenArtwork -> openArtwork(action.artworkId)
+            is ProfileFavoriteAction.OpenDrawing -> openDrawing(action.drawingId)
             is ProfileFavoriteAction.ToggleFavorite -> toggleFavorite(action.artworkId)
-            ProfileFavoriteAction.OpenAlbum -> send(ProfileFavoriteEffect.NavigateAlbum)
+            is ProfileFavoriteAction.SelectTab -> updateState { copy(selectedTab = action.tab) }
             is ProfileFavoriteAction.OpenBottom -> send(ProfileFavoriteEffect.NavigateBottom(action.destination))
         }
     }
@@ -65,6 +68,14 @@ class ProfileFavoriteViewModel @Inject constructor(
         updateState {
             copy(
                 favorites = catalog?.artworks.orEmpty().filter { it.id in favoriteIds },
+                albumDrawings = drawings.map { drawing ->
+                    ProfileDrawingRow(
+                        drawing.id,
+                        drawing.title,
+                        drawing.mediaUri,
+                        catalog?.artworks?.firstOrNull { it.id == drawing.artworkId }?.image,
+                    )
+                },
                 favoriteIds = this@ProfileFavoriteViewModel.favoriteIds,
                 sketchCount = drawings.size,
                 lessonCount = drawings.mapNotNull(Drawing::lessonId).distinct().size,
@@ -86,6 +97,26 @@ class ProfileFavoriteViewModel @Inject constructor(
             ),
         )
         send(ProfileFavoriteEffect.NavigateTutorial)
+    }
+
+    private fun openDrawing(id: Long) {
+        val drawing = drawings.firstOrNull { it.id == id } ?: return
+        val artwork = catalog?.artworks?.firstOrNull { it.id == drawing.artworkId }
+        val lesson = catalog?.lessons?.firstOrNull { it.id == drawing.lessonId }
+        drawingSession.reset(
+            DrawingSession(
+                artworkId = drawing.artworkId,
+                lessonId = drawing.lessonId,
+                referenceTitle = drawing.title,
+                referenceImage = lesson?.image ?: artwork?.image,
+                traceImage = lesson?.image ?: artwork?.traceImage ?: artwork?.image,
+                capturedImageUri = drawing.mediaUri,
+                activeDrawingId = drawing.id,
+                lessonMinutes = drawing.lessonMinutes,
+                mode = if (drawing.usesCamera) DrawingMode.CAMERA else DrawingMode.SCREEN,
+            ),
+        )
+        send(ProfileFavoriteEffect.NavigateComplete)
     }
 
     private fun toggleFavorite(id: String) {

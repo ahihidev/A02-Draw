@@ -12,6 +12,9 @@ import com.a02.draw.feature.home.common.model.DrawingCanvasPanel
 import com.a02.draw.feature.home.common.model.DrawingCropRatio
 import com.a02.draw.feature.home.common.model.DrawingMode
 import com.a02.draw.feature.home.common.model.DrawingTool
+import com.a02.draw.feature.home.common.motion.HomeMotion
+import com.a02.draw.feature.home.common.motion.pulse
+import com.a02.draw.feature.home.common.motion.slideFadeVisible
 import com.a02.draw.feature.home.common.session.DrawingSession
 import com.a02.draw.feature.home.databinding.ScreenDrawingControlsBinding
 
@@ -46,6 +49,9 @@ class DrawingControlsBinder(
     private val onAction: (DrawingControlAction) -> Unit,
 ) {
     private var rendering = false
+    private var previousTool: DrawingTool? = null
+    private var previousCanvasPanel: DrawingCanvasPanel? = null
+    private var previousCameraPanel: DrawingCameraPanel? = null
 
     init {
         binding.backButton.setDebouncedClickListener { onAction(DrawingControlAction.Back) }
@@ -139,12 +145,20 @@ class DrawingControlsBinder(
             onAction(DrawingControlAction.SelectCaptureDelay(10))
         }
         binding.optionSwitchCamera.setOnClickListener {
+            if (HomeMotion.enabled()) {
+                binding.optionSwitchCamera.animate().cancel()
+                binding.optionSwitchCamera.animate().rotationBy(180f)
+                    .setDuration(HomeMotion.CONTENT).start()
+            }
             onAction(DrawingControlAction.ToggleCameraLens)
         }
         binding.optionCameraGuide.setOnClickListener {
             onAction(DrawingControlAction.ToggleCameraGuide)
         }
-        binding.shutterButton.setDebouncedClickListener { onAction(DrawingControlAction.Shutter) }
+        binding.shutterButton.setDebouncedClickListener {
+            binding.shutterButton.pulse(1.1f)
+            onAction(DrawingControlAction.Shutter)
+        }
         binding.opacitySlider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser && !rendering) {
@@ -161,7 +175,7 @@ class DrawingControlsBinder(
         val opacityMode = state.tool == DrawingTool.OPACITY
         val canvasMode = state.tool == DrawingTool.CANVAS
         val cameraMode = state.tool == DrawingTool.CAMERA && state.mode == DrawingMode.CAMERA
-        binding.opacityPanel.isVisible = opacityMode
+        binding.opacityPanel.slideFadeVisible(opacityMode)
         if (!binding.opacitySlider.isPressed) {
             rendering = true
             binding.opacitySlider.progress = (state.opacity * 100).toInt()
@@ -178,6 +192,13 @@ class DrawingControlsBinder(
         )
         binding.toolCamera.isEnabled = state.mode == DrawingMode.CAMERA
         binding.toolCamera.alpha = if (binding.toolCamera.isEnabled) 1f else 0.4f
+        if (previousTool != state.tool) {
+            when (state.tool) {
+                DrawingTool.OPACITY -> binding.toolOpacityIcon
+                DrawingTool.CANVAS -> binding.toolCanvasIcon
+                DrawingTool.CAMERA -> binding.toolCameraIcon
+            }.pulse(1.12f)
+        }
         binding.toolHideLabel.setText(if (state.overlayVisible) R.string.hide else R.string.show)
         binding.actionLock.renderSelected(state.overlayLocked)
         binding.actionAdjust.renderSelected(state.canvasPanel == DrawingCanvasPanel.ADJUST)
@@ -203,7 +224,15 @@ class DrawingControlsBinder(
             binding.actionRecord,
             binding.actionRatio,
         ).forEach { it.isVisible = cameraMode }
-        binding.quickActionsScroll.isVisible = canvasMode || cameraMode
+        val quickActionsVisible = canvasMode || cameraMode
+        if (previousTool != null && previousTool != state.tool && quickActionsVisible &&
+            binding.quickActionsScroll.isVisible
+        ) {
+            binding.quickActionsScroll.alpha = 0f
+            binding.quickActionsScroll.translationY =
+                binding.quickActionsScroll.resources.displayMetrics.density * 12f
+        }
+        binding.quickActionsScroll.slideFadeVisible(quickActionsVisible)
         renderOptions(state, canvasMode, cameraMode)
         binding.shutterButton.isVisible = cameraMode && state.cameraPanel in setOf(
             DrawingCameraPanel.CAPTURE,
@@ -231,6 +260,9 @@ class DrawingControlsBinder(
                 0,
             )
         }
+        previousTool = state.tool
+        previousCanvasPanel = state.canvasPanel
+        previousCameraPanel = state.cameraPanel
     }
 
     private fun renderOptions(
@@ -244,8 +276,16 @@ class DrawingControlsBinder(
         val zoomVisible = cameraMode && state.cameraPanel == DrawingCameraPanel.ZOOM
         val ratioVisible = cameraMode && state.cameraPanel == DrawingCameraPanel.RATIO
         val captureVisible = cameraMode && state.cameraPanel == DrawingCameraPanel.CAPTURE
-        binding.optionsScroll.isVisible =
+        val optionsVisible =
             adjustVisible || cropVisible || gridVisible || zoomVisible || ratioVisible || captureVisible
+        val panelChanged = previousCanvasPanel != state.canvasPanel ||
+                previousCameraPanel != state.cameraPanel
+        if (panelChanged && optionsVisible && binding.optionsScroll.isVisible) {
+            binding.optionsScroll.alpha = 0f
+            binding.optionsScroll.translationY =
+                binding.optionsScroll.resources.displayMetrics.density * 12f
+        }
+        binding.optionsScroll.slideFadeVisible(optionsVisible)
         listOf(
             binding.optionAdjustFlip,
             binding.optionAdjustRotate,
@@ -306,7 +346,9 @@ class DrawingControlsBinder(
     }
 
     private fun TextView.renderSelected(selected: Boolean) {
+        val changedToSelected = !isSelected && selected
         isSelected = selected
         setTextColor(Color.WHITE)
+        if (changedToSelected) pulse(1.06f)
     }
 }

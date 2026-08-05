@@ -14,14 +14,17 @@ data class DrawingCompleteUiState(
 sealed interface DrawingCompleteAction {
     data object Back : DrawingCompleteAction
     data object Home : DrawingCompleteAction
+    data object TakePhoto : DrawingCompleteAction
+    data class PhotoCaptured(val uri: String) : DrawingCompleteAction
     data object Share : DrawingCompleteAction
-    data object Retake : DrawingCompleteAction
+    data object ContinueDrawing : DrawingCompleteAction
+    data object RetakePhoto : DrawingCompleteAction
 }
 
 sealed interface DrawingCompleteEffect : UiEffect {
-    data object NavigateBack : DrawingCompleteEffect
     data object NavigateHome : DrawingCompleteEffect
+    data object LaunchResultCamera : DrawingCompleteEffect
     data class Share(val uri: String) : DrawingCompleteEffect
-    data class Retake(val mode: DrawingMode) : DrawingCompleteEffect
+    data class ContinueDrawing(val mode: DrawingMode) : DrawingCompleteEffect
     data object ShowSaveError : DrawingCompleteEffect
 }

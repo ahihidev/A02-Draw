@@ -39,19 +39,23 @@ graph TD
 
 Saved drawings, API lessons and their ordered drawing steps are stored in Room. Favorites,
 onboarding and music state are stored in DataStore. Categories, AR assets and step-by-step lessons
-are requested from the Toro AR JSON API. A complete lesson response replaces the Room lesson cache
-in one transaction, while an offline or failed refresh reads the last valid snapshot. Settings
-remain bundled; premium and in-app purchase UI is disabled in this version.
+are requested from the Toro AR JSON API. Lesson assets are loaded from `rootFamily=lesson` in
+20-item pages, grouped into lessons by subcategory, and only replace the Room cache after every
+page is present. An offline or failed refresh reads the last valid snapshot. Settings remain
+bundled; premium and in-app purchase UI is disabled in this version.
 The public Toro AR endpoint is the default. To point a build at another compatible server, create
 an ignored `secrets.properties` file:
 
 ```properties
 API_BASE_URL=https://api.your-domain.com/
+API_AES_KEY=your-32-byte-aes-key
+API_AES_IV=your-16-byte-cbc-iv
 ```
 
 The same values can be supplied with Gradle `-P` properties or `A02_`-prefixed environment
-variables. The URL must end in `/`; network failures fall back to the Room lesson cache and bundled
-content.
+variables. The URL must end in `/`. Toro API requests opt in to encrypted responses with
+`X-Enable-AES: true`; the data module decrypts each AES-256-CBC payload before DTO mapping. Missing
+AES configuration or network failures fall back to the Room lesson cache and bundled content.
 
 The response contract is represented by `ArCatalogDto`: `topics`, `artworks`, `lessons`,
 `categories`, `plans`, and `settings`. Images accept an HTTPS `url`; `localKey` exists only for the

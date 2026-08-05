@@ -32,6 +32,11 @@ class TutorialCameraViewModel @Inject constructor(
                 send(TutorialCameraEffect.LaunchCamera)
             }
 
+            TutorialCameraAction.DrawingFinished -> {
+                drawingSession.update { copy(capturedImageUri = null, isRecording = false) }
+                send(TutorialCameraEffect.NavigateComplete)
+            }
+
             is TutorialCameraAction.CameraCaptured -> {
                 drawingSession.update { copy(capturedImageUri = action.uri, isRecording = false) }
                 send(TutorialCameraEffect.NavigateComplete)

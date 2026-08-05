@@ -9,9 +9,9 @@ import com.a02.draw.feature.home.common.model.DrawingMode
 import com.a02.draw.feature.home.common.session.DrawingSession
 import com.a02.draw.feature.home.common.session.DrawingSessionStore
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -30,8 +30,6 @@ class HomeViewModel @Inject constructor(
             HomeAction.OpenSearch -> send(HomeScreenEffect.NavigateSearch)
             HomeAction.OpenSourceModal -> updateState { copy(isSourceModalVisible = true) }
             HomeAction.CloseSourceModal -> updateState { copy(isSourceModalVisible = false) }
-            HomeAction.OpenAiGallery -> send(HomeScreenEffect.NavigateGallery(null))
-            HomeAction.OpenWebSearch -> send(HomeScreenEffect.OpenWebSearch)
             is HomeAction.OpenTopic -> send(HomeScreenEffect.NavigateGallery(action.topicId))
             is HomeAction.SelectSource -> updateState { copy(selectedSource = action.source) }
             HomeAction.ConfirmSource -> {
@@ -65,7 +63,7 @@ class HomeViewModel @Inject constructor(
             updateState { copy(isLoading = true, hasError = false) }
             when (val result = getCatalog(forceRefresh)) {
                 is AppResult.Success -> updateState {
-                    copy(topics = result.data.topics.take(6), isLoading = false)
+                    copy(topics = result.data.topics, isLoading = false)
                 }
 
                 is AppResult.Failure -> updateState { copy(isLoading = false, hasError = true) }

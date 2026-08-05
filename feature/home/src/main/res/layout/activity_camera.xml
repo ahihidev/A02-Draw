@@ -29,6 +29,15 @@
         android:contentDescription="@string/ar_draw_experience"
         android:keepScreenOn="true" />
 
+    <View
+        android:id="@+id/capture_flash"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:background="@android:color/white"
+        android:clickable="false"
+        android:importantForAccessibility="no" />
+
     <TextView
         android:id="@+id/camera_countdown"
         android:layout_width="112dp"

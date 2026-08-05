@@ -33,6 +33,16 @@ android {
             "API_BASE_URL",
             quoted(apiConfig("API_BASE_URL", "https://toroarapi.duckdns.org/")),
         )
+        buildConfigField(
+            "String",
+            "API_AES_KEY",
+            quoted(apiConfig("API_AES_KEY")),
+        )
+        buildConfigField(
+            "String",
+            "API_AES_IV",
+            quoted(apiConfig("API_AES_IV")),
+        )
     }
 }
 

@@ -15,9 +15,6 @@ import com.a02.draw.data.remote.dto.RemoteAssetPageDto
 import com.a02.draw.data.remote.dto.RemoteAssetsEnvelopeDto
 import com.a02.draw.data.remote.dto.RemoteCategoriesEnvelopeDto
 import com.a02.draw.data.remote.dto.RemoteCategoryDto
-import com.a02.draw.data.remote.dto.RemoteLessonDto
-import com.a02.draw.data.remote.dto.RemoteLessonPageDto
-import com.a02.draw.data.remote.dto.RemoteLessonsEnvelopeDto
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -48,48 +45,48 @@ class DefaultArContentRepositoryTest {
 
         assertTrue(results.all { it is AppResult.Success })
         val catalog = (results.first() as AppResult.Success).data
+        assertEquals(listOf("animal"), catalog.topics.map { it.id })
         assertEquals(setOf("asset-1", "asset-2"), catalog.artworks.map { it.id }.toSet())
         assertEquals(setOf("lesson-1", "lesson-2"), catalog.lessons.map { it.id }.toSet())
         assertEquals(mapOf(1 to 1, 2 to 1), api.assetPageCalls)
         assertEquals(mapOf(1 to 1, 2 to 1), api.lessonPageCalls)
+        assertEquals(setOf(20), api.lessonPageLimits)
     }
 
     private class FakeDrawApi : DrawApi {
         val assetPageCalls = mutableMapOf<Int, Int>()
         val lessonPageCalls = mutableMapOf<Int, Int>()
+        val lessonPageLimits = mutableSetOf<Int>()
 
         override suspend fun getCategories() = RemoteCategoriesEnvelopeDto(
             listOf(RemoteCategoryDto("animal", "Animal", 2)),
         )
 
         override suspend fun getAssets(
+            rootFamily: String?,
             category: String?,
             subcategory: String?,
             search: String?,
             page: Int,
             limit: Int,
         ): RemoteAssetsEnvelopeDto {
+            if (rootFamily == "lesson") {
+                lessonPageCalls[page] = lessonPageCalls.getOrDefault(page, 0) + 1
+                lessonPageLimits += limit
+                return RemoteAssetsEnvelopeDto(
+                    RemoteAssetPageDto(
+                        items = listOf(lessonAsset(page)),
+                        page = page,
+                        limit = limit,
+                        total = 2,
+                        totalPages = 2,
+                    ),
+                )
+            }
             assetPageCalls[page] = assetPageCalls.getOrDefault(page, 0) + 1
             return RemoteAssetsEnvelopeDto(
                 RemoteAssetPageDto(
                     items = listOf(asset(page)),
-                    page = page,
-                    limit = limit,
-                    total = 2,
-                    totalPages = 2,
-                ),
-            )
-        }
-
-        override suspend fun getLessons(
-            category: String?,
-            page: Int,
-            limit: Int,
-        ): RemoteLessonsEnvelopeDto {
-            lessonPageCalls[page] = lessonPageCalls.getOrDefault(page, 0) + 1
-            return RemoteLessonsEnvelopeDto(
-                RemoteLessonPageDto(
-                    items = listOf(lesson(page)),
                     page = page,
                     limit = limit,
                     total = 2,
@@ -110,14 +107,17 @@ class DefaultArContentRepositoryTest {
             imageUrl = "https://example.com/asset-$index.png",
         )
 
-        private fun lesson(index: Int) = RemoteLessonDto(
-            lessonId = "lesson-$index",
-            name = "Lesson $index",
+        private fun lessonAsset(index: Int) = RemoteAssetDto(
+            assetId = "lesson-asset-$index",
+            name = "Lesson $index Step 1",
+            variantNumber = 1,
+            rootFamily = "lesson",
             categorySlug = "animal",
             categoryName = "Animal",
-            subcategorySlug = "beginner",
-            totalSteps = 1,
-            coverImageUrl = "https://example.com/lesson-$index.png",
+            subcategorySlug = "lesson-$index",
+            subcategoryName = "Lesson $index",
+            imageUrl = "https://example.com/lesson-$index.png",
+            storageKey = "lesson-$index-1.png",
         )
     }
 

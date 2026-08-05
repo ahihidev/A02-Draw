@@ -15,6 +15,7 @@ import com.a02.draw.domain.model.LessonCategory
 import com.a02.draw.domain.model.TrendingSearch
 import com.a02.draw.feature.home.R
 import com.a02.draw.feature.home.common.image.HomeImageLoader
+import com.a02.draw.feature.home.common.motion.pulse
 import com.a02.draw.feature.home.databinding.ItemArtworkBinding
 import com.a02.draw.feature.home.databinding.ItemLessonCategoryBinding
 import com.a02.draw.feature.home.databinding.ItemSettingBinding
@@ -90,7 +91,10 @@ class ArtworkAdapter(
                 imageLoader.retain(binding.image, item.image)
                 onArtworkClick(item.id)
             }
-            binding.favorite.setDebouncedClickListener { onFavoriteClick(item.id) }
+            binding.favorite.setDebouncedClickListener {
+                binding.favorite.pulse(1.16f)
+                onFavoriteClick(item.id)
+            }
         }
     }
 

@@ -55,8 +55,8 @@ import com.a02.draw.feature.home.screen.profilealbum.ProfileAlbumAction
 import com.a02.draw.feature.home.screen.profilealbum.ProfileAlbumEffect
 import com.a02.draw.feature.home.screen.profilealbum.ProfileAlbumViewModel
 import com.a02.draw.feature.home.screen.profilefavorite.ProfileFavoriteAction
-import com.a02.draw.feature.home.screen.profilefavorite.ProfileFavoriteEffect
 import com.a02.draw.feature.home.screen.profilefavorite.ProfileFavoriteViewModel
+import com.a02.draw.feature.home.screen.profilefavorite.ProfileTab
 import com.a02.draw.feature.home.screen.search.SearchAction
 import com.a02.draw.feature.home.screen.search.SearchEffect
 import com.a02.draw.feature.home.screen.search.SearchViewModel
@@ -99,6 +99,15 @@ class ScreenViewModelNavigationTest {
         val viewModel = CameraViewModel(SavedStateHandle(), updatePreferences)
         viewModel.onAction(CameraAction.Control(DrawingControlAction.Back))
         assertEquals(CameraEffect.Finish, viewModel.effects.first())
+    }
+
+    @Test
+    fun `camera done finishes drawing without capturing the AR overlay`() = runTest {
+        val viewModel = CameraViewModel(SavedStateHandle(), updatePreferences)
+
+        viewModel.onAction(CameraAction.Control(DrawingControlAction.Complete))
+
+        assertEquals(CameraEffect.FinishDrawing, viewModel.effects.first())
     }
 
     @Test
@@ -180,6 +189,24 @@ class ScreenViewModelNavigationTest {
     }
 
     @Test
+    fun `home exposes every topic from catalog`() = runTest {
+        val expectedTopics = (1..19).map { index ->
+            DrawingTopic("topic-$index", "Topic $index", IMAGE)
+        }
+        val allTopicsContent = GetArCatalogUseCase(
+            object : ArContentRepository {
+                override suspend fun getCatalog(forceRefresh: Boolean): AppResult<ArCatalog> =
+                    AppResult.Success(CATALOG.copy(topics = expectedTopics))
+            },
+        )
+
+        val viewModel = HomeViewModel(allTopicsContent, DefaultDrawingSessionStore())
+        advanceUntilIdle()
+
+        assertEquals(expectedTopics, viewModel.state.value.topics)
+    }
+
+    @Test
     fun `home closes source modal before opening picker`() = runTest {
         val viewModel = HomeViewModel(content, DefaultDrawingSessionStore())
         viewModel.onAction(HomeAction.OpenSourceModal)
@@ -251,13 +278,17 @@ class ScreenViewModelNavigationTest {
     }
 
     @Test
-    fun `favorites opens album`() = runTest {
+    fun `profile switches between favorite and album without navigation`() = runTest {
         val viewModel = ProfileFavoriteViewModel(
             content, observePreferences, observeDrawings, updatePreferences,
             DefaultDrawingSessionStore(),
         )
-        viewModel.onAction(ProfileFavoriteAction.OpenAlbum)
-        assertEquals(ProfileFavoriteEffect.NavigateAlbum, viewModel.effects.first())
+
+        viewModel.onAction(ProfileFavoriteAction.SelectTab(ProfileTab.ALBUM))
+        assertEquals(ProfileTab.ALBUM, viewModel.state.value.selectedTab)
+
+        viewModel.onAction(ProfileFavoriteAction.SelectTab(ProfileTab.FAVORITES))
+        assertEquals(ProfileTab.FAVORITES, viewModel.state.value.selectedTab)
     }
 
     @Test

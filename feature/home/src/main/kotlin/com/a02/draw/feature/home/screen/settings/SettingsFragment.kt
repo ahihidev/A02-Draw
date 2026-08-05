@@ -8,11 +8,11 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.a02.draw.core.ui.base.BaseFragment
-import com.a02.draw.core.ui.extensions.applyStatusBarPadding
 import com.a02.draw.feature.home.R
 import com.a02.draw.feature.home.common.component.SettingAdapter
 import com.a02.draw.feature.home.common.model.BottomDestination
 import com.a02.draw.feature.home.common.navigation.bindBottomNavigation
+import com.a02.draw.feature.home.common.navigation.bindMainTabHeader
 import com.a02.draw.feature.home.common.navigation.navigateBottom
 import com.a02.draw.feature.home.databinding.ScreenSettingsBinding
 import com.google.android.material.snackbar.Snackbar
@@ -25,7 +25,7 @@ class SettingsFragment : BaseFragment<ScreenSettingsBinding>(ScreenSettingsBindi
     private val adapter = SettingAdapter { viewModel.onAction(SettingsAction.OpenItem(it)) }
 
     override fun setupViews(savedInstanceState: Bundle?) {
-        binding.header.applyStatusBarPadding(lightStatusBarIcons = false)
+        binding.header.bindMainTabHeader()
         binding.settingsList.layoutManager = LinearLayoutManager(requireContext())
         binding.settingsList.adapter = adapter
         binding.bottomNavigationInclude.bindBottomNavigation(BottomDestination.SETTINGS) {

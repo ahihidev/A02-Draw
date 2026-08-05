@@ -70,12 +70,13 @@
             android:textSize="13sp" />
 
         <ProgressBar
+            android:id="@+id/preparing_favorites_progress"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="8dp"
             android:layout_marginTop="7dp"
             android:max="100"
-            android:progress="52"
+            android:progress="0"
             android:progressBackgroundTint="@color/onboarding_border"
             android:progressTint="@color/onboarding_pink" />
 
@@ -88,12 +89,13 @@
             android:textSize="13sp" />
 
         <ProgressBar
+            android:id="@+id/preparing_references_progress"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="8dp"
             android:layout_marginTop="7dp"
             android:max="100"
-            android:progress="68"
+            android:progress="0"
             android:progressBackgroundTint="@color/onboarding_border"
             android:progressTint="@color/onboarding_green" />
 
@@ -106,12 +108,13 @@
             android:textSize="13sp" />
 
         <ProgressBar
+            android:id="@+id/preparing_tools_progress"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="8dp"
             android:layout_marginTop="7dp"
             android:max="100"
-            android:progress="82"
+            android:progress="0"
             android:progressBackgroundTint="@color/onboarding_border"
             android:progressTint="@color/onboarding_purple" />
     </LinearLayout>

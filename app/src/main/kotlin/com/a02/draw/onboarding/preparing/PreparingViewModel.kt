@@ -7,10 +7,10 @@ import com.a02.draw.core.ui.base.BaseViewModel
 import com.a02.draw.domain.usecase.UpdateAppPreferencesUseCase
 import com.a02.draw.onboarding.common.session.OnboardingSessionStore
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class PreparingViewModel @Inject constructor(
@@ -39,7 +39,16 @@ class PreparingViewModel @Inject constructor(
     private fun start() {
         if (completionJob != null) return
         completionJob = viewModelScope.launch {
-            delay(PERSONALIZATION_DELAY_MILLIS)
+            updateState {
+                copy(
+                    favoritesProgress = 0,
+                    referencesProgress = 0,
+                    toolsProgress = 0,
+                )
+            }
+            animateProgress { progress -> copy(favoritesProgress = progress) }
+            animateProgress { progress -> copy(referencesProgress = progress) }
+            animateProgress { progress -> copy(toolsProgress = progress) }
             if (updatePreferences.setOnboardingCompleted(true) is AppResult.Failure) {
                 completionJob = null
                 sendEffect(PreparingEffect.ShowMessage(R.string.generic_error))
@@ -49,7 +58,18 @@ class PreparingViewModel @Inject constructor(
         }
     }
 
+    private suspend fun animateProgress(
+        updateProgress: PreparingUiState.(progress: Int) -> PreparingUiState,
+    ) {
+        repeat(MAX_PROGRESS) { index ->
+            delay(PROGRESS_STEP_DELAY_MILLIS)
+            updateState { updateProgress(index + 1) }
+        }
+    }
+
     private companion object {
-        const val PERSONALIZATION_DELAY_MILLIS = 1_500L
+        const val MAX_PROGRESS = 100
+        const val PROGRESS_DURATION_MILLIS = 2_000L
+        const val PROGRESS_STEP_DELAY_MILLIS = PROGRESS_DURATION_MILLIS / MAX_PROGRESS
     }
 }

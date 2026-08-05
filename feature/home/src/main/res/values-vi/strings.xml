@@ -23,8 +23,6 @@
     <string name="main_app_name">AR Drawing</string>
     <string name="main_my_gallery">Thư viện</string>
     <string name="main_hot_trend">Xu hướng</string>
-    <string name="main_ai_emoji_mix">AI Emoji Mix</string>
-    <string name="main_web_browser">Trình duyệt</string>
     <string name="main_choose_topic">Chọn chủ đề</string>
     <string name="main_home">Trang chủ</string>
     <string name="main_learn">Học vẽ</string>
@@ -92,9 +90,17 @@
     <string name="reset">Đặt lại</string>
     <string name="full">Toàn màn hình</string>
     <string name="good_job">Tuyệt lắm</string>
+    <string name="drawing_complete_title">Bản vẽ của bạn đã hoàn thành!</string>
     <string name="take_photo">Chụp ảnh</string>
     <string name="take_photo_description">Chụp lại bức vẽ hoàn chỉnh để chia sẻ với bạn bè.</string>
+    <string name="take_photo_save_share">Chụp ảnh để lưu và chia sẻ tác phẩm của bạn.</string>
     <string name="drawing_saved_description">Bản vẽ đã được lưu và sẵn sàng để chia sẻ.</string>
+    <string name="photo_saved_title">Tác phẩm đã sẵn sàng</string>
+    <string name="retake_photo">Chụp lại</string>
+    <string name="saving_drawing">Đang lưu bản vẽ…</string>
+    <string name="drawing_saved">Đã lưu vào Album của tôi</string>
+    <string name="capture_result">Chụp kết quả</string>
+    <string name="switch_camera">Đổi camera</string>
     <string name="not_finished">Bản vẽ chưa hoàn thành</string>
     <string name="back_to_settings">Quay lại Cài đặt</string>
     <string name="your_privacy">Quyền riêng tư của bạn</string>

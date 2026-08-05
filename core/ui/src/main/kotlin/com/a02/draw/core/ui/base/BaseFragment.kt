@@ -9,6 +9,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
+import com.google.android.material.transition.MaterialSharedAxis
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -20,6 +21,15 @@ abstract class BaseFragment<VB : ViewBinding>(
         get() = requireNotNull(internalBinding) {
             "Binding is only available between onCreateView() and onDestroyView()."
         }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enterTransition = sharedAxis(forward = true, durationMillis = SCREEN_ENTER_DURATION_MILLIS)
+        reenterTransition =
+            sharedAxis(forward = false, durationMillis = SCREEN_ENTER_DURATION_MILLIS)
+        exitTransition = sharedAxis(forward = true, durationMillis = SCREEN_EXIT_DURATION_MILLIS)
+        returnTransition = sharedAxis(forward = false, durationMillis = SCREEN_EXIT_DURATION_MILLIS)
+    }
 
     final override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,5 +59,15 @@ abstract class BaseFragment<VB : ViewBinding>(
     override fun onDestroyView() {
         internalBinding = null
         super.onDestroyView()
+    }
+
+    private companion object {
+        const val SCREEN_ENTER_DURATION_MILLIS = 300L
+        const val SCREEN_EXIT_DURATION_MILLIS = 210L
+
+        fun sharedAxis(forward: Boolean, durationMillis: Long) =
+            MaterialSharedAxis(MaterialSharedAxis.X, forward).apply {
+                duration = durationMillis
+            }
     }
 }
