@@ -2,6 +2,7 @@ package com.a02.draw
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
+import com.a02.draw.ads.KiroSdkInitializer
 import com.a02.draw.domain.model.ThemeMode
 import com.a02.draw.domain.repository.AppPreferencesRepository
 import dagger.hilt.android.HiltAndroidApp
@@ -21,6 +22,7 @@ class DrawApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        KiroSdkInitializer.initialize(this)
         applicationScope.launch {
             preferencesRepository.observePreferences()
                 .map { it.themeMode }

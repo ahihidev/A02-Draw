@@ -18,6 +18,8 @@ sealed interface HomeAction {
     data object Retry : HomeAction
     data object OpenSearch : HomeAction
     data object OpenSourceModal : HomeAction
+    data object OpenEmojiMix : HomeAction
+    data object OpenWebBrowser : HomeAction
     data object CloseSourceModal : HomeAction
     data class OpenTopic(val topicId: String) : HomeAction
     data class SelectSource(val source: DeviceImageSource) : HomeAction
@@ -30,6 +32,8 @@ sealed interface HomeScreenEffect : UiEffect {
     data object NavigateSearch : HomeScreenEffect
     data class NavigateGallery(val topicId: String?) : HomeScreenEffect
     data object NavigateTutorial : HomeScreenEffect
+    data object NavigateEmojiMix : HomeScreenEffect
+    data object NavigateWebBrowser : HomeScreenEffect
     data object OpenPhotoPicker : HomeScreenEffect
     data object OpenSourceCamera : HomeScreenEffect
     data class NavigateBottom(val destination: BottomDestination) : HomeScreenEffect

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
+    <!-- Google sample IDs. Safe for development and emulator testing. -->
+    <string name="admob_app_id" translatable="false">ca-app-pub-3940256099942544~3347511713</string>
+
+    <!-- Interstitial placements -->
+    <string name="inter_splash_2f" translatable="false">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="inter_splash_mf" translatable="false">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="inter_splash_all" translatable="false">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="inter_app" translatable="false">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="inter_background" translatable="false">ca-app-pub-3940256099942544/1033173712</string>
+
+    <!-- Native placements -->
+    <string name="native_language_2f" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_language_mf" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_language_all" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_onboarding_2_2f" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_onboarding_2_mf" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_onboarding_2_all" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_onboarding_3_full_2f" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_onboarding_3_full_mf" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_onboarding_3_full_all" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_onboarding_4_2f" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_onboarding_4_mf" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_onboarding_4_all" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_choose_topic" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_home" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_topic_detail" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_search" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_learn" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_learn_detail" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_setting" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+    <string name="native_select_mode" translatable="false">ca-app-pub-3940256099942544/2247696110</string>
+
+    <!-- Rewarded and banner placements -->
+    <string name="rewarded_unlock_item" translatable="false">ca-app-pub-3940256099942544/5224354917</string>
+    <string name="banner_draw" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
+</resources>

@@ -69,14 +69,15 @@
                             android:layout_height="match_parent"
                             android:clickable="true"
                             android:focusable="true"
-                            app:cardBackgroundColor="#38A9EF"
-                            app:cardCornerRadius="10dp"
+                            app:cardBackgroundColor="@android:color/transparent"
+                            app:cardCornerRadius="14dp"
                             app:cardElevation="0dp"
                             app:strokeWidth="0dp">
 
                             <FrameLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="match_parent">
+                                android:layout_height="match_parent"
+                                android:background="@drawable/bg_home_gallery_card">
 
                                 <TextView
                                     android:layout_width="match_parent"
@@ -119,6 +120,86 @@
                             android:textSize="11sp"
                             android:textStyle="italic" />
                     </FrameLayout>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/ai_source"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="6dp"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:contentDescription="@string/open_ai_emoji_mix"
+                        android:focusable="true"
+                        app:cardBackgroundColor="@android:color/transparent"
+                        app:cardCornerRadius="14dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_home_ai_card">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="start|center_vertical"
+                                android:paddingStart="10dp"
+                                android:paddingEnd="34dp"
+                                android:text="@string/main_ai_emoji_mix"
+                                android:textColor="@android:color/white"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="end|bottom"
+                                android:importantForAccessibility="no"
+                                android:scaleType="fitCenter"
+                                android:src="@drawable/figma_source_ai" />
+                        </FrameLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/web_source"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="6dp"
+                        android:layout_weight="1"
+                        android:clickable="true"
+                        android:contentDescription="@string/open_web_browser"
+                        android:focusable="true"
+                        app:cardBackgroundColor="@android:color/transparent"
+                        app:cardCornerRadius="14dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_home_web_card">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="start|center_vertical"
+                                android:paddingStart="10dp"
+                                android:paddingEnd="34dp"
+                                android:text="@string/main_web_browser"
+                                android:textColor="@android:color/white"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_gravity="end|bottom"
+                                android:importantForAccessibility="no"
+                                android:scaleType="fitCenter"
+                                android:src="@drawable/figma_source_web" />
+                        </FrameLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                 </LinearLayout>
 

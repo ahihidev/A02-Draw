@@ -77,7 +77,9 @@ class HomeFragment : BaseFragment<ScreenMainHomeBinding>(ScreenMainHomeBinding::
             minimumSpanCount = 2,
         )
         binding.topicList.adapter = topicAdapter
-        binding.gallerySource.setOnClickListener { viewModel.onAction(HomeAction.OpenSourceModal) }
+        binding.gallerySource.setDebouncedClickListener { viewModel.onAction(HomeAction.OpenSourceModal) }
+        binding.aiSource.setDebouncedClickListener { viewModel.onAction(HomeAction.OpenEmojiMix) }
+        binding.webSource.setDebouncedClickListener { viewModel.onAction(HomeAction.OpenWebBrowser) }
         binding.cameraSourceOption.setOnClickListener {
             viewModel.onAction(HomeAction.SelectSource(DeviceImageSource.CAMERA))
         }
@@ -124,6 +126,8 @@ class HomeFragment : BaseFragment<ScreenMainHomeBinding>(ScreenMainHomeBinding::
             )
 
             HomeScreenEffect.NavigateTutorial -> findNavController().navigate(R.id.tutorialCameraFragment)
+            HomeScreenEffect.NavigateEmojiMix -> findNavController().navigate(R.id.emojiMixHomeFragment)
+            HomeScreenEffect.NavigateWebBrowser -> findNavController().navigate(R.id.webBrowserFragment)
             HomeScreenEffect.OpenPhotoPicker -> picker.launch(
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
             )

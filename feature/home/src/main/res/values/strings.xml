@@ -24,6 +24,42 @@
     <string name="main_app_name">AR Drawing</string>
     <string name="main_search_icon" translatable="false">⌕</string>
     <string name="main_my_gallery">My Gallery</string>
+    <string name="main_ai_emoji_mix">AI\nEmoji Mix</string>
+    <string name="main_web_browser">Web\nBrowser</string>
+    <string name="open_ai_emoji_mix">Open AI Emoji Mix</string>
+    <string name="open_web_browser">Open Web Browser</string>
+    <string name="emoji_mix_title">AI Emoji Mix</string>
+    <string name="emoji_mix_subtitle">Blend familiar emoji into a fresh drawing reference.</string>
+    <string name="emoji_mix_two_title">Mix 2</string>
+    <string name="emoji_mix_two_description">Pick a compatible Emoji Kitchen pair.</string>
+    <string name="emoji_mix_three_title">Mix 3</string>
+    <string name="emoji_mix_three_description">Build a transparent sticker on this device.</string>
+    <plurals name="emoji_mix_picker_hint">
+        <item quantity="one">Select %d different emoji</item>
+        <item quantity="other">Select %d different emoji</item>
+    </plurals>
+    <string name="emoji_mix_no_selection">Choose emoji below</string>
+    <string name="emoji_mix_clear">Clear</string>
+    <string name="emoji_mix_create">Create</string>
+    <string name="emoji_mix_result_title">Your Emoji Mix</string>
+    <string name="emoji_mix_creating">Creating emoji mix</string>
+    <string name="emoji_mix_generated_image">Generated emoji mix</string>
+    <string name="emoji_mix_save">Save</string>
+    <string name="emoji_mix_copy">Copy</string>
+    <string name="emoji_mix_share">Share</string>
+    <string name="emoji_mix_draw">Draw This Emoji</string>
+    <string name="emoji_mix_new">Create New</string>
+    <string name="emoji_mix_saved">Image saved</string>
+    <string name="emoji_mix_copied">Image copied</string>
+    <string name="web_search_hint">Search drawing references</string>
+    <string name="web_search_action">Search images</string>
+    <string name="web_empty_message">Search Google Images, then tap an image to use it as your drawing reference.</string>
+    <string name="web_page_error">Could not load this page. Check your connection and try again.</string>
+    <string name="web_importing">Importing image…</string>
+    <string name="emoji_mix_two_example" translatable="false">😀 + 😍</string>
+    <string name="emoji_mix_three_example" translatable="false">🔥\n🐱  🚀</string>
+    <string name="web_empty_icon" translatable="false">🌟</string>
+    <string name="close_symbol" translatable="false">×</string>
     <string name="main_hot_trend">Hot trend</string>
     <string name="main_choose_topic">Choose topic</string>
     <string name="main_home">Home</string>

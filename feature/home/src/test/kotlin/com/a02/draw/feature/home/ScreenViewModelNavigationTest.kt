@@ -189,6 +189,17 @@ class ScreenViewModelNavigationTest {
     }
 
     @Test
+    fun `home opens emoji mix and web browser`() = runTest {
+        val emojiViewModel = HomeViewModel(content, DefaultDrawingSessionStore())
+        emojiViewModel.onAction(HomeAction.OpenEmojiMix)
+        assertEquals(HomeScreenEffect.NavigateEmojiMix, emojiViewModel.effects.first())
+
+        val webViewModel = HomeViewModel(content, DefaultDrawingSessionStore())
+        webViewModel.onAction(HomeAction.OpenWebBrowser)
+        assertEquals(HomeScreenEffect.NavigateWebBrowser, webViewModel.effects.first())
+    }
+
+    @Test
     fun `home exposes every topic from catalog`() = runTest {
         val expectedTopics = (1..19).map { index ->
             DrawingTopic("topic-$index", "Topic $index", IMAGE)

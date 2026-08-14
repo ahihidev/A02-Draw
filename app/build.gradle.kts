@@ -146,6 +146,13 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.material)
+    implementation(libs.kiro.ads) {
+        // This app is XML/ViewBinding-only. The SDK publishes optional Compose rendering helpers
+        // as runtime dependencies, which would otherwise force compileSdk 37 through Lifecycle 2.11.
+        exclude(group = "androidx.compose")
+        exclude(group = "androidx.compose.ui")
+        exclude(group = "androidx.compose.material3")
+    }
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

@@ -8,6 +8,31 @@
         android:id="@+id/mainHomeFragment"
         android:name="com.a02.draw.feature.home.screen.home.HomeFragment" />
     <fragment
+        android:id="@+id/emojiMixHomeFragment"
+        android:name="com.a02.draw.feature.home.screen.emojimix.EmojiMixHomeFragment" />
+    <fragment
+        android:id="@+id/emojiMixPickerFragment"
+        android:name="com.a02.draw.feature.home.screen.emojimix.EmojiMixPickerFragment">
+        <argument
+            android:name="mode"
+            android:defaultValue="MIX_2"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/emojiMixResultFragment"
+        android:name="com.a02.draw.feature.home.screen.emojimix.EmojiMixResultFragment">
+        <argument
+            android:name="mode"
+            android:defaultValue="MIX_2"
+            app:argType="string" />
+        <argument
+            android:name="selectedInputs"
+            app:argType="string[]" />
+    </fragment>
+    <fragment
+        android:id="@+id/webBrowserFragment"
+        android:name="com.a02.draw.feature.home.screen.webbrowser.WebBrowserFragment" />
+    <fragment
         android:id="@+id/searchFragment"
         android:name="com.a02.draw.feature.home.screen.search.SearchFragment" />
     <fragment

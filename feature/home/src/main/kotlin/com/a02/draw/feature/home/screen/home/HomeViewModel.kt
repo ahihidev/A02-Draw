@@ -29,6 +29,8 @@ class HomeViewModel @Inject constructor(
             HomeAction.Retry -> loadCatalog(forceRefresh = true)
             HomeAction.OpenSearch -> send(HomeScreenEffect.NavigateSearch)
             HomeAction.OpenSourceModal -> updateState { copy(isSourceModalVisible = true) }
+            HomeAction.OpenEmojiMix -> send(HomeScreenEffect.NavigateEmojiMix)
+            HomeAction.OpenWebBrowser -> send(HomeScreenEffect.NavigateWebBrowser)
             HomeAction.CloseSourceModal -> updateState { copy(isSourceModalVisible = false) }
             is HomeAction.OpenTopic -> send(HomeScreenEffect.NavigateGallery(action.topicId))
             is HomeAction.SelectSource -> updateState { copy(selectedSource = action.source) }
