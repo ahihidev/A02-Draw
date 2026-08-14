@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/camera_preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <FrameLayout
+        android:id="@+id/camera_overlay_container"
+        android:layout_width="1dp"
+        android:layout_height="1dp">
+
+        <ImageView
+            android:id="@+id/camera_overlay_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_camera_overlay_clip"
+            android:contentDescription="@string/drawing_reference_overlay"
+            android:scaleType="fitCenter" />
+    </FrameLayout>
+
+    <com.a02.draw.feature.home.common.drawing.ArDrawView
+        android:id="@+id/ar_draw_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/ar_draw_experience"
+        android:keepScreenOn="true" />
+
+    <View
+        android:id="@+id/capture_flash"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:background="@android:color/white"
+        android:clickable="false"
+        android:importantForAccessibility="no" />
+
+    <TextView
+        android:id="@+id/camera_countdown"
+        android:layout_width="112dp"
+        android:layout_height="112dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_camera_countdown"
+        android:elevation="8dp"
+        android:fontFamily="sans-serif-rounded"
+        android:gravity="center"
+        android:importantForAccessibility="no"
+        android:textColor="@android:color/white"
+        android:textSize="56sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/drawing_controls"
+        layout="@layout/screen_drawing_controls"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</FrameLayout>

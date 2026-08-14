@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="onboarding_topic_min_cell_width">104dp</dimen>
+    <dimen name="onboarding_page_title_top_margin">44dp</dimen>
+    <dimen name="onboarding_page_subtitle_top_margin">8dp</dimen>
+    <dimen name="onboarding_page_artwork_top_margin">20dp</dimen>
+    <dimen name="onboarding_page_artwork_bottom_margin">20dp</dimen>
+    <dimen name="onboarding_feature_card_height">92dp</dimen>
+    <dimen name="onboarding_feature_card_button_gap">54dp</dimen>
+    <dimen name="onboarding_indicator_button_gap">16dp</dimen>
+    <dimen name="onboarding_continue_button_height">52dp</dimen>
+    <dimen name="onboarding_continue_button_bottom_margin">16dp</dimen>
+</resources>

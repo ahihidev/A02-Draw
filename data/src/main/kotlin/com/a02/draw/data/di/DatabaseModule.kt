@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.a02.draw.data.local.database.DrawDatabase
 import com.a02.draw.data.local.database.dao.DrawingDao
+import com.a02.draw.data.local.database.dao.LessonDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,4 +23,7 @@ object DatabaseModule {
 
     @Provides
     fun provideDrawingDao(database: DrawDatabase): DrawingDao = database.drawingDao()
+
+    @Provides
+    fun provideLessonDao(database: DrawDatabase): LessonDao = database.lessonDao()
 }

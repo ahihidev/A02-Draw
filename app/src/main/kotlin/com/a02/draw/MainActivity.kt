@@ -7,5 +7,9 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::inflate) {
+    override fun includeTopSystemBarPadding(): Boolean = false
+
     override fun setupViews(savedInstanceState: Bundle?) = Unit
+
+    override fun observeData() = Unit
 }

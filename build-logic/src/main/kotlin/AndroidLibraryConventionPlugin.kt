@@ -29,6 +29,9 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 abortOnError = true
                 warningsAsErrors = true
                 checkReleaseBuilds = true
+                // Kotlin FIR in the current lint toolchain crashes while resolving KSP/Room
+                // generated types from test variants. Production sources remain fully checked.
+                checkTestSources = false
                 disable += setOf("AndroidGradlePluginVersion", "GradleDependency", "OldTargetApi")
             }
             testOptions.unitTests.isIncludeAndroidResources = true

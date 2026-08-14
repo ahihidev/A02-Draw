@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ApiSkeletonView">
+        <attr name="skeletonMode">
+            <enum name="list" value="0" />
+            <enum name="grid" value="1" />
+        </attr>
+        <attr name="skeletonItemCount" format="integer" />
+    </declare-styleable>
+</resources>

@@ -1,3 +1,26 @@
 <resources>
-    <string name="app_name">A02 Draw</string>
+    <string name="app_name" translatable="false">AR Drawing</string>
+    <string name="generic_error">Something went wrong</string>
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_projector_title">Image Projector</string>
+    <string name="onboarding_projector_subtitle">Project your masterpiece through AR technology</string>
+    <string name="onboarding_projector_feature">Project images onto paper using AR technology, so you can sketch with ease</string>
+    <string name="onboarding_lightbox_title">Light Box</string>
+    <string name="onboarding_lightbox_subtitle">Use your device to precisely illuminate and trace images</string>
+    <string name="onboarding_lightbox_feature">Transform your device screen into an easy-to-use drawing tool</string>
+    <string name="onboarding_lessons_title">Lessons</string>
+    <string name="onboarding_lessons_subtitle">Follow step-by-step tutorials to improve your drawing skills!</string>
+    <string name="onboarding_lessons_feature">Learn to draw with step-by-step tutorials suitable for all skill levels</string>
+    <string name="onboarding_topics_title">Choose Favourite Topic</string>
+    <string name="onboarding_topics_subtitle">Select up to 3 options</string>
+    <string name="onboarding_topics_error">Could not load drawing topics.</string>
+    <string name="onboarding_topics_selection_required">Choose at least one topic to continue.</string>
+    <string name="onboarding_retry">Try again</string>
+    <string name="onboarding_preparing_title">Preparing your studio…</string>
+    <string name="onboarding_preparing_subtitle">Setting up content based on your choices</string>
+    <string name="onboarding_preparing_favorites">Saving favorite topics</string>
+    <string name="onboarding_preparing_references">Loading drawing references</string>
+    <string name="onboarding_preparing_tools">Getting AR tools ready</string>
+    <string name="onboarding_selected">Selected</string>
+    <string name="onboarding_checkmark" translatable="false">✓</string>
 </resources>

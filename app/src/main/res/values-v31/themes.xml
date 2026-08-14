@@ -1,0 +1,27 @@
+<resources>
+
+    <style name="Theme.A02Draw" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorOnPrimary">@color/brand_on_primary</item>
+        <item name="colorSecondary">@color/brand_secondary</item>
+        <item name="android:colorBackground">@color/brand_background</item>
+        <item name="android:windowBackground">@color/brand_background</item>
+        <item name="android:windowSplashScreenBackground">@color/brand_background</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="colorSurface">@color/brand_surface</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="Theme.A02Draw.Splash" parent="Theme.A02Draw">
+        <item name="android:windowBackground">@drawable/bg_splash</item>
+        <item name="android:windowSplashScreenBackground">@color/brand_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="android:windowSplashScreenAnimationDuration">300</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@color/brand_background</item>
+        <item name="android:statusBarColor">@color/brand_background</item>
+    </style>
+</resources>

@@ -1,0 +1,14 @@
+<resources>
+    <color name="home_navy">#1C283D</color>
+    <color name="home_muted">#687B97</color>
+    <color name="home_purple">#935EED</color>
+    <color name="home_purple_light">#F2EBFF</color>
+    <color name="home_border">#DCE3ED</color>
+    <color name="home_surface">#FFFFFF</color>
+    <color name="home_surface_soft">#F8F9FC</color>
+    <color name="home_dark_overlay">#B8000000</color>
+    <color name="home_dark_panel">#DA000000</color>
+    <color name="home_green_soft">#EBFFF3</color>
+    <color name="home_blue_soft">#EBF7FF</color>
+    <color name="home_pink">#F25B9C</color>
+</resources>

@@ -1,0 +1,30 @@
+package com.a02.draw.feature.home.screen.drawingcomplete
+
+import com.a02.draw.core.ui.base.UiEffect
+import com.a02.draw.core.ui.base.UiState
+import com.a02.draw.feature.home.common.model.DrawingMode
+
+data class DrawingCompleteUiState(
+    val capturedUri: String? = null,
+    val mode: DrawingMode = DrawingMode.CAMERA,
+    val isSaving: Boolean = false,
+    val isSaved: Boolean = false,
+) : UiState
+
+sealed interface DrawingCompleteAction {
+    data object Back : DrawingCompleteAction
+    data object Home : DrawingCompleteAction
+    data object TakePhoto : DrawingCompleteAction
+    data class PhotoCaptured(val uri: String) : DrawingCompleteAction
+    data object Share : DrawingCompleteAction
+    data object ContinueDrawing : DrawingCompleteAction
+    data object RetakePhoto : DrawingCompleteAction
+}
+
+sealed interface DrawingCompleteEffect : UiEffect {
+    data object NavigateHome : DrawingCompleteEffect
+    data object LaunchResultCamera : DrawingCompleteEffect
+    data class Share(val uri: String) : DrawingCompleteEffect
+    data class ContinueDrawing(val mode: DrawingMode) : DrawingCompleteEffect
+    data object ShowSaveError : DrawingCompleteEffect
+}

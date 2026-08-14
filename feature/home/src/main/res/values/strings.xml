@@ -1,4 +1,10 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_display_name" translatable="false">AR Drawing</string>
+    <string name="drawing_reference_overlay">Drawing reference overlay</string>
+    <string name="ar_draw_experience">AR Drawing interactive experience</string>
+    <string name="camera_permission_required">Camera permission is required for AR drawing</string>
+    <string name="camera_permission_open_settings">Camera permission is blocked. Enable it in Settings to use AR drawing.</string>
+    <string name="open_settings">Settings</string>
     <string name="home_title">My drawings</string>
     <string name="home_subtitle">A clean foundation for your next idea.</string>
     <string name="loading">Loading drawings</string>
@@ -8,5 +14,141 @@
     <string name="add_drawing">New drawing</string>
     <string name="drawing_created">Drawing created</string>
     <string name="generic_error">Something went wrong</string>
+    <string name="share_message">Made with AR Draw</string>
+    <string name="share_drawing">Share drawing</string>
+    <string name="search_hint">What will you draw today?</string>
     <string name="open_drawing">Open %1$s</string>
+    <string name="video_saved">Video saved</string>
+    <string name="video_recording_error">Could not record video</string>
+    <string name="main_draw_from">Draw from</string>
+    <string name="main_app_name">AR Drawing</string>
+    <string name="main_search_icon" translatable="false">⌕</string>
+    <string name="main_my_gallery">My Gallery</string>
+    <string name="main_hot_trend">Hot trend</string>
+    <string name="main_choose_topic">Choose topic</string>
+    <string name="main_home">Home</string>
+    <string name="main_learn">Learn</string>
+    <string name="main_profile">Profile</string>
+    <string name="main_settings">Setting</string>
+    <string name="source_modal_title">Add an image</string>
+    <string name="source_modal_subtitle">Choose where your drawing reference comes from</string>
+    <string name="source_camera">Camera</string>
+    <string name="source_gallery">Gallery</string>
+    <string name="source_continue">Continue</string>
+    <string name="source_close">Close</string>
+    <string name="back">Back</string>
+    <string name="complete">Complete</string>
+    <string name="continue_label">Continue</string>
+    <string name="reset_filters">Reset filters</string>
+    <string name="filter">Filter</string>
+    <string name="difficulty_level">Difficulty level</string>
+    <string name="drawing_style">Drawing style</string>
+    <string name="easy">Easy</string>
+    <string name="medium">Medium</string>
+    <string name="hard">Hard</string>
+    <string name="line_sketch">Line Sketch</string>
+    <string name="color_style">Color</string>
+    <string name="gallery">Gallery</string>
+    <string name="trending">Trending</string>
+    <string name="no_drawings_found">No drawings found</string>
+    <string name="search_results">Search results</string>
+    <string name="no_filter_results">No drawings match these filters</string>
+    <string name="learn_to_draw">Learn to draw</string>
+    <string name="categories">Categories</string>
+    <string name="favorite">Favorite</string>
+    <string name="my_album">My Album</string>
+    <string name="sketches">Sketches</string>
+    <string name="lessons">Lessons</string>
+    <string name="time">Time</string>
+    <string name="select_mode">Select mode</string>
+    <string name="draw_with_camera">Draw with camera</string>
+    <string name="draw_with_camera_description">Use a cup to hold your phone steady to draw through the camera</string>
+    <string name="draw_with_screen">Draw with screen</string>
+    <string name="draw_with_screen_description">Place the paper on top of the phone and trace the visible lines on the screen</string>
+    <string name="draw_now">Draw now</string>
+    <string name="opacity">Opacity</string>
+    <string name="canvas">Canvas</string>
+    <string name="camera">Camera</string>
+    <string name="hide">Hide</string>
+    <string name="show">Show</string>
+    <string name="lock">Lock</string>
+    <string name="flip">Flip</string>
+    <string name="adjust">Adjust</string>
+    <string name="rotate">Rotate</string>
+    <string name="center">Center</string>
+    <string name="remove_bg">Remove BG</string>
+    <string name="crop">Crop</string>
+    <string name="grid">Grid</string>
+    <string name="zoom">Zoom</string>
+    <string name="flash">Flash</string>
+    <string name="capture">Capture</string>
+    <string name="timer_off">Off</string>
+    <string name="timer_3" translatable="false">3s</string>
+    <string name="timer_10" translatable="false">10s</string>
+    <string name="countdown_number" translatable="false">%d</string>
+    <string name="front_camera">Front</string>
+    <string name="back_camera">Back</string>
+    <string name="guide">Guide</string>
+    <string name="camera_lens_unavailable">This camera is not available</string>
+    <string name="record">Record</string>
+    <string name="ratio">Ratio</string>
+    <string name="reset">Reset</string>
+    <string name="full">Full</string>
+    <string name="good_job">Good Job</string>
+    <string name="drawing_complete_title">Your drawing is complete!</string>
+    <string name="take_photo">Take a photo</string>
+    <string name="take_photo_description">Take a photo of the finished drawing to share with your friend.</string>
+    <string name="take_photo_save_share">Take a photo to save and share your artwork.</string>
+    <string name="drawing_saved_description">Your drawing is saved and ready to share with your friend.</string>
+    <string name="photo_saved_title">Your artwork is ready</string>
+    <string name="retake_photo">Retake photo</string>
+    <string name="saving_drawing">Saving your drawing…</string>
+    <string name="drawing_saved">Saved to My Album</string>
+    <string name="capture_result">Capture result</string>
+    <string name="switch_camera">Switch camera</string>
+    <string name="not_finished">It’s not finished yet</string>
+    <string name="back_to_settings">Back to Settings</string>
+    <string name="your_privacy">Your privacy</string>
+    <string name="privacy_body">Camera access is used only while AR Drawing is open.\n\nPhotos and videos are created and stored on your device. Your captured drawings are not uploaded by the app.\n\nDrawing categories and reference images are loaded from the AR content service.</string>
+    <string name="using_ar_drawing">Using AR Drawing</string>
+    <string name="terms_body">Use only images you have permission to trace or share.\n\nKeep your phone secure while drawing and do not operate the camera where device use is unsafe.\n\nFollow local laws and respect the rights of image owners when publishing your work.</string>
+    <string name="how_ar_drawing_works">How AR Drawing works</string>
+    <string name="help_body">1. Choose a reference\nPick a template or image from your device.\n\n2. Place your phone\nKeep the camera steady above your paper.\n\n3. Adjust the overlay\nMove, zoom, flip and change opacity as needed.\n\n4. Trace and save\nDraw on paper, then capture or record your result.</string>
+    <string name="discover_category">Discover a curated collection of %1$s drawing tutorials. Follow each lesson at your own pace and build confidence with simple, step-by-step guides for all skill levels.</string>
+    <plurals name="guided_lessons_available">
+        <item quantity="one">%d guided lesson with step-by-step images</item>
+        <item quantity="other">%d guided lessons with step-by-step images</item>
+    </plurals>
+    <string name="lesson_count" tools:ignore="PluralsCandidate">%1$d Lessons</string>
+    <string name="lesson_minutes" tools:ignore="PluralsCandidate">%1$d mins</string>
+    <string name="lesson_guided_steps" tools:ignore="PluralsCandidate">%1$d guided steps</string>
+    <string name="lesson_steps_complete" tools:ignore="PluralsCandidate">%1$d/%2$d Complete</string>
+    <string name="lesson_step_of">Step %1$d of %2$d</string>
+    <string name="previous_step">Previous step</string>
+    <string name="next">Next</string>
+    <string name="done">Done</string>
+    <string name="settings_title">Settings</string>
+    <string name="help_faqs">Help &amp; FAQs</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="terms_of_use">Terms of use</string>
+    <string name="selected">Selected</string>
+    <string name="not_selected">Not selected</string>
+    <string name="saved">Saved</string>
+    <string name="all">All</string>
+    <string name="jujutsu_kaisen">Jujutsu Kaisen</string>
+    <string name="one_piece">One Piece</string>
+    <string name="doraemon">Doraemon</string>
+    <string name="profile_stat">%1$d\n%2$s</string>
+    <string name="drawing_back">Back</string>
+    <string name="chevron_left" translatable="false">‹</string>
+    <string name="chevron_right" translatable="false">›</string>
+    <string name="ratio_1_1" translatable="false">1:1</string>
+    <string name="ratio_9_16" translatable="false">9:16</string>
+    <string name="ratio_16_9" translatable="false">16:9</string>
+    <string name="ratio_4_3" translatable="false">4:3</string>
+    <string name="grid_3" translatable="false">3x3</string>
+    <string name="grid_4" translatable="false">4x4</string>
+    <string name="grid_5" translatable="false">5x5</string>
+    <string name="zoom_half" translatable="false">0.5x</string>
+    <string name="zoom_one_half" translatable="false">1.5x</string>
 </resources>

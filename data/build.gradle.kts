@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("a02.android.library")
     id("a02.android.hilt")
@@ -7,12 +9,40 @@ android {
     namespace = "com.a02.draw.data"
     testNamespace = "com.a02.draw.data.test"
     buildFeatures.buildConfig = true
+    sourceSets.getByName("androidTest").assets.srcDir("$projectDir/schemas")
 
-    val apiBaseUrl = providers.gradleProperty("API_BASE_URL")
-        .orElse("https://example.com/")
-        .get()
+    val localSecrets = Properties().apply {
+        rootProject.file("secrets.properties")
+            .takeIf { it.isFile }
+            ?.inputStream()
+            ?.use(::load)
+    }
+
+    fun apiConfig(name: String, fallback: String = ""): String =
+        providers.gradleProperty(name)
+            .orElse(providers.environmentVariable("A02_$name"))
+            .orElse(localSecrets.getProperty(name, fallback))
+            .get()
+
+    fun quoted(value: String): String =
+        "\"${value.replace("\\", "\\\\").replace("\"", "\\\"")}\""
+
     defaultConfig {
-        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+        buildConfigField(
+            "String",
+            "API_BASE_URL",
+            quoted(apiConfig("API_BASE_URL", "https://toroarapi.duckdns.org/")),
+        )
+        buildConfigField(
+            "String",
+            "API_AES_KEY",
+            quoted(apiConfig("API_AES_KEY")),
+        )
+        buildConfigField(
+            "String",
+            "API_AES_IV",
+            quoted(apiConfig("API_AES_IV")),
+        )
     }
 }
 

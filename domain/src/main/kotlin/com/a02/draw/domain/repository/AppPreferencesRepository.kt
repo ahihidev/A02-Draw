@@ -9,4 +9,7 @@ interface AppPreferencesRepository {
     fun observePreferences(): Flow<AppPreferences>
     suspend fun setThemeMode(themeMode: ThemeMode): AppResult<Unit>
     suspend fun setOnboardingCompleted(completed: Boolean): AppResult<Unit>
+    suspend fun setFavoriteArtworkIds(ids: Set<String>): AppResult<Unit>
+    suspend fun setLessonCompletedSteps(lessonId: String, completedSteps: Int): AppResult<Unit>
+    suspend fun setMusicEnabled(enabled: Boolean): AppResult<Unit>
 }
