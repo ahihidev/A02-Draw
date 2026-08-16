@@ -1,7 +1,7 @@
 package com.a02.draw.domain.model
 
 data class AppPreferences(
-    val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    val themeMode: ThemeMode = ThemeMode.LIGHT,
     val languageTag: String? = null,
     val onboardingCompleted: Boolean = false,
     val isPremium: Boolean = false,

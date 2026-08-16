@@ -152,6 +152,8 @@ dependencies {
     // NativeAdView and MediaView types on this module's compile classpath as well.
     implementation(libs.google.mobile.ads)
     implementation(libs.play.billing)
+    implementation(libs.play.app.update)
+    implementation(libs.play.review)
     implementation(libs.kiro.ads) {
         // This app is XML/ViewBinding-only. The SDK publishes optional Compose rendering helpers
         // as runtime dependencies, which would otherwise force compileSdk 37 through Lifecycle 2.11.

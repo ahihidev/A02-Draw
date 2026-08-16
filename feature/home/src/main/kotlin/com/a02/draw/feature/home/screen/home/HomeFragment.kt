@@ -81,7 +81,7 @@ class HomeFragment : BaseFragment<ScreenMainHomeBinding>(ScreenMainHomeBinding::
         appAdsController.attachNative(
             binding.nativeAdContainer,
             AppAdPlacement.HOME,
-            AppNativeAdFormat.LARGE,
+            AppNativeAdFormat.MEDIUM,
             viewLifecycleOwner,
         )
         binding.header.bindMainTabHeader(

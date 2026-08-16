@@ -53,4 +53,6 @@
     <string name="welcome_back_message">Prêt à continuer à créer ?</string>
     <string name="welcome_back_continue">Continuer</string>
     <string name="welcome_back_close">Pas maintenant</string>
+    <string name="update_ready_message">Une mise à jour est prête à être installée.</string>
+    <string name="update_restart">Redémarrer</string>
 </resources>

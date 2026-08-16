@@ -7,7 +7,6 @@ import com.a02.draw.ads.KiroSdkInitializer
 import com.a02.draw.ads.app.AppBackgroundTracker
 import com.a02.draw.connectivity.NoInternetGatekeeper
 import com.a02.draw.core.ui.billing.PremiumBillingController
-import com.a02.draw.domain.model.ThemeMode
 import com.a02.draw.domain.repository.AppPreferencesRepository
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -33,6 +32,7 @@ class DrawApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         // Force registration before SplashActivity starts so in-app Activity transitions are
         // never misclassified as a real process background/foreground cycle.
         appBackgroundTracker.ensureRegistered()
@@ -43,25 +43,10 @@ class DrawApplication : Application() {
         premiumBillingController.synchronizeEntitlement()
         applicationScope.launch {
             preferencesRepository.observePreferences()
-                .map { it.themeMode }
-                .distinctUntilChanged()
-                .collect(::applyTheme)
-        }
-        applicationScope.launch {
-            preferencesRepository.observePreferences()
                 .map { it.languageTag.orEmpty() }
                 .distinctUntilChanged()
                 .collect(::applyLanguage)
         }
-    }
-
-    private fun applyTheme(themeMode: ThemeMode) {
-        val nightMode = when (themeMode) {
-            ThemeMode.SYSTEM -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-            ThemeMode.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
-            ThemeMode.DARK -> AppCompatDelegate.MODE_NIGHT_YES
-        }
-        AppCompatDelegate.setDefaultNightMode(nightMode)
     }
 
     private suspend fun applyLanguage(languageTag: String) =

@@ -99,7 +99,7 @@ class AppPreferencesDataStore @Inject constructor(
     private fun toDomain(preferences: Preferences): AppPreferences {
         val theme = preferences[Keys.THEME_MODE]
             ?.let { value -> ThemeMode.entries.firstOrNull { it.name == value } }
-            ?: ThemeMode.SYSTEM
+            ?: ThemeMode.LIGHT
         return AppPreferences(
             themeMode = theme,
             languageTag = preferences[Keys.LANGUAGE_TAG],

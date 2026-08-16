@@ -330,6 +330,34 @@ class ScreenViewModelNavigationTest {
     }
 
     @Test
+    fun `settings hides help update and feedback without removing other items`() = runTest {
+        val settingsContent = GetArCatalogUseCase(
+            object : ArContentRepository {
+                override suspend fun getCatalog(forceRefresh: Boolean): AppResult<ArCatalog> =
+                    AppResult.Success(
+                        CATALOG.copy(
+                            settings = listOf(
+                                AppSettingItem("help", "Help & FAQs"),
+                                AppSettingItem("update", "Update version"),
+                                AppSettingItem("feedback", "Feedback"),
+                                AppSettingItem("share", "Share"),
+                                AppSettingItem("privacy", "Privacy policy"),
+                            ),
+                        ),
+                    )
+            },
+        )
+
+        val viewModel = SettingsViewModel(settingsContent)
+        advanceUntilIdle()
+
+        assertEquals(
+            listOf("subscription", "share", "privacy"),
+            viewModel.state.value.items.map(AppSettingItem::id),
+        )
+    }
+
+    @Test
     fun `settings detail restores id and handles back`() = runTest {
         val viewModel = SettingsDetailViewModel(SavedStateHandle(mapOf("settingId" to "help")))
         assertEquals(R.string.help_faqs, viewModel.state.value.title)

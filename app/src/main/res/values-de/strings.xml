@@ -53,4 +53,6 @@
     <string name="welcome_back_message">Bereit, mit dem Schaffen fortzufahren?</string>
     <string name="welcome_back_continue">Weiter</string>
     <string name="welcome_back_close">Nicht jetzt</string>
+    <string name="update_ready_message">Ein Update kann installiert werden.</string>
+    <string name="update_restart">Neu starten</string>
 </resources>

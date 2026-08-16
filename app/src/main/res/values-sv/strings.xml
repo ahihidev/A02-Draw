@@ -53,4 +53,6 @@
     <string name="welcome_back_message">Redo att fortsätta skapa?</string>
     <string name="welcome_back_continue">Fortsätt</string>
     <string name="welcome_back_close">Inte nu</string>
+    <string name="update_ready_message">En uppdatering är redo att installeras.</string>
+    <string name="update_restart">Starta om</string>
 </resources>

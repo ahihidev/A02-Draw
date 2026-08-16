@@ -70,4 +70,6 @@
     <string name="welcome_back_message">Ready to continue creating?</string>
     <string name="welcome_back_continue">Continue</string>
     <string name="welcome_back_close">Not now</string>
+    <string name="update_ready_message">An update is ready to install.</string>
+    <string name="update_restart">Restart</string>
 </resources>

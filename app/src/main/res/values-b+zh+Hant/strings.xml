@@ -53,4 +53,6 @@
     <string name="welcome_back_message">準備好繼續創作了嗎?</string>
     <string name="welcome_back_continue">繼續</string>
     <string name="welcome_back_close">暫時不要</string>
+    <string name="update_ready_message">更新已可安裝。</string>
+    <string name="update_restart">重新啟動</string>
 </resources>

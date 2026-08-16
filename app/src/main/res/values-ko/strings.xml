@@ -53,4 +53,6 @@
     <string name="welcome_back_message">계속 만들기를 원하십니까?</string>
     <string name="welcome_back_continue">계속</string>
     <string name="welcome_back_close">나중에</string>
+    <string name="update_ready_message">업데이트를 설치할 준비가 되었습니다.</string>
+    <string name="update_restart">다시 시작</string>
 </resources>

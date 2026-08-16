@@ -31,6 +31,8 @@ lottie = "6.7.1"
 kiroAds = "1.0.5"
 googleMobileAds = "25.4.0"
 playBilling = "9.1.0"
+playUpdate = "2.1.0"
+playReview = "2.0.2"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core" }
@@ -78,6 +80,8 @@ lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 kiro-ads = { module = "com.github.kirozxy:kiroAds", version.ref = "kiroAds" }
 google-mobile-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "googleMobileAds" }
 play-billing = { module = "com.android.billingclient:billing", version.ref = "playBilling" }
+play-app-update = { module = "com.google.android.play:app-update", version.ref = "playUpdate" }
+play-review = { module = "com.google.android.play:review", version.ref = "playReview" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

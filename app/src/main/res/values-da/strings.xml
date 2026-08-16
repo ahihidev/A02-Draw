@@ -53,4 +53,6 @@
     <string name="welcome_back_message">Klar til at fortsætte med at skabe?</string>
     <string name="welcome_back_continue">Fortsæt</string>
     <string name="welcome_back_close">Ikke nu</string>
+    <string name="update_ready_message">En opdatering er klar til installation.</string>
+    <string name="update_restart">Genstart</string>
 </resources>

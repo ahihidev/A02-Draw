@@ -73,6 +73,6 @@ class SettingsViewModel @Inject constructor(
 
     private companion object {
         const val SUBSCRIPTION_ID = "subscription"
-        val HIDDEN_IDS = setOf("gift", "music")
+        val HIDDEN_IDS = setOf("gift", "music", "help", "update", "feedback")
     }
 }

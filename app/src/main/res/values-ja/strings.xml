@@ -53,4 +53,6 @@
     <string name="welcome_back_message">作り続ける準備は?</string>
     <string name="welcome_back_continue">続ける</string>
     <string name="welcome_back_close">後で</string>
+    <string name="update_ready_message">アップデートをインストールできます。</string>
+    <string name="update_restart">再起動</string>
 </resources>
