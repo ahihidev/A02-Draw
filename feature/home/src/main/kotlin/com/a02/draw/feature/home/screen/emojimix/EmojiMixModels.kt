@@ -5,7 +5,11 @@ enum class EmojiMixMode(val slotCount: Int) {
     MIX_3(3),
 }
 
-data class EmojiOption(val emoji: String, val label: String)
+data class EmojiOption(
+    val emoji: String,
+    val label: String,
+    val isPremium: Boolean = true,
+)
 
 data class EmojiKitchenPair(val left: String, val right: String, val resultUrl: String) {
     val normalizedKey: String = normalize(left, right)

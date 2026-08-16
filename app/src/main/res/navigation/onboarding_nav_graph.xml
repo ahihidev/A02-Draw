@@ -11,6 +11,9 @@
         android:id="@+id/lightboxFragment"
         android:name="com.a02.draw.onboarding.lightbox.LightboxFragment" />
     <fragment
+        android:id="@+id/onboardingNativeFullFragment"
+        android:name="com.a02.draw.onboarding.ads.OnboardingNativeFullFragment" />
+    <fragment
         android:id="@+id/lessonsFragment"
         android:name="com.a02.draw.onboarding.lessons.LessonsFragment" />
     <fragment

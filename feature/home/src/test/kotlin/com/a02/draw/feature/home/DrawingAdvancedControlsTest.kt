@@ -104,7 +104,10 @@ class DrawingAdvancedControlsTest {
     private class FakePreferencesRepository : AppPreferencesRepository {
         override fun observePreferences(): Flow<AppPreferences> = emptyFlow()
         override suspend fun setThemeMode(themeMode: ThemeMode) = AppResult.Success(Unit)
+        override suspend fun setLanguageTag(languageTag: String) = AppResult.Success(Unit)
         override suspend fun setOnboardingCompleted(completed: Boolean) = AppResult.Success(Unit)
+        override suspend fun setPremium(isPremium: Boolean) = AppResult.Success(Unit)
+        override suspend fun setRewardUnlockedItemIds(ids: Set<String>) = AppResult.Success(Unit)
         override suspend fun setFavoriteArtworkIds(ids: Set<String>) = AppResult.Success(Unit)
         override suspend fun setLessonCompletedSteps(lessonId: String, completedSteps: Int) =
             AppResult.Success(Unit)

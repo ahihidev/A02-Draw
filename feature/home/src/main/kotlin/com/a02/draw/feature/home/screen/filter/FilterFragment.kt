@@ -5,16 +5,21 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.a02.draw.core.ui.ads.AppAdsController
 import com.a02.draw.core.ui.base.BaseFragment
 import com.a02.draw.core.ui.extensions.applyStatusBarPadding
 import com.a02.draw.domain.model.ArtworkStyle
 import com.a02.draw.feature.home.R
+import com.a02.draw.feature.home.common.ads.runAdNavigation
 import com.a02.draw.feature.home.databinding.ScreenGalleryBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class FilterFragment : BaseFragment<ScreenGalleryBinding>(ScreenGalleryBinding::inflate) {
+    @Inject
+    lateinit var appAdsController: AppAdsController
     private val viewModel: FilterViewModel by viewModels()
 
     override fun setupViews(savedInstanceState: Bundle?) {
@@ -47,7 +52,11 @@ class FilterFragment : BaseFragment<ScreenGalleryBinding>(ScreenGalleryBinding::
                     binding.colorStyleFilter.renderSelected(state.style == ArtworkStyle.COLOR)
                 }
             }
-            launch { viewModel.effects.collect { findNavController().navigateUp() } }
+            launch {
+                viewModel.effects.collect {
+                    runAdNavigation(appAdsController) { findNavController().navigateUp() }
+                }
+            }
         }
     }
 

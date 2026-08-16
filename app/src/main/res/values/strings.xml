@@ -1,6 +1,34 @@
 <resources>
     <string name="app_name" translatable="false">AR Drawing</string>
     <string name="generic_error">Something went wrong</string>
+    <string name="internet_probe_url" translatable="false">https://www.google.com/generate_204</string>
+    <string name="no_internet_title">No internet connection</string>
+    <string name="no_internet_message">Connect to Wi-Fi or mobile data to continue. The app will resume automatically when internet access is available.</string>
+    <string name="no_internet_retry">Try again</string>
+    <string name="no_internet_open_settings">Open network settings</string>
+    <string name="no_internet_checking">Checking connection…</string>
+    <string name="language_title">Choose Language</string>
+    <string name="language_subtitle">Select your preferred language</string>
+    <string name="language_continue">Continue</string>
+    <string name="language_saving">Saving…</string>
+    <string name="language_save_error">Could not save your language. Please try again.</string>
+    <string name="language_option_a11y">%1$s</string>
+    <string name="language_option_selected_a11y">%1$s, selected</string>
+    <string name="language_english" translatable="false">English</string>
+    <string name="language_german" translatable="false">Deutsch</string>
+    <string name="language_french" translatable="false">Français</string>
+    <string name="language_spanish" translatable="false">Español</string>
+    <string name="language_italian" translatable="false">Italiano</string>
+    <string name="language_portuguese_brazil" translatable="false">Português (Brasil)</string>
+    <string name="language_dutch" translatable="false">Nederlands</string>
+    <string name="language_swedish" translatable="false">Svenska</string>
+    <string name="language_norwegian" translatable="false">Norsk</string>
+    <string name="language_danish" translatable="false">Dansk</string>
+    <string name="language_finnish" translatable="false">Suomi</string>
+    <string name="language_japanese" translatable="false">日本語</string>
+    <string name="language_korean" translatable="false">한국어</string>
+    <string name="language_chinese_traditional" translatable="false">繁體中文</string>
+    <string name="language_polish" translatable="false">Polski</string>
     <string name="onboarding_continue">Continue</string>
     <string name="onboarding_projector_title">Image Projector</string>
     <string name="onboarding_projector_subtitle">Project your masterpiece through AR technology</string>
@@ -23,4 +51,23 @@
     <string name="onboarding_preparing_tools">Getting AR tools ready</string>
     <string name="onboarding_selected">Selected</string>
     <string name="onboarding_checkmark" translatable="false">✓</string>
+    <string name="native_ad_attribution">Ad</string>
+    <string name="native_ad_close">Close ad</string>
+    <string name="reward_unlock_artwork_title">Unlock this artwork</string>
+    <string name="reward_unlock_artwork_message">Watch one short ad to unlock %1$s permanently on this device.</string>
+    <string name="reward_unlock_lesson_title">Unlock this lesson category</string>
+    <string name="reward_unlock_lesson_message">Watch one short ad to access every lesson in this category for 30 minutes.</string>
+    <string name="reward_unlock_emoji_title">Unlock Emoji Mix</string>
+    <string name="reward_unlock_emoji_message">Watch one short ad to use every Emoji Mix item for 15 minutes.</string>
+    <string name="reward_watch_ad">Watch ad</string>
+    <string name="reward_preparing_ad">Preparing ad…</string>
+    <string name="reward_ad_ready">Ad ready. It will open only after you tap Watch ad.</string>
+    <string name="reward_retry">Retry</string>
+    <string name="reward_retry_message">The ad is not ready yet. You can retry without leaving this screen.</string>
+    <string name="reward_another_ad_showing">Another full-screen ad is already open. Please try again.</string>
+    <string name="reward_not_now">Not now</string>
+    <string name="welcome_back_title">Welcome back</string>
+    <string name="welcome_back_message">Ready to continue creating?</string>
+    <string name="welcome_back_continue">Continue</string>
+    <string name="welcome_back_close">Not now</string>
 </resources>

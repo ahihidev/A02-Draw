@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="premium_default_stroke">1dp</dimen>
+    <dimen name="premium_selected_stroke">1dp</dimen>
     <dimen name="artwork_min_cell_width">156dp</dimen>
     <dimen name="home_topic_min_cell_width">156dp</dimen>
     <dimen name="main_tab_header_height">152dp</dimen>

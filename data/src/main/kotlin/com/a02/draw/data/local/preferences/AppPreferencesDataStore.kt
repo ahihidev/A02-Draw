@@ -43,9 +43,26 @@ class AppPreferencesDataStore @Inject constructor(
         it[Keys.THEME_MODE] = themeMode.name
     }
 
+    override suspend fun setLanguageTag(languageTag: String): AppResult<Unit> = update {
+        it[Keys.LANGUAGE_TAG] = languageTag
+    }
+
     override suspend fun setOnboardingCompleted(completed: Boolean): AppResult<Unit> = update {
         it[Keys.ONBOARDING_COMPLETED] = completed
     }
+
+    override suspend fun setPremium(isPremium: Boolean): AppResult<Unit> = update {
+        it[Keys.IS_PREMIUM] = isPremium
+    }
+
+    override suspend fun setRewardUnlockedItemIds(ids: Set<String>): AppResult<Unit> = update {
+        it[Keys.REWARD_UNLOCKED_ITEM_IDS] = ids
+    }
+
+    override suspend fun setRewardPassExpiries(expiries: Map<String, Long>): AppResult<Unit> =
+        update {
+            it[Keys.REWARD_PASS_EXPIRIES] = encodeLongMap(expiries)
+        }
 
     override suspend fun setFavoriteArtworkIds(ids: Set<String>): AppResult<Unit> = update {
         it[Keys.FAVORITE_ARTWORK_IDS] = ids
@@ -85,7 +102,13 @@ class AppPreferencesDataStore @Inject constructor(
             ?: ThemeMode.SYSTEM
         return AppPreferences(
             themeMode = theme,
+            languageTag = preferences[Keys.LANGUAGE_TAG],
             onboardingCompleted = preferences[Keys.ONBOARDING_COMPLETED] ?: false,
+            isPremium = preferences[Keys.IS_PREMIUM] ?: false,
+            rewardUnlockedItemIds = preferences[Keys.REWARD_UNLOCKED_ITEM_IDS].orEmpty(),
+            rewardPassExpiries = decodeLongMap(
+                preferences[Keys.REWARD_PASS_EXPIRIES].orEmpty(),
+            ),
             favoriteArtworkIds = preferences[Keys.FAVORITE_ARTWORK_IDS].orEmpty(),
             lessonCompletedSteps = decodeLessonProgress(
                 preferences[Keys.LESSON_COMPLETED_STEPS].orEmpty(),
@@ -96,7 +119,11 @@ class AppPreferencesDataStore @Inject constructor(
 
     private object Keys {
         val THEME_MODE = stringPreferencesKey("theme_mode")
+        val LANGUAGE_TAG = stringPreferencesKey("language_tag")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
+        val IS_PREMIUM = booleanPreferencesKey("is_premium")
+        val REWARD_UNLOCKED_ITEM_IDS = stringSetPreferencesKey("reward_unlocked_item_ids")
+        val REWARD_PASS_EXPIRIES = stringSetPreferencesKey("reward_pass_expiries")
         val FAVORITE_ARTWORK_IDS = stringSetPreferencesKey("favorite_artwork_ids")
         val LESSON_COMPLETED_STEPS = stringSetPreferencesKey("lesson_completed_steps")
         val MUSIC_ENABLED = booleanPreferencesKey("music_enabled")
@@ -114,5 +141,17 @@ private fun decodeLessonProgress(values: Set<String>): Map<String, Int> = buildM
         if (separator <= 0) return@forEach
         val steps = value.substring(separator + 1).toIntOrNull() ?: return@forEach
         if (steps > 0) put(value.substring(0, separator), steps)
+    }
+}
+
+private fun encodeLongMap(values: Map<String, Long>): Set<String> =
+    values.mapTo(mutableSetOf()) { (key, value) -> "$key=$value" }
+
+private fun decodeLongMap(values: Set<String>): Map<String, Long> = buildMap {
+    values.forEach { value ->
+        val separator = value.lastIndexOf('=')
+        if (separator <= 0) return@forEach
+        val timestamp = value.substring(separator + 1).toLongOrNull() ?: return@forEach
+        if (timestamp > 0L) put(value.substring(0, separator), timestamp)
     }
 }

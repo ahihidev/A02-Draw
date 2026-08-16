@@ -12,24 +12,32 @@ import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.a02.draw.core.ui.ads.AppAdPlacement
+import com.a02.draw.core.ui.ads.AppAdsController
+import com.a02.draw.core.ui.ads.AppNativeAdFormat
 import com.a02.draw.core.ui.base.BaseFragment
 import com.a02.draw.core.ui.extensions.setAdaptiveGridLayoutManager
 import com.a02.draw.core.ui.extensions.setDebouncedClickListener
 import com.a02.draw.feature.home.R
+import com.a02.draw.feature.home.common.ads.runAdNavigation
 import com.a02.draw.feature.home.common.image.HomeImageLoader
 import com.a02.draw.feature.home.common.model.BottomDestination
 import com.a02.draw.feature.home.common.model.DeviceImageSource
 import com.a02.draw.feature.home.common.navigation.bindBottomNavigation
 import com.a02.draw.feature.home.common.navigation.bindMainTabHeader
 import com.a02.draw.feature.home.common.navigation.navigateBottom
+import com.a02.draw.feature.home.common.navigation.renderPremiumShortcut
 import com.a02.draw.feature.home.databinding.ScreenMainHomeBinding
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.File
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<ScreenMainHomeBinding>(ScreenMainHomeBinding::inflate) {
+    @Inject
+    lateinit var appAdsController: AppAdsController
     override val useScreenTransitions: Boolean = false
 
     private val viewModel: HomeViewModel by viewModels()
@@ -70,7 +78,17 @@ class HomeFragment : BaseFragment<ScreenMainHomeBinding>(ScreenMainHomeBinding::
         }
 
     override fun setupViews(savedInstanceState: Bundle?) {
-        binding.header.bindMainTabHeader { viewModel.onAction(HomeAction.OpenSearch) }
+        appAdsController.attachNative(
+            binding.nativeAdContainer,
+            AppAdPlacement.HOME,
+            AppNativeAdFormat.LARGE,
+            viewLifecycleOwner,
+        )
+        binding.header.bindMainTabHeader(
+            onSearch = { viewModel.onAction(HomeAction.OpenSearch) },
+            onPremium = ::openPremium,
+        )
+        binding.header.renderPremiumShortcut(appAdsController.isPremium.value)
         sourceCaptureFile = savedInstanceState?.getString(SOURCE_FILE_KEY)?.let(::File)
         binding.topicList.setAdaptiveGridLayoutManager(
             minimumItemWidth = resources.getDimensionPixelSize(R.dimen.home_topic_min_cell_width),
@@ -109,7 +127,14 @@ class HomeFragment : BaseFragment<ScreenMainHomeBinding>(ScreenMainHomeBinding::
                 }
             }
             launch { viewModel.effects.collect(::handleEffect) }
+            launch {
+                appAdsController.isPremium.collect(binding.header::renderPremiumShortcut)
+            }
         }
+    }
+
+    private fun openPremium() {
+        findNavController().navigate(R.id.premiumFragment)
     }
 
     private fun renderSourceModal(visible: Boolean) {
@@ -119,21 +144,31 @@ class HomeFragment : BaseFragment<ScreenMainHomeBinding>(ScreenMainHomeBinding::
 
     private fun handleEffect(effect: HomeScreenEffect) {
         when (effect) {
-            HomeScreenEffect.NavigateSearch -> findNavController().navigate(R.id.searchFragment)
-            is HomeScreenEffect.NavigateGallery -> findNavController().navigate(
-                R.id.galleryFragment,
-                Bundle().apply { putString(ARG_TOPIC_ID, effect.topicId) },
-            )
+            HomeScreenEffect.NavigateSearch -> runAdNavigation(appAdsController) {
+                findNavController().navigate(R.id.searchFragment)
+            }
+
+            is HomeScreenEffect.NavigateGallery -> runAdNavigation(appAdsController) {
+                findNavController().navigate(
+                    R.id.galleryFragment,
+                    Bundle().apply { putString(ARG_TOPIC_ID, effect.topicId) },
+                )
+            }
 
             HomeScreenEffect.NavigateTutorial -> findNavController().navigate(R.id.tutorialCameraFragment)
-            HomeScreenEffect.NavigateEmojiMix -> findNavController().navigate(R.id.emojiMixHomeFragment)
+            HomeScreenEffect.NavigateEmojiMix -> runAdNavigation(appAdsController) {
+                findNavController().navigate(R.id.emojiMixHomeFragment)
+            }
             HomeScreenEffect.NavigateWebBrowser -> findNavController().navigate(R.id.webBrowserFragment)
-            HomeScreenEffect.OpenPhotoPicker -> picker.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-            )
+            HomeScreenEffect.OpenPhotoPicker -> {
+                appAdsController.suppressNextBackgroundInterstitial()
+                picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            }
 
             HomeScreenEffect.OpenSourceCamera -> openSourceCamera()
-            is HomeScreenEffect.NavigateBottom -> findNavController().navigateBottom(effect.destination)
+            is HomeScreenEffect.NavigateBottom -> runAdNavigation(appAdsController) {
+                findNavController().navigateBottom(effect.destination)
+            }
         }
     }
 
@@ -153,6 +188,7 @@ class HomeFragment : BaseFragment<ScreenMainHomeBinding>(ScreenMainHomeBinding::
         val file = File(directory, "source-${System.currentTimeMillis()}.jpg")
         sourceCaptureFile = file
         runCatching {
+            appAdsController.suppressNextBackgroundInterstitial()
             sourceCamera.launch(fileProviderUri(file))
         }.onFailure {
             file.delete()

@@ -7,19 +7,26 @@ import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.a02.draw.core.ui.ads.AppAdPlacement
+import com.a02.draw.core.ui.ads.AppAdsController
+import com.a02.draw.core.ui.ads.AppNativeAdFormat
 import com.a02.draw.core.ui.base.BaseFragment
 import com.a02.draw.core.ui.extensions.applyStatusBarPadding
 import com.a02.draw.core.ui.extensions.setDebouncedClickListener
 import com.a02.draw.feature.home.R
+import com.a02.draw.feature.home.common.ads.runAdNavigation
 import com.a02.draw.feature.home.common.component.TrendingSearchAdapter
 import com.a02.draw.feature.home.common.motion.animateFirstVisibleItems
 import com.a02.draw.feature.home.common.motion.crossfadeVisible
 import com.a02.draw.feature.home.databinding.ScreenSearchBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class SearchFragment : BaseFragment<ScreenSearchBinding>(ScreenSearchBinding::inflate) {
+    @Inject
+    lateinit var appAdsController: AppAdsController
     private val viewModel: SearchViewModel by viewModels()
     private var rendering = false
     private var hasAnimatedInitialItems = false
@@ -28,6 +35,12 @@ class SearchFragment : BaseFragment<ScreenSearchBinding>(ScreenSearchBinding::in
     }
 
     override fun setupViews(savedInstanceState: Bundle?) {
+        appAdsController.attachNative(
+            binding.nativeAdContainer,
+            AppAdPlacement.SEARCH,
+            AppNativeAdFormat.LARGE,
+            viewLifecycleOwner,
+        )
         binding.toolbar.applyStatusBarPadding()
         binding.contentList.layoutManager = LinearLayoutManager(requireContext())
         binding.contentList.adapter = adapter
@@ -82,12 +95,16 @@ class SearchFragment : BaseFragment<ScreenSearchBinding>(ScreenSearchBinding::in
             launch {
                 viewModel.effects.collect { effect ->
                     when (effect) {
-                        is SearchEffect.OpenResults -> findNavController().navigate(
-                            R.id.searchResultsFragment,
-                            Bundle().apply { putString(ARG_QUERY, effect.query) },
-                        )
+                        is SearchEffect.OpenResults -> runAdNavigation(appAdsController) {
+                            findNavController().navigate(
+                                R.id.searchResultsFragment,
+                                Bundle().apply { putString(ARG_QUERY, effect.query) },
+                            )
+                        }
 
-                        SearchEffect.NavigateBack -> findNavController().navigateUp()
+                        SearchEffect.NavigateBack -> runAdNavigation(appAdsController) {
+                            findNavController().navigateUp()
+                        }
                     }
                 }
             }

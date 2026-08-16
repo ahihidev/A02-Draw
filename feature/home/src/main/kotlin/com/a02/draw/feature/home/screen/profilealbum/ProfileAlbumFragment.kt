@@ -5,22 +5,30 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.a02.draw.core.ui.base.BaseFragment
+import com.a02.draw.core.ui.ads.AppAdPlacement
+import com.a02.draw.core.ui.ads.AppAdsController
+import com.a02.draw.core.ui.ads.AppNativeAdFormat
 import com.a02.draw.core.ui.extensions.setAdaptiveGridLayoutManager
 import com.a02.draw.core.ui.extensions.setDebouncedClickListener
 import com.a02.draw.feature.home.R
+import com.a02.draw.feature.home.common.ads.runAdNavigation
 import com.a02.draw.feature.home.common.component.ProfileDrawingAdapter
 import com.a02.draw.feature.home.common.image.HomeImageLoader
 import com.a02.draw.feature.home.common.model.BottomDestination
 import com.a02.draw.feature.home.common.navigation.bindBottomNavigation
 import com.a02.draw.feature.home.common.navigation.bindMainTabHeader
 import com.a02.draw.feature.home.common.navigation.navigateBottom
+import com.a02.draw.feature.home.common.navigation.renderPremiumShortcut
 import com.a02.draw.feature.home.databinding.ScreenProfileBinding
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 
 @AndroidEntryPoint
 class ProfileAlbumFragment : BaseFragment<ScreenProfileBinding>(ScreenProfileBinding::inflate) {
+    @Inject
+    lateinit var appAdsController: AppAdsController
     private val viewModel: ProfileAlbumViewModel by viewModels()
     private val imageLoader = HomeImageLoader()
     private val adapter by lazy {
@@ -28,7 +36,14 @@ class ProfileAlbumFragment : BaseFragment<ScreenProfileBinding>(ScreenProfileBin
     }
 
     override fun setupViews(savedInstanceState: Bundle?) {
-        binding.header.bindMainTabHeader()
+        appAdsController.attachNative(
+            binding.nativeAdContainer,
+            AppAdPlacement.APP_GENERIC,
+            AppNativeAdFormat.MEDIUM,
+            viewLifecycleOwner,
+        )
+        binding.header.bindMainTabHeader(onPremium = ::openPremium)
+        binding.header.renderPremiumShortcut(appAdsController.isPremium.value)
         binding.contentList.setAdaptiveGridLayoutManager(
             minimumItemWidth = resources.getDimensionPixelSize(R.dimen.artwork_min_cell_width),
             minimumSpanCount = 2,
@@ -60,14 +75,24 @@ class ProfileAlbumFragment : BaseFragment<ScreenProfileBinding>(ScreenProfileBin
                 viewModel.effects.collect { effect ->
                     when (effect) {
                         ProfileAlbumEffect.NavigateComplete -> findNavController().navigate(R.id.drawingCompleteFragment)
-                        ProfileAlbumEffect.NavigateFavorites -> findNavController().navigate(R.id.profileFavoriteFragment)
-                        is ProfileAlbumEffect.NavigateBottom -> findNavController().navigateBottom(
-                            effect.destination
-                        )
+                        ProfileAlbumEffect.NavigateFavorites -> runAdNavigation(appAdsController) {
+                            findNavController().navigate(R.id.profileFavoriteFragment)
+                        }
+
+                        is ProfileAlbumEffect.NavigateBottom -> runAdNavigation(appAdsController) {
+                            findNavController().navigateBottom(effect.destination)
+                        }
                     }
                 }
             }
+            launch {
+                appAdsController.isPremium.collect(binding.header::renderPremiumShortcut)
+            }
         }
+    }
+
+    private fun openPremium() {
+        findNavController().navigate(R.id.premiumFragment)
     }
 
     override fun onDestroyView() {

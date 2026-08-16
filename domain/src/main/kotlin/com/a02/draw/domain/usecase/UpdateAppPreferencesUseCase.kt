@@ -10,6 +10,18 @@ class UpdateAppPreferencesUseCase @Inject constructor(
     suspend fun setOnboardingCompleted(completed: Boolean): AppResult<Unit> =
         repository.setOnboardingCompleted(completed)
 
+    suspend fun setLanguageTag(languageTag: String): AppResult<Unit> =
+        repository.setLanguageTag(languageTag)
+
+    suspend fun setPremium(isPremium: Boolean): AppResult<Unit> =
+        repository.setPremium(isPremium)
+
+    suspend fun setRewardUnlockedItemIds(ids: Set<String>): AppResult<Unit> =
+        repository.setRewardUnlockedItemIds(ids)
+
+    suspend fun setRewardPassExpiries(expiries: Map<String, Long>): AppResult<Unit> =
+        repository.setRewardPassExpiries(expiries)
+
     suspend fun setFavorites(ids: Set<String>): AppResult<Unit> =
         repository.setFavoriteArtworkIds(ids)
 

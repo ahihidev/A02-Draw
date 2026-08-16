@@ -31,13 +31,15 @@ private fun String?.toDetailState() = when (this) {
     "privacy" -> SettingsDetailUiState(
         R.string.privacy_policy,
         R.string.your_privacy,
-        R.string.privacy_body
+        R.string.privacy_body,
+        R.string.privacy_billing_appendix,
     )
 
     "terms" -> SettingsDetailUiState(
         R.string.terms_of_use,
         R.string.using_ar_drawing,
-        R.string.terms_body
+        R.string.terms_body,
+        R.string.terms_billing_appendix,
     )
 
     else -> SettingsDetailUiState(

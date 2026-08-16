@@ -2,6 +2,7 @@ package com.a02.draw.feature.home.screen.emojimix
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -11,10 +12,17 @@ class EmojiOptionAdapter(
     private val onClick: (String) -> Unit,
 ) : ListAdapter<EmojiOption, EmojiOptionAdapter.Holder>(Diff) {
     private var selected: Set<String> = emptySet()
+    private var unlocked: Set<String> = emptySet()
 
     fun setSelected(value: List<String>) {
         selected = value.toSet()
         notifyItemRangeChanged(0, itemCount, SELECTION_PAYLOAD)
+    }
+
+    fun setUnlocked(value: Set<String>) {
+        if (unlocked == value) return
+        unlocked = value
+        notifyItemRangeChanged(0, itemCount, ACCESS_PAYLOAD)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = Holder(
@@ -32,6 +40,7 @@ class EmojiOptionAdapter(
         RecyclerView.ViewHolder(binding.root) {
         fun bind(option: EmojiOption) {
             binding.emoji.text = option.emoji
+            binding.vipBadge.isVisible = option.isPremium && option.emoji !in unlocked
             binding.root.isChecked = option.emoji in selected
             binding.root.contentDescription = option.label
             binding.root.setOnClickListener { onClick(option.emoji) }
@@ -48,5 +57,6 @@ class EmojiOptionAdapter(
 
     private companion object {
         const val SELECTION_PAYLOAD = "selection"
+        const val ACCESS_PAYLOAD = "access"
     }
 }

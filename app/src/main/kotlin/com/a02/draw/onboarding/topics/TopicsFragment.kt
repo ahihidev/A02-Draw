@@ -6,6 +6,9 @@ import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.a02.draw.R
+import com.a02.draw.core.ui.ads.AppAdPlacement
+import com.a02.draw.core.ui.ads.AppAdsController
+import com.a02.draw.core.ui.ads.AppNativeAdFormat
 import com.a02.draw.core.ui.base.BaseFragment
 import com.a02.draw.core.ui.extensions.setAdaptiveGridLayoutManager
 import com.a02.draw.core.ui.extensions.setDebouncedClickListener
@@ -13,11 +16,14 @@ import com.a02.draw.databinding.ScreenOnboardingTopicsBinding
 import com.a02.draw.onboarding.common.image.OnboardingImageLoader
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class TopicsFragment : BaseFragment<ScreenOnboardingTopicsBinding>(
     ScreenOnboardingTopicsBinding::inflate,
 ) {
+    @Inject
+    lateinit var appAdsController: AppAdsController
     private val viewModel: TopicsViewModel by viewModels()
     private val imageLoader = OnboardingImageLoader()
     private val adapter = OnboardingTopicAdapter(imageLoader) {
@@ -25,6 +31,12 @@ class TopicsFragment : BaseFragment<ScreenOnboardingTopicsBinding>(
     }
 
     override fun setupViews(savedInstanceState: Bundle?) {
+        appAdsController.attachNative(
+            binding.nativeAdContainer,
+            AppAdPlacement.CHOOSE_TOPIC,
+            AppNativeAdFormat.LARGE,
+            viewLifecycleOwner,
+        )
         binding.topicList.setAdaptiveGridLayoutManager(
             minimumItemWidth = resources.getDimensionPixelSize(R.dimen.onboarding_topic_min_cell_width),
             minimumSpanCount = MINIMUM_TOPIC_COLUMNS,

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="billing_sub_week" translatable="false">com.ledkeyboard.weekly</string>
+    <string name="billing_sub_month" translatable="false">monthly</string>
+    <string name="billing_sub_year" translatable="false">test.year.trial</string>
+
+    <string-array name="billing_subscription_product_ids" translatable="false">
+        <item>@string/billing_sub_year</item>
+        <item>@string/billing_sub_month</item>
+        <item>@string/billing_sub_week</item>
+    </string-array>
+    <string-array name="billing_inapp_product_ids" translatable="false" />
+</resources>

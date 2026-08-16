@@ -59,12 +59,19 @@
         android:id="@+id/settingsFragment"
         android:name="com.a02.draw.feature.home.screen.settings.SettingsFragment" />
     <fragment
+        android:id="@+id/premiumFragment"
+        android:name="com.a02.draw.feature.home.screen.premium.PremiumFragment" />
+    <fragment
         android:id="@+id/settingsDetailFragment"
         android:name="com.a02.draw.feature.home.screen.settingsdetail.SettingsDetailFragment">
         <argument
             android:name="settingId"
             android:defaultValue=""
             app:argType="string" />
+        <argument
+            android:name="fromPremium"
+            android:defaultValue="false"
+            app:argType="boolean" />
     </fragment>
     <fragment
         android:id="@+id/learnFragment"

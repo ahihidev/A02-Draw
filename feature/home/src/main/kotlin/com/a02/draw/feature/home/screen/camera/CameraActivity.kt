@@ -34,6 +34,7 @@ import androidx.core.content.FileProvider
 import androidx.core.graphics.createBitmap
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import com.a02.draw.core.ui.ads.AppAdsController
 import com.a02.draw.core.ui.base.BaseActivity
 import com.a02.draw.feature.home.R
 import com.a02.draw.feature.home.common.drawing.DrawingControlsBinder
@@ -56,10 +57,13 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import javax.inject.Inject
 import kotlin.math.roundToInt
 
 @AndroidEntryPoint
 class CameraActivity : BaseActivity<ActivityCameraBinding>(ActivityCameraBinding::inflate) {
+    @Inject
+    lateinit var appAdsController: AppAdsController
     private val viewModel: CameraViewModel by viewModels()
     private var latestSession = DrawingSession()
     private var cameraController: LifecycleCameraController? = null
@@ -72,6 +76,7 @@ class CameraActivity : BaseActivity<ActivityCameraBinding>(ActivityCameraBinding
     private lateinit var controls: DrawingControlsBinder
 
     override fun setupViews(savedInstanceState: Bundle?) {
+        appAdsController.attachDrawingBanner(binding.bannerAdContainer, this)
         binding.cameraPreview.implementationMode =
             androidx.camera.view.PreviewView.ImplementationMode.PERFORMANCE
         binding.cameraPreview.scaleType = androidx.camera.view.PreviewView.ScaleType.FILL_CENTER
@@ -422,6 +427,7 @@ class CameraActivity : BaseActivity<ActivityCameraBinding>(ActivityCameraBinding
     }
 
     override fun onDestroy() {
+        appAdsController.detachDrawingBanner(binding.bannerAdContainer)
         captureTimerJob?.cancel()
         activeRecording?.close()
         imageCaptureExecutor?.shutdown()

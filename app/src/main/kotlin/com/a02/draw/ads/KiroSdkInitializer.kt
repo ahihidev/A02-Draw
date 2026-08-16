@@ -18,8 +18,8 @@ internal object KiroSdkInitializer {
     internal fun createConfig(isDebug: Boolean): KiroSdk.SdkConfig =
         KiroSdk.SdkConfig(
             isDebug = isDebug,
-            // Ad placements, production IDs, and consent entry points arrive in the ads plan.
-            enableAds = false,
+            // SplashActivity gathers consent before any placement is allowed to load.
+            enableAds = true,
             adConfig = KiroAds.Config(),
             trackingConfig = KiroTracker.Config(enableFirebase = false),
             billingConfig = KiroBilling.Config(enableBilling = false),

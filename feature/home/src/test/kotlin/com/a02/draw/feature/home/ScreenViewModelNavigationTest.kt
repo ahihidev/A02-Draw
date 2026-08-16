@@ -320,6 +320,16 @@ class ScreenViewModelNavigationTest {
     }
 
     @Test
+    fun `settings keeps premium management entry when catalog omits it`() = runTest {
+        val viewModel = SettingsViewModel(content)
+        advanceUntilIdle()
+
+        assertEquals("subscription", viewModel.state.value.items.first().id)
+        viewModel.onAction(SettingsAction.OpenItem("subscription"))
+        assertEquals(SettingsEffect.NavigatePremium, viewModel.effects.first())
+    }
+
+    @Test
     fun `settings detail restores id and handles back`() = runTest {
         val viewModel = SettingsDetailViewModel(SavedStateHandle(mapOf("settingId" to "help")))
         assertEquals(R.string.help_faqs, viewModel.state.value.title)
@@ -351,7 +361,17 @@ class ScreenViewModelNavigationTest {
         val preferences: AppPreferences get() = state.value
         override fun observePreferences(): Flow<AppPreferences> = state
         override suspend fun setThemeMode(themeMode: ThemeMode) = AppResult.Success(Unit)
+        override suspend fun setLanguageTag(languageTag: String) = AppResult.Success(Unit)
         override suspend fun setOnboardingCompleted(completed: Boolean) = AppResult.Success(Unit)
+        override suspend fun setPremium(isPremium: Boolean): AppResult<Unit> {
+            state.value = state.value.copy(isPremium = isPremium)
+            return AppResult.Success(Unit)
+        }
+
+        override suspend fun setRewardUnlockedItemIds(ids: Set<String>): AppResult<Unit> {
+            state.value = state.value.copy(rewardUnlockedItemIds = ids)
+            return AppResult.Success(Unit)
+        }
         override suspend fun setFavoriteArtworkIds(ids: Set<String>): AppResult<Unit> {
             state.value = state.value.copy(favoriteArtworkIds = ids)
             return AppResult.Success(Unit)
@@ -396,7 +416,6 @@ class ScreenViewModelNavigationTest {
                 ),
             ),
             categories = listOf(LessonCategory("animal", "Animal", "Easy", 1, IMAGE)),
-            plans = emptyList(),
             settings = listOf(AppSettingItem("help", "Help & FAQs")),
         )
     }

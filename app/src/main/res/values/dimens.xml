@@ -10,4 +10,20 @@
     <dimen name="onboarding_indicator_button_gap">16dp</dimen>
     <dimen name="onboarding_continue_button_height">52dp</dimen>
     <dimen name="onboarding_continue_button_bottom_margin">16dp</dimen>
+    <dimen name="native_ad_action_safety_gap">24dp</dimen>
+    <dimen name="native_ad_medium_height">196dp</dimen>
+    <dimen name="native_ad_large_height">270dp</dimen>
+    <dimen name="native_ad_full_reference_height">812dp</dimen>
+    <dimen name="native_ad_full_panel_height">136dp</dimen>
+    <dimen name="native_ad_horizontal_padding">16dp</dimen>
+    <dimen name="native_ad_medium_vertical_padding">10dp</dimen>
+    <dimen name="native_ad_large_vertical_padding">12dp</dimen>
+    <dimen name="native_ad_content_gap">8dp</dimen>
+    <dimen name="native_ad_cta_height">48dp</dimen>
+    <dimen name="native_ad_medium_media_width">160dp</dimen>
+    <dimen name="native_ad_medium_content_height">120dp</dimen>
+    <dimen name="native_ad_large_media_height">142dp</dimen>
+    <dimen name="native_ad_large_info_height">40dp</dimen>
+    <dimen name="native_ad_icon_size">40dp</dimen>
+    <dimen name="native_ad_close_touch_size">48dp</dimen>
 </resources>

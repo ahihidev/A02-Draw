@@ -154,8 +154,8 @@ class FixtureArContentDataSource @Inject constructor() {
                 category("sports", "Art Direction", "Easy", "topic_flower"),
                 category("nature", "Plant", "Easy", "topic_flower"),
             ),
-            plans = emptyList(),
             settings = listOf(
+                SettingItemDto("subscription", "Go Premium"),
                 SettingItemDto("music", "Music", "toggle"),
                 SettingItemDto("help", "Help & FAQs"),
                 SettingItemDto("update", "Update version"),

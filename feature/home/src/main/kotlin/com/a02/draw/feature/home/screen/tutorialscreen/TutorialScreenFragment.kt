@@ -3,6 +3,9 @@ package com.a02.draw.feature.home.screen.tutorialscreen
 import android.os.Bundle
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.a02.draw.core.ui.ads.AppAdPlacement
+import com.a02.draw.core.ui.ads.AppAdsController
+import com.a02.draw.core.ui.ads.AppNativeAdFormat
 import com.a02.draw.core.ui.base.BaseFragment
 import com.a02.draw.core.ui.extensions.applyStatusBarPadding
 import com.a02.draw.core.ui.extensions.setDebouncedClickListener
@@ -15,13 +18,22 @@ import com.a02.draw.feature.home.common.motion.renderSelectedCard
 import com.a02.draw.feature.home.databinding.ScreenTutorialBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class TutorialScreenFragment : BaseFragment<ScreenTutorialBinding>(ScreenTutorialBinding::inflate) {
+    @Inject
+    lateinit var appAdsController: AppAdsController
     private val viewModel: TutorialScreenViewModel by viewModels()
     private val imageLoader = HomeImageLoader()
 
     override fun setupViews(savedInstanceState: Bundle?) {
+        appAdsController.attachNative(
+            binding.nativeAdContainer,
+            AppAdPlacement.SELECT_MODE,
+            AppNativeAdFormat.MEDIUM,
+            viewLifecycleOwner,
+        )
         binding.toolbar.applyStatusBarPadding()
         binding.cameraMode.renderSelectedCard(false)
         binding.screenMode.renderSelectedCard(true)

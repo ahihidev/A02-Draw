@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "788741944440",
+    "project_id": "fcm-test-f0756",
+    "storage_bucket": "fcm-test-f0756.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:788741944440:android:0dc25a2037a3439231698d",
+        "android_client_info": {
+          "package_name": "com.led.keyboard.neon.classic"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6wa1kUnwcrPQxMNA05Iy1bO3LVP-PiV4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

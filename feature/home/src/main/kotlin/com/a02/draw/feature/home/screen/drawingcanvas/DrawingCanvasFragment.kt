@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
+import com.a02.draw.core.ui.ads.AppAdsController
 import com.a02.draw.core.ui.base.BaseFragment
 import com.a02.draw.core.ui.extensions.applyStatusBarHeight
 import com.a02.draw.feature.home.R
@@ -12,14 +13,18 @@ import com.a02.draw.feature.home.databinding.FragmentDrawingBinding
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class DrawingCanvasFragment :
     BaseFragment<FragmentDrawingBinding>(FragmentDrawingBinding::inflate) {
+    @Inject
+    lateinit var appAdsController: AppAdsController
     private val viewModel: DrawingCanvasViewModel by viewModels()
     private lateinit var controls: DrawingControlsBinder
 
     override fun setupViews(savedInstanceState: Bundle?) {
+        appAdsController.attachDrawingBanner(binding.bannerAdContainer, viewLifecycleOwner)
         binding.drawingControls.drawingStatusBarScrim.applyStatusBarHeight(
             lightStatusBarIcons = false,
         )

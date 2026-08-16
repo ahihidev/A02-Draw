@@ -38,6 +38,7 @@ data class LessonDto(
     val showInLearningPath: Boolean = true,
     val totalSteps: Int = 9,
     val steps: List<LessonStepDto> = emptyList(),
+    val premium: Boolean = true,
 )
 
 data class LessonStepDto(
@@ -53,14 +54,6 @@ data class LessonCategoryDto(
     val image: ContentImageDto,
 )
 
-data class SubscriptionPlanDto(
-    val id: String,
-    val title: String,
-    val subtitle: String,
-    val price: String,
-    val recommended: Boolean = false,
-)
-
 data class SettingItemDto(
     val id: String,
     val title: String,
@@ -74,6 +67,5 @@ data class ArCatalogDto(
     val artworks: List<ArtworkDto> = emptyList(),
     val lessons: List<LessonDto> = emptyList(),
     val categories: List<LessonCategoryDto> = emptyList(),
-    val plans: List<SubscriptionPlanDto> = emptyList(),
     val settings: List<SettingItemDto> = emptyList(),
 )

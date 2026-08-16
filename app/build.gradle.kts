@@ -31,7 +31,10 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.a02.draw"
+        // Play Billing only returns products owned by the exact Play Console package.
+        // Keep the Kotlin namespace independent while this catalog is tested against
+        // the supplied com.led.keyboard.neon.classic Play application.
+        applicationId = "com.led.keyboard.neon.classic"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -91,7 +94,6 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
         }
         release {
@@ -146,6 +148,10 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.material)
+    // KiroAds publishes GMA as a runtime dependency; custom ViewBinding layouts need the
+    // NativeAdView and MediaView types on this module's compile classpath as well.
+    implementation(libs.google.mobile.ads)
+    implementation(libs.play.billing)
     implementation(libs.kiro.ads) {
         // This app is XML/ViewBinding-only. The SDK publishes optional Compose rendering helpers
         // as runtime dependencies, which would otherwise force compileSdk 37 through Lifecycle 2.11.
@@ -155,6 +161,7 @@ dependencies {
     }
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.androidx.test.core.ktx)

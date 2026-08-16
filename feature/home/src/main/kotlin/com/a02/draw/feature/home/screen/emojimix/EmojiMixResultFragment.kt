@@ -6,23 +6,30 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.view.isVisible
 import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.NavOptions
+import androidx.navigation.fragment.findNavController
+import com.a02.draw.core.ui.ads.AppAdPlacement
+import com.a02.draw.core.ui.ads.AppAdsController
+import com.a02.draw.core.ui.ads.AppNativeAdFormat
 import com.a02.draw.core.ui.base.BaseFragment
 import com.a02.draw.core.ui.extensions.applyStatusBarPadding
 import com.a02.draw.core.ui.extensions.setDebouncedClickListener
 import com.a02.draw.feature.home.R
+import com.a02.draw.feature.home.common.ads.runAdNavigation
 import com.a02.draw.feature.home.databinding.ScreenEmojiMixResultBinding
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class EmojiMixResultFragment :
     BaseFragment<ScreenEmojiMixResultBinding>(ScreenEmojiMixResultBinding::inflate) {
+    @Inject
+    lateinit var appAdsController: AppAdsController
     private val viewModel: EmojiMixResultViewModel by viewModels()
     private var latestResult: EmojiMixResult? = null
     private val saveDocument =
@@ -31,13 +38,22 @@ class EmojiMixResultFragment :
         }
 
     override fun setupViews(savedInstanceState: Bundle?) {
+        appAdsController.attachNative(
+            binding.nativeAdContainer,
+            AppAdPlacement.APP_GENERIC,
+            AppNativeAdFormat.MEDIUM,
+            viewLifecycleOwner,
+        )
         binding.root.applyStatusBarPadding()
         binding.backButton.setDebouncedClickListener { viewModel.onAction(EmojiMixResultAction.Back) }
         binding.retryButton.setDebouncedClickListener { viewModel.onAction(EmojiMixResultAction.Retry) }
         binding.drawButton.setDebouncedClickListener { viewModel.onAction(EmojiMixResultAction.Draw) }
         binding.newButton.setDebouncedClickListener { viewModel.onAction(EmojiMixResultAction.CreateNew) }
         binding.saveButton.setDebouncedClickListener {
-            latestResult?.let { saveDocument.launch(it.displayName) }
+            latestResult?.let {
+                appAdsController.suppressNextBackgroundInterstitial()
+                saveDocument.launch(it.displayName)
+            }
         }
         binding.copyButton.setDebouncedClickListener { copyResult() }
         binding.shareButton.setDebouncedClickListener { shareResult() }
@@ -62,9 +78,11 @@ class EmojiMixResultFragment :
 
     private fun handleEffect(effect: EmojiMixResultEffect) {
         when (effect) {
-            EmojiMixResultEffect.NavigateBack -> findNavController().navigateUp()
+            EmojiMixResultEffect.NavigateBack -> runAdNavigation(appAdsController) {
+                findNavController().navigateUp()
+            }
             EmojiMixResultEffect.NavigateToDrawingMode -> findNavController().navigate(R.id.tutorialCameraFragment)
-            is EmojiMixResultEffect.CreateNew -> {
+            is EmojiMixResultEffect.CreateNew -> runAdNavigation(appAdsController) {
                 findNavController().navigate(
                     R.id.emojiMixPickerFragment,
                     Bundle().apply { putString(EmojiMixHomeFragment.ARG_MODE, effect.mode.name) },
@@ -110,6 +128,7 @@ class EmojiMixResultFragment :
                 result.uri.toUri()
             )
         }
+        appAdsController.suppressNextBackgroundInterstitial()
         startActivity(Intent.createChooser(intent, getString(R.string.emoji_mix_share)))
     }
 
