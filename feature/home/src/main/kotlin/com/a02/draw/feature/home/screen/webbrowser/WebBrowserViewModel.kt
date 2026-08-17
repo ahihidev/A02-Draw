@@ -8,8 +8,8 @@ import com.a02.draw.feature.home.common.model.DrawingMode
 import com.a02.draw.feature.home.common.session.DrawingSession
 import com.a02.draw.feature.home.common.session.DrawingSessionStore
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class WebBrowserViewModel @Inject constructor(
@@ -17,8 +17,15 @@ class WebBrowserViewModel @Inject constructor(
     private val imageStore: ReferenceImageStore,
     private val drawingSession: DrawingSessionStore,
 ) : BaseViewModel<WebBrowserUiState, WebBrowserEffect>(
-    WebBrowserUiState(query = savedStateHandle[KEY_QUERY] ?: ""),
+    WebBrowserUiState(
+        query = savedStateHandle.get<String>(KEY_QUERY)?.takeIf { it.isNotBlank() }
+            ?: WebBrowserUiState.DEFAULT_QUERY,
+    ),
 ) {
+    init {
+        savedStateHandle[KEY_QUERY] = state.value.query
+    }
+
     fun onAction(action: WebBrowserAction) {
         when (action) {
             is WebBrowserAction.Search -> search(action.query)

@@ -41,7 +41,7 @@
     <string name="reward_unlock_lesson_title">解鎖此課目</string>
     <string name="reward_unlock_lesson_message">看一個短廣告 進入每門課 30分鐘。</string>
     <string name="reward_unlock_emoji_title">解鎖 Emoji Mix</string>
-    <string name="reward_unlock_emoji_message">觀看一個簡短的廣告Emoji Mix15分鐘。</string>
+    <string name="reward_unlock_emoji_message">觀看一則短廣告以建立這個 Emoji Mix。</string>
     <string name="reward_watch_ad">觀看廣告</string>
     <string name="reward_preparing_ad">正在準備廣告…</string>
     <string name="reward_ad_ready">準備好 只有在你錄製了Watch的廣告後才會開啟</string>

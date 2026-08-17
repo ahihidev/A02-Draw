@@ -59,15 +59,14 @@ data class RewardAccessState(
     val permanentItemKeys: Set<String> = emptySet(),
     val activePassExpiries: Map<String, Long> = emptyMap(),
 ) {
-    fun hasAccess(content: RewardContentKey): Boolean =
-        content.legacyItemKey in permanentItemKeys || when (content) {
-            is RewardContentKey.Artwork -> false
-            is RewardContentKey.Lesson -> content.passKey in activePassExpiries
-            is RewardContentKey.Emoji -> EMOJI_MIX_PASS_KEY in activePassExpiries
-        }
+    fun hasAccess(content: RewardContentKey): Boolean = when (content) {
+        is RewardContentKey.Artwork -> content.legacyItemKey in permanentItemKeys
+        is RewardContentKey.Lesson ->
+            content.legacyItemKey in permanentItemKeys || content.passKey in activePassExpiries
 
-    companion object {
-        const val EMOJI_MIX_PASS_KEY = "emoji-mix"
+        // Emoji Mix is a per-create reward. Never let a persisted pass or legacy item key
+        // bypass the rewarded ad for the next generated mix.
+        is RewardContentKey.Emoji -> false
     }
 }
 
@@ -83,8 +82,11 @@ interface PremiumEntitlementController {
     val isPremium: StateFlow<Boolean>
     val isInitialized: StateFlow<Boolean>
 
-    /** Called by the future verified billing flow. The in-memory state changes immediately. */
+    /** Called after Billing has authoritatively resolved whether Premium is currently owned. */
     fun setPremiumOwned(isOwned: Boolean)
+
+    /** Finishes startup entitlement resolution without overwriting the last confirmed state. */
+    fun completeInitialization()
 }
 
 interface RewardUnlockStore {
@@ -96,6 +98,9 @@ interface RewardUnlockStore {
 interface AppAdsController {
     val isPremium: StateFlow<Boolean>
     val rewardAccessState: StateFlow<RewardAccessState>
+
+    /** Idempotently removes active ads and cached inventory after Premium is activated. */
+    fun releaseAdsForPremium()
 
     fun preloadMainAds()
 

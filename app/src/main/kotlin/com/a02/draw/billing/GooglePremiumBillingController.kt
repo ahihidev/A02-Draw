@@ -37,7 +37,7 @@ import javax.inject.Singleton
 
 @Singleton
 class GooglePremiumBillingController @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val catalog: BillingProductCatalog,
     private val verifier: PurchaseVerificationGateway,
     private val premiumEntitlement: PremiumEntitlementController,
@@ -286,7 +286,7 @@ class GooglePremiumBillingController @Inject constructor(
         withConnectedClient { connectionError ->
             if (requestGeneration != purchaseGeneration) return@withConnectedClient
             if (connectionError != null) {
-                premiumEntitlement.setPremiumOwned(false)
+                premiumEntitlement.completeInitialization()
                 if (showResult) failPurchase()
                 return@withConnectedClient
             }
@@ -303,7 +303,7 @@ class GooglePremiumBillingController @Inject constructor(
                 remaining--
                 if (remaining == 0) {
                     if (failed) {
-                        premiumEntitlement.setPremiumOwned(false)
+                        premiumEntitlement.completeInitialization()
                         if (showResult) failPurchase()
                     } else {
                         verifyPurchases(purchases, showResult, requestGeneration)
@@ -333,7 +333,11 @@ class GooglePremiumBillingController @Inject constructor(
         val pending = purchases.firstOrNull { it.purchaseState == Purchase.PurchaseState.PENDING }
         val purchased = purchases.filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
         if (purchased.isEmpty()) {
-            premiumEntitlement.setPremiumOwned(false)
+            if (pending == null) {
+                premiumEntitlement.setPremiumOwned(false)
+            } else {
+                premiumEntitlement.completeInitialization()
+            }
             _state.value = _state.value.copy(
                 purchaseStatus = if (pending != null) {
                     PremiumPurchaseStatus.WaitingForPayment(
@@ -349,9 +353,12 @@ class GooglePremiumBillingController @Inject constructor(
             var verifiedPurchase: Purchase? = null
             var verifiedProductId: String? = null
             var hasPendingVerification = false
+            var hasRejectedVerification = false
+            var hasKnownPurchase = false
             purchased.forEach { purchase ->
                 purchase.products.forEach productLoop@{ productId ->
                     val type = catalog.typeOf(productId) ?: return@productLoop
+                    hasKnownPurchase = true
                     when (
                         verifier.verify(
                             PurchaseVerificationRequest(
@@ -371,7 +378,7 @@ class GooglePremiumBillingController @Inject constructor(
                         PurchaseVerificationResult.Unavailable,
                             -> hasPendingVerification = true
 
-                        PurchaseVerificationResult.Rejected -> Unit
+                        PurchaseVerificationResult.Rejected -> hasRejectedVerification = true
                     }
                 }
             }
@@ -383,7 +390,11 @@ class GooglePremiumBillingController @Inject constructor(
                 )
                 acknowledgeIfRequired(requireNotNull(verifiedPurchase))
             } else {
-                premiumEntitlement.setPremiumOwned(false)
+                if (hasKnownPurchase && hasRejectedVerification && !hasPendingVerification) {
+                    premiumEntitlement.setPremiumOwned(false)
+                } else {
+                    premiumEntitlement.completeInitialization()
+                }
                 _state.value = _state.value.copy(
                     purchaseStatus = if (hasPendingVerification) {
                         PremiumPurchaseStatus.WaitingForVerification(
@@ -470,7 +481,6 @@ class GooglePremiumBillingController @Inject constructor(
     }
 
     private fun failPurchase() {
-        premiumEntitlement.setPremiumOwned(false)
         _state.value = _state.value.copy(purchaseStatus = PremiumPurchaseStatus.Error)
     }
 

@@ -58,7 +58,7 @@
     <string name="reward_unlock_lesson_title">Unlock this lesson category</string>
     <string name="reward_unlock_lesson_message">Watch one short ad to access every lesson in this category for 30 minutes.</string>
     <string name="reward_unlock_emoji_title">Unlock Emoji Mix</string>
-    <string name="reward_unlock_emoji_message">Watch one short ad to use every Emoji Mix item for 15 minutes.</string>
+    <string name="reward_unlock_emoji_message">Watch one short ad to create this Emoji Mix.</string>
     <string name="reward_watch_ad">Watch ad</string>
     <string name="reward_preparing_ad">Preparing ad…</string>
     <string name="reward_ad_ready">Ad ready. It will open only after you tap Watch ad.</string>

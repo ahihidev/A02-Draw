@@ -41,7 +41,7 @@
     <string name="reward_unlock_lesson_title">Sblocca questa categoria di lezioni</string>
     <string name="reward_unlock_lesson_message">Guarda un breve annuncio per accedere a ogni lezione di questa categoria per 30 minuti.</string>
     <string name="reward_unlock_emoji_title">Sblocca Emoji Mix</string>
-    <string name="reward_unlock_emoji_message">Guarda un breve annuncio per utilizzare ogni articolo Emoji Mix per 15 minuti.</string>
+    <string name="reward_unlock_emoji_message">Guarda un breve annuncio per creare questo Emoji Mix.</string>
     <string name="reward_watch_ad">Guarda l\'annuncio</string>
     <string name="reward_preparing_ad">Preparazione dell\'annuncio…</string>
     <string name="reward_ad_ready">Annuncio pronto. Si aprirà solo dopo aver toccato Guarda annuncio.</string>

@@ -17,7 +17,7 @@ class DefaultOnboardingSessionStore @Inject constructor() : OnboardingSessionSto
 
     override fun setTopics(topics: List<com.a02.draw.domain.model.DrawingTopic>) {
         mutableState.value = mutableState.value.copy(
-            topics = topics.take(MAX_VISIBLE_TOPICS),
+            topics = topics,
             isLoading = false,
             hasError = false,
         )
@@ -37,7 +37,6 @@ class DefaultOnboardingSessionStore @Inject constructor() : OnboardingSessionSto
     }
 
     private companion object {
-        const val MAX_VISIBLE_TOPICS = 9
         const val MAX_SELECTED_TOPICS = 3
     }
 }

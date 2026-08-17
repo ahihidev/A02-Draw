@@ -21,7 +21,7 @@ internal object KiroSdkInitializer {
             // SplashActivity gathers consent before any placement is allowed to load.
             enableAds = true,
             adConfig = KiroAds.Config(),
-            trackingConfig = KiroTracker.Config(enableFirebase = false),
+            trackingConfig = KiroTracker.Config(enableFirebase = true),
             billingConfig = KiroBilling.Config(enableBilling = false),
         )
 }

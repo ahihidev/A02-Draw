@@ -41,7 +41,7 @@
     <string name="reward_unlock_lesson_title">Débloquez cette catégorie de cours</string>
     <string name="reward_unlock_lesson_message">Regardez une courte annonce pour accéder à chaque leçon de cette catégorie pendant 30 minutes.</string>
     <string name="reward_unlock_emoji_title">Déverrouiller Emoji Mix</string>
-    <string name="reward_unlock_emoji_message">Regardez une courte publicité pour utiliser chaque article Emoji Mix pendant 15 minutes.</string>
+    <string name="reward_unlock_emoji_message">Regardez une courte publicité pour créer cet Emoji Mix.</string>
     <string name="reward_watch_ad">Regarder l\'annonce</string>
     <string name="reward_preparing_ad">Préparation de l\'annonce…</string>
     <string name="reward_ad_ready">Annonce prête. Il ne s\'ouvrira qu\'après avoir appuyé sur Regarder l\'annonce.</string>

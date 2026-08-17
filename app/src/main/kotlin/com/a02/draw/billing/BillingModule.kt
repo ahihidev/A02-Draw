@@ -19,6 +19,6 @@ abstract class BillingModule {
     @Binds
     @Singleton
     abstract fun bindPurchaseVerificationGateway(
-        implementation: UnavailablePurchaseVerificationGateway,
+        implementation: BillingClientPurchaseVerificationGateway,
     ): PurchaseVerificationGateway
 }

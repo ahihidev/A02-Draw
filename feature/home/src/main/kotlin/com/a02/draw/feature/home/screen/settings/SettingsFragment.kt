@@ -37,6 +37,8 @@ class SettingsFragment : BaseFragment<ScreenSettingsBinding>(ScreenSettingsBindi
     private var isPremiumOwned = false
 
     override fun setupViews(savedInstanceState: Bundle?) {
+        isPremiumOwned = appAdsController.isPremium.value
+        binding.premiumBanner.isVisible = !isPremiumOwned
         appAdsController.attachNative(
             binding.nativeAdContainer,
             AppAdPlacement.SETTING,

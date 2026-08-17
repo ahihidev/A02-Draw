@@ -8,7 +8,6 @@ enum class EmojiMixMode(val slotCount: Int) {
 data class EmojiOption(
     val emoji: String,
     val label: String,
-    val isPremium: Boolean = true,
 )
 
 data class EmojiKitchenPair(val left: String, val right: String, val resultUrl: String) {

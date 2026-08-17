@@ -10,6 +10,7 @@ import androidx.navigation.fragment.NavHostFragment
 import com.a02.draw.ads.app.AppBackgroundTracker
 import com.a02.draw.core.ui.ads.AppAdsController
 import com.a02.draw.core.ui.base.BaseActivity
+import com.a02.draw.core.ui.billing.PremiumBillingController
 import com.a02.draw.databinding.ActivityMainBinding
 import com.a02.draw.play.PlayEngagementCoordinator
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -24,6 +25,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
     lateinit var appAdsController: AppAdsController
     @Inject
     lateinit var backgroundTracker: AppBackgroundTracker
+
+    @Inject
+    lateinit var premiumBillingController: PremiumBillingController
 
     @Inject
     lateinit var playEngagementCoordinator: PlayEngagementCoordinator
@@ -85,6 +89,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(ActivityMainBinding::infl
 
     override fun onPostResume() {
         super.onPostResume()
+        premiumBillingController.synchronizeEntitlement()
+        // The SDK pool can expire or be reclaimed while the process is backgrounded.
+        // Refill it on every foreground return; preloadMainAds is single-flight and a no-op
+        // while valid ads are already available.
+        appAdsController.preloadMainAds()
         binding.root.post {
             binding.root.removeCallbacks(showPlayPrompt)
             if (!showWelcomeBackIfNeeded()) {

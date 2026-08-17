@@ -220,6 +220,22 @@ class NativeAdHostView @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        when (state) {
+            NativeAdHostState.LOADING -> renderLoading()
+            NativeAdHostState.LOADED -> {
+                skeletonView.animate().cancel()
+                skeletonView.stopShimmer()
+                skeletonView.isVisible = false
+                skeletonView.alpha = 0f
+                nativeAdView.animate().cancel()
+                nativeAdView.isVisible = true
+                nativeAdView.alpha = 1f
+                isVisible = true
+                closeButton?.isVisible = true
+            }
+
+            NativeAdHostState.HIDDEN -> Unit
+        }
         if (format == NativeAdFormat.FULL) {
             ViewCompat.requestApplyInsets(this)
         }
@@ -229,12 +245,9 @@ class NativeAdHostView @JvmOverloads constructor(
         nativeAdView.animate().cancel()
         skeletonView.animate().cancel()
         skeletonView.stopShimmer()
-        coordinatorOwnedAd?.destroy()
-        coordinatorOwnedAd = null
-        retiringCoordinatorAd?.destroy()
-        retiringCoordinatorAd = null
-        retiringNativeAdView = null
-        stateMachine.hide()
+        // Activity windows can temporarily detach their view tree while the app is in the
+        // background. The coordinator owns the NativeAd until the LifecycleOwner is destroyed,
+        // so releasing it here leaves a live session with an empty host after foreground return.
         super.onDetachedFromWindow()
     }
 

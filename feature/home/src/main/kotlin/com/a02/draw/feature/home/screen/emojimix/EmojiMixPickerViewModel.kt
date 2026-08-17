@@ -4,8 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.a02.draw.core.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class EmojiMixPickerViewModel @Inject constructor(
@@ -18,10 +18,6 @@ class EmojiMixPickerViewModel @Inject constructor(
         selected = savedStateHandle.get<ArrayList<String>>(KEY_SELECTED).orEmpty(),
     ),
 ) {
-    init {
-        refreshOptions()
-    }
-
     fun onAction(action: EmojiMixPickerAction) {
         when (action) {
             is EmojiMixPickerAction.Toggle -> toggle(action.emoji)
@@ -35,10 +31,12 @@ class EmojiMixPickerViewModel @Inject constructor(
     }
 
     private fun toggle(emoji: String) {
-        val current = state.value.selected
+        val currentState = state.value
+        val current = currentState.selected
+        if (!currentState.canSelect(emoji)) return
         val next = when {
             emoji in current -> current - emoji
-            current.size >= state.value.mode.slotCount -> current
+            current.size >= currentState.mode.slotCount -> current
             else -> current + emoji
         }
         setSelected(next)
@@ -47,18 +45,6 @@ class EmojiMixPickerViewModel @Inject constructor(
     private fun setSelected(selected: List<String>) {
         savedStateHandle[KEY_SELECTED] = ArrayList(selected)
         updateState { copy(selected = selected) }
-        refreshOptions()
-    }
-
-    private fun refreshOptions() {
-        updateState {
-            val available = if (mode == EmojiMixMode.MIX_2 && selected.size == 1) {
-                EmojiKitchenCatalog.compatibleWith(selected.first())
-            } else {
-                EmojiKitchenCatalog.options
-            }
-            copy(options = available)
-        }
     }
 
     private fun send(effect: EmojiMixPickerEffect) {

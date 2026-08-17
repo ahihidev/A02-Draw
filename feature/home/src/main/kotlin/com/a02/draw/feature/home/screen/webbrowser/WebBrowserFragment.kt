@@ -2,7 +2,6 @@ package com.a02.draw.feature.home.screen.webbrowser
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import android.webkit.JavascriptInterface
@@ -73,6 +72,7 @@ class WebBrowserFragment : BaseFragment<ScreenWebBrowserBinding>(ScreenWebBrowse
         }
         binding.webView.webViewClient = BrowserClient()
         binding.searchInput.setText(viewModel.state.value.query)
+        binding.searchInput.setSelection(binding.searchInput.text?.length ?: 0)
         if (viewModel.state.value.query.isNotBlank()) {
             binding.emptyGroup.isVisible = false
             binding.webView.isVisible = true

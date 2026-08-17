@@ -29,13 +29,8 @@
         <property
             android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
             android:value="true" />
-        <!-- Tracking is intentionally disabled until its credentials and consent plan exist. -->
         <provider
             android:name="com.facebook.internal.FacebookInitProvider"
-            tools:ignore="MissingClass"
-            tools:node="remove" />
-        <provider
-            android:name="com.google.firebase.provider.FirebaseInitProvider"
             tools:ignore="MissingClass"
             tools:node="remove" />
 

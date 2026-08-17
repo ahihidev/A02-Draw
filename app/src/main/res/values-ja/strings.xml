@@ -41,7 +41,7 @@
     <string name="reward_unlock_lesson_title">このレッスンカテゴリのロック解除</string>
     <string name="reward_unlock_lesson_message">このカテゴリーで30分間、すべてのレッスンにアクセスできる広告を1つ見ます。</string>
     <string name="reward_unlock_emoji_title">Emoji Mixのロック解除</string>
-    <string name="reward_unlock_emoji_message">Emoji Mixの各アイテムを15分間使用するための1つの短い広告をご覧ください。</string>
+    <string name="reward_unlock_emoji_message">短い広告を1つ見て、このEmoji Mixを作成します。</string>
     <string name="reward_watch_ad">広告を見る</string>
     <string name="reward_preparing_ad">広告を準備中…</string>
     <string name="reward_ad_ready">広告の準備。 Watch広告をタップした後にのみ開きます。</string>

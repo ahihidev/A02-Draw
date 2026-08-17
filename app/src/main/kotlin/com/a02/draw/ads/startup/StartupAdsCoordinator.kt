@@ -4,11 +4,13 @@ import android.app.Activity
 import android.content.Context
 import android.os.SystemClock
 import android.util.Log
+import androidx.core.view.isVisible
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.a02.draw.ads.app.FullscreenAdArbiter
 import com.a02.draw.ads.ui.NativeAdHostView
+import com.a02.draw.ads.ui.showFullscreenInterstitial
 import com.a02.draw.core.ui.ads.PremiumEntitlementController
 import com.a02.draw.premium.PremiumAccessProvider
 import com.google.android.gms.ads.interstitial.InterstitialAd
@@ -138,21 +140,30 @@ class StartupAdsCoordinator @Inject internal constructor(
             policy.markConsumed(chosen.first)
             KiroAdPool.putAd(AdType.INTERSTITIAL, chosen.second.adUnitId, chosen.second.ad)
             Log.d(TAG, "SHOW ${chosen.first.placement}/${chosen.first.floor}")
-            try {
-                fullScreenArbiter.recordFullScreenShown(SystemClock.elapsedRealtime())
-                KiroSdk.ads.showInterstitial(activity, chosen.second.adUnitId) {
-                    preloadStartupNativeAds()
-                    if (chosen.first.floor == AdFloor.TWO_FLOOR) {
-                        scheduleReload(chosen.first)
-                    }
-                    completeOnce()
+            fullScreenArbiter.recordFullScreenShown(SystemClock.elapsedRealtime())
+            activity.showFullscreenInterstitial(
+                showAd = { onAdFinished ->
+                    KiroSdk.ads.showInterstitial(
+                        activity,
+                        chosen.second.adUnitId,
+                        onAdFinished,
+                    )
+                },
+            ) { error ->
+                if (error != null) {
+                    Log.w(TAG, "Could not show splash interstitial.", error)
                 }
-            } catch (error: RuntimeException) {
-                Log.w(TAG, "Could not show splash interstitial.", error)
                 preloadStartupNativeAds()
+                if (error == null && chosen.first.floor == AdFloor.TWO_FLOOR) {
+                    scheduleReload(chosen.first)
+                }
                 completeOnce()
             }
         }
+    }
+
+    internal fun releaseAdsForPremium() {
+        releaseAll()
     }
 
     fun preloadStartupNativeAds() {
@@ -207,6 +218,12 @@ class StartupAdsCoordinator @Inject internal constructor(
         detachNative(host)
         val generation = ++nextGeneration
         val observer = object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) {
+                if (isCurrent(host, generation) && canRequestAds()) {
+                    host.isVisible = true
+                }
+            }
+
             override fun onDestroy(owner: LifecycleOwner) {
                 detachNative(host)
             }

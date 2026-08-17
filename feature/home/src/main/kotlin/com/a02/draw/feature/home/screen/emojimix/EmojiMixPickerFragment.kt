@@ -17,8 +17,6 @@ import com.a02.draw.feature.home.common.ads.requestVipUnlock
 import com.a02.draw.feature.home.common.ads.runAdNavigation
 import com.a02.draw.feature.home.databinding.ScreenEmojiMixPickerBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,24 +26,20 @@ class EmojiMixPickerFragment :
     @Inject
     lateinit var appAdsController: AppAdsController
     private val viewModel: EmojiMixPickerViewModel by viewModels()
-    private val adapter = EmojiOptionAdapter(::toggleEmoji)
+    private val adapter = EmojiOptionAdapter { emoji ->
+        viewModel.onAction(EmojiMixPickerAction.Toggle(emoji))
+    }
 
-    private fun toggleEmoji(emoji: String) {
-        if (emoji in viewModel.state.value.selected) {
-            viewModel.onAction(EmojiMixPickerAction.Toggle(emoji))
-            return
-        }
-        val option = viewModel.state.value.options.firstOrNull { it.emoji == emoji } ?: return
-        val select = { viewModel.onAction(EmojiMixPickerAction.Toggle(emoji)) }
-        if (option.isPremium) {
-            requestVipUnlock(
-                appAdsController,
-                RewardContentKey.Emoji(emoji),
-                option.label,
-                select,
-            )
-        } else {
-            select()
+    private fun createMix() {
+        val state = viewModel.state.value
+        if (!state.canCreate) return
+        val selectionLabel = state.selected.joinToString(" + ")
+        requestVipUnlock(
+            appAdsController,
+            RewardContentKey.Emoji(state.selected.joinToString(separator = "")),
+            selectionLabel,
+        ) {
+            viewModel.onAction(EmojiMixPickerAction.Create)
         }
     }
 
@@ -59,21 +53,16 @@ class EmojiMixPickerFragment :
         binding.root.applyStatusBarPadding()
         binding.emojiList.layoutManager = GridLayoutManager(requireContext(), 4)
         binding.emojiList.adapter = adapter
+        binding.emojiList.itemAnimator = null
         binding.backButton.setDebouncedClickListener { viewModel.onAction(EmojiMixPickerAction.Back) }
         binding.clearButton.setDebouncedClickListener { viewModel.onAction(EmojiMixPickerAction.Clear) }
-        binding.createButton.setDebouncedClickListener { viewModel.onAction(EmojiMixPickerAction.Create) }
+        binding.createButton.setDebouncedClickListener { createMix() }
     }
 
     override fun observeData() {
         collectWhenStarted {
             launch { viewModel.state.collect(::render) }
             launch { viewModel.effects.collect(::handleEffect) }
-            launch {
-                merge(
-                    appAdsController.rewardAccessState.map { Unit },
-                    appAdsController.isPremium.map { Unit },
-                ).collect { render(viewModel.state.value) }
-            }
         }
     }
 
@@ -89,12 +78,14 @@ class EmojiMixPickerFragment :
             .ifEmpty { getString(R.string.emoji_mix_no_selection) }
         binding.clearButton.isVisible = state.selected.isNotEmpty()
         binding.createButton.isEnabled = state.canCreate
-        adapter.submitList(state.options)
-        adapter.setSelected(state.selected)
-        adapter.setUnlocked(
-            state.options.asSequence()
-                .filter { appAdsController.isUnlocked(RewardContentKey.Emoji(it.emoji)) }
-                .mapTo(mutableSetOf()) { it.emoji },
+        adapter.submitList(
+            state.options.map { option ->
+                EmojiOptionItem(
+                    option = option,
+                    isSelected = option.emoji in state.selected,
+                    isEnabled = state.canSelect(option.emoji),
+                )
+            },
         )
     }
 

@@ -4,10 +4,14 @@ import com.a02.draw.core.ui.base.UiEffect
 import com.a02.draw.core.ui.base.UiState
 
 data class WebBrowserUiState(
-    val query: String = "",
+    val query: String = DEFAULT_QUERY,
     val isImporting: Boolean = false,
     val importError: String? = null,
-) : UiState
+) : UiState {
+    companion object {
+        const val DEFAULT_QUERY = "Photo"
+    }
+}
 
 sealed interface WebBrowserAction {
     data class Search(val query: String) : WebBrowserAction

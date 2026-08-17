@@ -31,6 +31,7 @@
     <string name="premium_payment_pending">付款正在 Google Play 處理中。完成付款並通過驗證後才會啟用 Premium。</string>
     <string name="premium_verification_pending">已收到購買資料，正在等待安全驗證；Premium 尚未啟用。</string>
     <string name="premium_purchase_verified">購買已驗證，Premium 已啟用。</string>
+    <string name="premium_purchase_congratulations">恭喜！Premium 現已啟用。</string>
     <string name="premium_purchase_error">無法驗證購買，Premium 仍未啟用。</string>
     <string name="privacy_billing_appendix">10. Google Play採購\n優質產品和本地化價格由Google Play Billing提供. App接收來自Google Play的產品識別符,購買狀態,購買符和基本交易後設資料;它不接收或儲存支付卡細節. 產品ID、產品型別、購買令牌和App軟體包的名稱可透過HTTPS傳送給開發商的核查服務,只用於驗證應享權利、防止欺詐、恢復訪問和處理退款或到期。 在驗證成功之前,Premium不會被啟用. 一個經核實的權利可以在當地快取,但當 App 開啟、恢復或選擇恢復購買時會再次檢查它。 谷歌根據Google Payments隱私通知和Google Play條款處理並保留支付資訊.</string>
     <string name="terms_billing_appendix">14. 優惠採購和訂閱\nApp中顯示的優質產品名稱、價格、貨幣、計費期、試驗和介紹報價來自Google Play並可能因國家、賬戶和資格而異。 那個Google Play購買螢幕控制最終價格、稅收和支付條件。 顯示的經常性期間的訂閱自動續簽Google Play除非在續簽前取消; 管理或取消它們。Google Play終生產品是指購買時描述的Premium訪問權的非消耗性一次性購買.\n\n純度在Google Play報告完成的購買,開發商的服務對其進行核實。 在等待、取消、退款、過期、逆轉或無法核實的購買時,不給予或保留Premium。 使用恢復購買請求新檢查 。 退款和登出權隨後Google Play政策和強制性消費者法。</string>

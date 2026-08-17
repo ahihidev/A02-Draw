@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
@@ -13,6 +14,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.a02.draw.core.ui.ads.AppAdsController
 import com.a02.draw.core.ui.base.BaseFragment
 import com.a02.draw.core.ui.billing.PremiumCatalogStatus
 import com.a02.draw.core.ui.billing.PremiumProductType
@@ -24,11 +26,16 @@ import com.a02.draw.feature.home.R
 import com.a02.draw.feature.home.databinding.ScreenPremiumBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class PremiumFragment : BaseFragment<ScreenPremiumBinding>(ScreenPremiumBinding::inflate) {
+    @Inject
+    lateinit var appAdsController: AppAdsController
+
     private val viewModel: PremiumViewModel by viewModels()
     private val offersAdapter = PremiumOfferAdapter { offerKey -> viewModel.select(offerKey) }
+    private var hasHandledSuccess = false
 
     override fun setupViews(savedInstanceState: Bundle?) = with(binding) {
         WindowCompat.getInsetsController(
@@ -53,6 +60,17 @@ class PremiumFragment : BaseFragment<ScreenPremiumBinding>(ScreenPremiumBinding:
         collectWhenStarted {
             launch {
                 viewModel.state.collect { state ->
+                    if (state.purchaseStatus is PremiumPurchaseStatus.Verified && !hasHandledSuccess) {
+                        hasHandledSuccess = true
+                        appAdsController.releaseAdsForPremium()
+                        Toast.makeText(
+                            requireContext(),
+                            R.string.premium_purchase_congratulations,
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                        findNavController().navigateUp()
+                        return@collect
+                    }
                     val loading = state.catalogStatus == PremiumCatalogStatus.LOADING
                     binding.loadingSkeleton.isVisible = loading
                     binding.offers.isVisible = !loading && state.offers.isNotEmpty()

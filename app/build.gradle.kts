@@ -3,6 +3,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     id("a02.android.hilt")
+    alias(libs.plugins.google.services)
 }
 
 val releaseSigningProperties = Properties().apply {
@@ -37,7 +38,7 @@ android {
         applicationId = "com.led.keyboard.neon.classic"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
+        versionCode = 2
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

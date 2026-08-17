@@ -41,7 +41,7 @@
     <string name="reward_unlock_lesson_title">Avaa tämä oppitunti luokka</string>
     <string name="reward_unlock_lesson_message">Katso yksi lyhyt mainos päästä jokaisen oppitunnin tässä kategoriassa 30 minuuttia.</string>
     <string name="reward_unlock_emoji_title">Avaa Emoji Mix</string>
-    <string name="reward_unlock_emoji_message">Katso yksi lyhyt mainos käyttää jokaista Emoji Mix kohdetta 15 minuuttia.</string>
+    <string name="reward_unlock_emoji_message">Katso lyhyt mainos luodaksesi tämän Emoji Mixin.</string>
     <string name="reward_watch_ad">Katso mainos</string>
     <string name="reward_preparing_ad">Valmistellaan ilmoitusta…</string>
     <string name="reward_ad_ready">Mainos valmiina. Se aukeaa vasta kun olet napannut Watch-mainoksen.</string>

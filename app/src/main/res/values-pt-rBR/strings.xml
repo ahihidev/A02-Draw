@@ -41,7 +41,7 @@
     <string name="reward_unlock_lesson_title">Desbloqueie esta categoria de lição</string>
     <string name="reward_unlock_lesson_message">Assista a um pequeno anúncio para acessar todas as lições desta categoria por 30 minutos.</string>
     <string name="reward_unlock_emoji_title">Desbloquear Emoji Mix</string>
-    <string name="reward_unlock_emoji_message">Assista a um pequeno anúncio para usar cada item Emoji Mix por 15 minutos.</string>
+    <string name="reward_unlock_emoji_message">Assista a um anúncio curto para criar este Emoji Mix.</string>
     <string name="reward_watch_ad">Assistir ao anúncio</string>
     <string name="reward_preparing_ad">Preparando anúncio…</string>
     <string name="reward_ad_ready">Anúncio pronto. Ele será aberto somente depois que você tocar em Assistir anúncio.</string>

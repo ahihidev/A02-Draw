@@ -2,7 +2,6 @@ package com.a02.draw.premium
 
 import com.a02.draw.MainDispatcherRule
 import com.a02.draw.core.common.result.AppResult
-import com.a02.draw.core.ui.ads.RewardAccessState
 import com.a02.draw.core.ui.ads.RewardContentKey
 import com.a02.draw.domain.model.AppPreferences
 import com.a02.draw.domain.model.ThemeMode
@@ -28,7 +27,7 @@ class RewardUnlockManagerTest {
     val mainDispatcherRule = MainDispatcherRule(dispatcher)
 
     @Test
-    fun `artwork is permanent while lesson and emoji grant timed passes`() =
+    fun `artwork is permanent lesson is timed and emoji is per create`() =
         runTest(dispatcher) {
             val clock = FakeRewardTimeSource(currentTime = 1_000_000L)
             val repository = FakePreferencesRepository()
@@ -45,15 +44,12 @@ class RewardUnlockManagerTest {
 
             assertTrue(manager.accessState.value.hasAccess(artwork))
             assertTrue(manager.accessState.value.hasAccess(lesson))
-            assertTrue(manager.accessState.value.hasAccess(emoji))
+            assertFalse(manager.accessState.value.hasAccess(emoji))
             assertEquals(
                 clock.currentTime + RewardUnlockManager.LESSON_PASS_DURATION_MILLIS,
                 manager.accessState.value.activePassExpiries[lesson.passKey],
             )
-            assertEquals(
-                clock.currentTime + RewardUnlockManager.EMOJI_PASS_DURATION_MILLIS,
-                manager.accessState.value.activePassExpiries[RewardAccessState.EMOJI_MIX_PASS_KEY],
-            )
+            assertFalse("emoji-mix" in manager.accessState.value.activePassExpiries)
             assertTrue(artwork.legacyItemKey in repository.preferences.value.rewardUnlockedItemIds)
             manager.close()
         }
@@ -87,14 +83,16 @@ class RewardUnlockManagerTest {
         }
 
     @Test
-    fun `legacy lesson and emoji item keys remain permanently accessible`() =
+    fun `legacy emoji access never bypasses the next create reward`() =
         runTest(dispatcher) {
+            val clock = FakeRewardTimeSource(currentTime = 3_000_000L)
             val repository = FakePreferencesRepository(
                 AppPreferences(
                     rewardUnlockedItemIds = setOf("lesson:legacy", "emoji:⭐"),
+                    rewardPassExpiries = mapOf("emoji-mix" to clock.currentTime + 900_000L),
                 ),
             )
-            val manager = RewardUnlockManager(repository, FakeRewardTimeSource())
+            val manager = RewardUnlockManager(repository, clock)
             runCurrent()
 
             assertTrue(
@@ -102,7 +100,7 @@ class RewardUnlockManagerTest {
                     RewardContentKey.Lesson("legacy", "old-category"),
                 ),
             )
-            assertTrue(manager.accessState.value.hasAccess(RewardContentKey.Emoji("⭐")))
+            assertFalse(manager.accessState.value.hasAccess(RewardContentKey.Emoji("⭐")))
             manager.close()
         }
 

@@ -25,16 +25,5 @@
             android:gravity="center"
             android:textSize="34sp" />
 
-        <TextView
-            android:id="@+id/vip_badge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|end"
-            android:layout_margin="4dp"
-            android:background="@drawable/bg_vip_badge"
-            android:text="@string/vip"
-            android:textColor="@android:color/white"
-            android:textSize="11sp"
-            android:textStyle="bold" />
     </FrameLayout>
 </com.google.android.material.card.MaterialCardView>

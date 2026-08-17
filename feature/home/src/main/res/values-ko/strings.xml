@@ -31,6 +31,7 @@
     <string name="premium_payment_pending">Google Play에서 결제가 보류 중입니다. 결제 및 확인 후에만 Premium이 활성화됩니다.</string>
     <string name="premium_verification_pending">구매가 접수되었습니다. 안전한 확인을 기다리는 중이며 Premium은 아직 활성화되지 않았습니다.</string>
     <string name="premium_purchase_verified">구매가 확인되었습니다. Premium이 활성화되었습니다.</string>
+    <string name="premium_purchase_congratulations">축하합니다! Premium이 활성화되었습니다.</string>
     <string name="premium_purchase_error">구매를 확인할 수 없습니다. Premium은 비활성 상태로 유지됩니다.</string>
     <string name="privacy_billing_appendix">10. Google Play 구매\n프리미엄 제품 및 현지화 된 가격은 Google Play Billing에 의해 제공됩니다. 앱은 Google Play에서 제품 식별자, 구매 상태, 구매 토큰 및 기본 거래 메타 데이터를 수신하거나 저장하지 않습니다. 제품 ID, 제품 유형, 구매 토큰 및 앱 패키지 이름은 HTTPS를 통해 등록을 검증하기 위해 만 개발자의 검증 서비스에 전송 될 수 있으며 사기를 방지하고 액세스 및 환불 또는 만료를 처리 할 수 있습니다. 검증이 성공할 때까지, 프리미엄은 활성화되지 않습니다. 확인 된 제목은 로컬로 캐시 될 수 있지만 앱이 열릴 때 다시 검사됩니다, 이력서 또는 저장소 구매를 선택합니다. Google 프로세스 및 Google Payments 개인 정보 보호 정책 및 Google Play 약관에 따라 지불 정보를 유지합니다.</string>
     <string name="terms_billing_appendix">14. 프리미엄 구매 및 구독\n프리미엄 제품 이름, 가격, 통화, 청구 기간, 시험 및 인트로니티는 Google Play에서 온 앱에 표시되며 국가, 계정 및 자격에 따라 달라질 수 있습니다. Google Play 구매 화면은 최종 가격, 세금 및 지불 조건을 제어합니다. Google Play에 의해 표시된 반복 기간을 위해 자동으로 갱신을 갱신; Google Play에서 관리하거나 취소. 평생 제품은 구입에 기술 된 프리미엄 액세스를위한 비소 가능한 한 번 구매입니다.\n\n프리미엄은 Google Play가 완료된 구매와 개발자의 서비스를 확인한 후만 활성화합니다. 대출, 취소, 환불, 만료, 반전 또는 불확실한 구입은 보조금 또는 프리미엄을 유지하지 않습니다. Restore 구매를 사용하여 새로운 체크를 요청합니다. 환불 및 취소 권리는 Google Play 정책 및 필수 소비자 법률을 따릅니다.</string>

@@ -82,6 +82,22 @@ class EmojiMixTest {
     }
 
     @Test
+    fun `mix two keeps the option list stable and rejects an incompatible second emoji`() {
+        val viewModel = EmojiMixPickerViewModel(
+            SavedStateHandle(mapOf(EmojiMixHomeFragment.ARG_MODE to EmojiMixMode.MIX_2.name)),
+        )
+        val originalOptions = viewModel.state.value.options
+
+        viewModel.onAction(EmojiMixPickerAction.Toggle("👑"))
+        viewModel.onAction(EmojiMixPickerAction.Toggle("🎹"))
+
+        assertEquals(originalOptions, viewModel.state.value.options)
+        assertEquals(listOf("👑"), viewModel.state.value.selected)
+        assertFalse(viewModel.state.value.canSelect("🎹"))
+        assertTrue(viewModel.state.value.canSelect("😀"))
+    }
+
+    @Test
     fun `composite specification is stable 1024 square with triangular placements`() {
         assertEquals(1024, EmojiCompositeSpec.SIZE)
         assertEquals(listOf(350 to 410, 674 to 410, 512 to 720), EmojiCompositeSpec.centers)

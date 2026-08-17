@@ -371,6 +371,7 @@ class NativeAdLayoutTest {
                 scenario.onActivity { (host.parent as? ViewGroup)?.removeView(host) }
                 instrumentation.waitForIdleSync()
                 assertFalse(skeleton.isShimmerRunning)
+                assertEquals(NativeAdHostState.LOADED, host.state)
             }
         }
     }

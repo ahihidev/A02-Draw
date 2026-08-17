@@ -5,8 +5,6 @@ import com.a02.draw.core.ui.ads.RewardAccessState
 import com.a02.draw.core.ui.ads.RewardContentKey
 import com.a02.draw.core.ui.ads.RewardUnlockStore
 import com.a02.draw.domain.repository.AppPreferencesRepository
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -17,6 +15,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Singleton
 class RewardUnlockManager @Inject constructor(
@@ -55,10 +55,8 @@ class RewardUnlockManager @Inject constructor(
                 durationMillis = LESSON_PASS_DURATION_MILLIS,
             )
 
-            is RewardContentKey.Emoji -> grantPass(
-                key = RewardAccessState.EMOJI_MIX_PASS_KEY,
-                durationMillis = EMOJI_PASS_DURATION_MILLIS,
-            )
+            // Emoji Mix access is consumed by the current Create callback only.
+            is RewardContentKey.Emoji -> Unit
         }
     }
 
@@ -137,6 +135,5 @@ class RewardUnlockManager @Inject constructor(
 
     companion object {
         const val LESSON_PASS_DURATION_MILLIS = 30L * 60L * 1_000L
-        const val EMOJI_PASS_DURATION_MILLIS = 15L * 60L * 1_000L
     }
 }

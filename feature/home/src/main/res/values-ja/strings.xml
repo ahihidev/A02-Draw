@@ -31,6 +31,7 @@
     <string name="premium_payment_pending">Google Playで支払いが保留中です。支払いと確認が完了するとPremiumが有効になります。</string>
     <string name="premium_verification_pending">購入を受け付けました。安全な確認を待っています。Premiumはまだ有効になっていません。</string>
     <string name="premium_purchase_verified">購入を確認しました。Premiumが有効です。</string>
+    <string name="premium_purchase_congratulations">おめでとうございます！Premiumが有効になりました。</string>
     <string name="premium_purchase_error">購入を確認できませんでした。Premiumは無効のままです。</string>
     <string name="privacy_billing_appendix">10. Google Playの購入\nGoogle Play Billingが提供するプレミアム製品とローカライズ価格。 App は、Google Play から製品識別子、購入状態、購入トークン、および基本的なトランザクションメタデータを受け取ります。支払いカードの詳細を受け取るか、保存しません。 製品ID、製品タイプ、購入トークンおよびアプリパッケージ名は、開発者の検証サービスにHTTPSを経由して、認証を検証し、不正を防止し、アクセスを復元し、払い戻しや有効期限を処理します。 検証が成功するまでは、Premiumは起動しません。 検証済みの資格はローカルでキャッシュされる可能性がありますが、アプリが開いたり再開したり、再ストアの購入を選択したときに再びチェックされます。 Google は、Google Payments プライバシー通知および Google Play 用語の下で支払い情報を処理し、保持します。</string>
     <string name="terms_billing_appendix">14. プレミアム購入とサブスクリプション\nプレミアム製品名、価格、通貨、請求期間、試用版、および本アプリに含まれる紹介オファーは、Google Playから来ており、国、アカウント、および資格によって異なる場合があります。 Google Play購入画面は、最終的な価格、税金、支払い条件を制御します。 Google Playで表示されている再発期間は、更新前にキャンセルしない限り自動的に更新されます。 Google Playでそれらを管理またはキャンセルします。 ライフタイム製品は、購入時に説明したPremiumアクセスの想定外ワンタイム購入です。\n\nプレミアムは、Google Playが完成した購入を報告し、開発者のサービスがそれを検証した後にのみ有効になります。 保留、取消、返金、期限切れ、逆転、または妥当な購入は、プレミアムを付与または保持しません。 再ストアの購入を使用して、新しいチェックをリクエストします。 返金とキャンセルの権利は、Google Playポリシーおよび必須の消費者法に従います。</string>

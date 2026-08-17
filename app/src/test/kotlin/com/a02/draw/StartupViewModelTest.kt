@@ -52,7 +52,7 @@ class StartupViewModelTest {
     }
 
     @Test
-    fun `cached premium flag never grants premium access`() = runTest {
+    fun `startup routes from verified entitlement instead of raw preference flag`() = runTest {
         val preferences = MutableStateFlow(
             AppPreferences(
                 onboardingCompleted = true,
@@ -98,6 +98,10 @@ class StartupViewModelTest {
 
         override fun setPremiumOwned(isOwned: Boolean) {
             premiumState.value = isOwned
+            initializedState.value = true
+        }
+
+        override fun completeInitialization() {
             initializedState.value = true
         }
 

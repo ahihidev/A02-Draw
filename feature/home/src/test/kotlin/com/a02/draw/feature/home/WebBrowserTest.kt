@@ -41,6 +41,27 @@ class WebBrowserTest {
     }
 
     @Test
+    fun `default initial query is populated automatically without manual input`() {
+        val viewModel = WebBrowserViewModel(
+            SavedStateHandle(),
+            FakeStore(),
+            DefaultDrawingSessionStore(),
+        )
+        assertEquals("Anime", viewModel.state.value.query)
+    }
+
+    @Test
+    fun `saved query is respected when present in savedStateHandle`() {
+        val handle = SavedStateHandle(mapOf("web_browser.query" to "dragon"))
+        val viewModel = WebBrowserViewModel(
+            handle,
+            FakeStore(),
+            DefaultDrawingSessionStore(),
+        )
+        assertEquals("dragon", viewModel.state.value.query)
+    }
+
+    @Test
     fun `successful import updates drawing session and navigates`() = runTest {
         val drawing = DefaultDrawingSessionStore()
         val viewModel = WebBrowserViewModel(SavedStateHandle(), FakeStore(), drawing)

@@ -7,12 +7,12 @@ import org.junit.Test
 
 class KiroSdkInitializerTest {
     @Test
-    fun `base integration enables ads while keeping tracking and billing disabled`() {
+    fun `base integration enables ads and firebase tracking while keeping billing disabled`() {
         val config = KiroSdkInitializer.createConfig(isDebug = true)
 
         assertTrue(config.isDebug)
         assertTrue(config.enableAds)
-        assertFalse(config.trackingConfig.enableFirebase)
+        assertTrue(config.trackingConfig.enableFirebase)
         assertFalse(config.trackingConfig.enableFacebook)
         assertNull(config.trackingConfig.appsFlyerDevKey)
         assertNull(config.trackingConfig.adjustAppToken)

@@ -9,6 +9,13 @@ data class EmojiMixPickerUiState(
     val options: List<EmojiOption> = EmojiKitchenCatalog.options,
 ) : UiState {
     val canCreate: Boolean get() = selected.size == mode.slotCount
+
+    fun canSelect(emoji: String): Boolean = when {
+        emoji in selected -> true
+        selected.size >= mode.slotCount -> false
+        mode != EmojiMixMode.MIX_2 || selected.size != 1 -> true
+        else -> EmojiKitchenCatalog.find(selected.first(), emoji) != null
+    }
 }
 
 sealed interface EmojiMixPickerAction {

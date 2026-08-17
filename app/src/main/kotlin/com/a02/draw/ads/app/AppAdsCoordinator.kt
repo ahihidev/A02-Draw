@@ -3,8 +3,10 @@ package com.a02.draw.ads.app
 import android.app.Activity
 import android.content.Context
 import android.os.SystemClock
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.core.view.isEmpty
 import androidx.core.view.isVisible
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -16,6 +18,7 @@ import com.a02.draw.ads.startup.StartupAdsCoordinator
 import com.a02.draw.ads.startup.TripleFloorTiming
 import com.a02.draw.ads.ui.NativeAdFormat
 import com.a02.draw.ads.ui.NativeAdHostView
+import com.a02.draw.ads.ui.showFullscreenInterstitial
 import com.a02.draw.core.ui.ads.AppAdPlacement
 import com.a02.draw.core.ui.ads.AppAdsController
 import com.a02.draw.core.ui.ads.AppNativeAdFormat
@@ -83,9 +86,14 @@ class AppAdsCoordinator @Inject internal constructor(
     init {
         scope.launch {
             isPremium.collect { premium ->
-                if (premium) releaseAllAds()
+                if (premium) releaseAdsForPremium()
             }
         }
+    }
+
+    override fun releaseAdsForPremium() {
+        if (!isPremium.value) return
+        releaseAllAds()
     }
 
     override fun preloadMainAds() {
@@ -128,6 +136,16 @@ class AppAdsCoordinator @Inject internal constructor(
         container.isVisible = true
         host.beginCoordinatorLoad()
         val observer = object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) {
+                val currentSession = nativeSessions[container] ?: return
+                if (canRequestAds()) {
+                    container.isVisible = true
+                    if (!currentSession.hasLoadedAd) {
+                        loadNative(currentSession, placement, isRefresh = false)
+                    }
+                }
+            }
+
             override fun onDestroy(owner: LifecycleOwner) = detachNative(container)
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -170,17 +188,12 @@ class AppAdsCoordinator @Inject internal constructor(
             container.isVisible = false
             return
         }
-        val observer = object : DefaultLifecycleObserver {
-            override fun onDestroy(owner: LifecycleOwner) = detachDrawingBanner(container)
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        bannerSessions[container] = BannerSession(lifecycleOwner, observer)
-        container.isVisible = true
-        container.post {
+        fun showBannerAd() {
             if (bannerSessions[container]?.owner !== lifecycleOwner || !canRequestAds()) {
                 container.isVisible = false
-                return@post
+                return
             }
+            container.isVisible = true
             val widthPixels = container.width.takeIf { it > 0 }
                 ?: container.resources.displayMetrics.widthPixels
             val widthDp = (widthPixels / container.resources.displayMetrics.density)
@@ -197,6 +210,20 @@ class AppAdsCoordinator @Inject internal constructor(
                 adSize = size,
             )
         }
+
+        val observer = object : DefaultLifecycleObserver {
+            override fun onStart(owner: LifecycleOwner) {
+                if (container.isEmpty() && canRequestAds()) {
+                    container.post { showBannerAd() }
+                }
+            }
+
+            override fun onDestroy(owner: LifecycleOwner) = detachDrawingBanner(container)
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        bannerSessions[container] = BannerSession(lifecycleOwner, observer)
+        container.isVisible = true
+        container.post { showBannerAd() }
     }
 
     override fun detachDrawingBanner(container: ViewGroup) {
@@ -230,7 +257,12 @@ class AppAdsCoordinator @Inject internal constructor(
             completeOnce()
             return
         }
-        KiroSdk.ads.showInterstitial(activity, adUnitId) {
+        activity.showFullscreenInterstitial(
+            showAd = { onAdFinished ->
+                KiroSdk.ads.showInterstitial(activity, adUnitId, onAdFinished)
+            },
+        ) { error ->
+            if (error != null) Log.w(TAG, "Could not show navigation interstitial.", error)
             fullScreenArbiter.release()
             preloadMainAds()
             completeOnce()
@@ -245,7 +277,8 @@ class AppAdsCoordinator @Inject internal constructor(
 
         val adUnitId = context.getString(R.string.inter_background)
         if (!canRequestAds() ||
-            !KiroAdPool.hasAd(AdType.INTERSTITIAL, adUnitId) ||
+            activity.isFinishing ||
+            activity.isDestroyed ||
             !fullScreenArbiter.tryAcquire(
                 SystemClock.elapsedRealtime(),
                 FullscreenAdArbiter.FULL_SCREEN_COOLDOWN_MILLIS,
@@ -255,7 +288,18 @@ class AppAdsCoordinator @Inject internal constructor(
             completeOnce()
             return
         }
-        KiroSdk.ads.showInterstitial(activity, adUnitId) {
+        activity.showFullscreenInterstitial(
+            showAd = { onAdFinished ->
+                if (KiroAdPool.hasAd(AdType.INTERSTITIAL, adUnitId)) {
+                    KiroSdk.ads.showInterstitial(activity, adUnitId, onAdFinished)
+                } else {
+                    KiroSdk.ads.loadAndShowInterstitial(activity, adUnitId) {
+                        onAdFinished()
+                    }
+                }
+            },
+        ) { error ->
+            if (error != null) Log.w(TAG, "Could not show background interstitial.", error)
             fullScreenArbiter.release()
             preloadMainAds()
             completeOnce()
@@ -342,14 +386,14 @@ class AppAdsCoordinator @Inject internal constructor(
                 session.host.isFullyVisibleForRefresh()
             ) {
                 refreshNative(session, placement)
-            } else if (nativeSessions[session.container] === session) {
+            } else if (nativeSessions.get(session.container) === session) {
                 scheduleRefreshRetry(session, placement)
             }
         }
     }
 
     private fun refreshNative(session: NativeSession, placement: AppAdPlacement) {
-        if (nativeSessions[session.container] !== session || !canRequestAds()) return
+        if (nativeSessions.get(session.container) !== session || !canRequestAds()) return
         val shared = startupAdsCoordinator.takeSharedNativeAd()
         val placementFallback = nativeCache.remove(placement)
         when {
@@ -368,7 +412,7 @@ class AppAdsCoordinator @Inject internal constructor(
         session.refreshJob?.cancel()
         session.refreshJob = scope.launch {
             delay(TripleFloorTiming.NATIVE_REFRESH_MILLIS)
-            if (nativeSessions[session.container] === session && canRequestAds()) {
+            if (nativeSessions.get(session.container) === session && canRequestAds()) {
                 if (session.lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED) &&
                     session.host.isFullyVisibleForRefresh()
                 ) {
@@ -427,6 +471,7 @@ class AppAdsCoordinator @Inject internal constructor(
     }
 
     private fun releaseAllAds() {
+        startupAdsCoordinator.releaseAdsForPremium()
         nextGeneration += 1
         interstitialLoadJob?.cancel()
         backgroundLoadJob?.cancel()
@@ -454,7 +499,7 @@ class AppAdsCoordinator @Inject internal constructor(
     }
 
     private fun isCurrent(session: NativeSession, generation: Long): Boolean =
-        nativeSessions[session.container] === session && session.generation == generation
+        nativeSessions.get(session.container) === session && session.generation == generation
 
     private fun canRequestAds(): Boolean =
         premiumEntitlement.isInitialized.value &&
@@ -475,6 +520,7 @@ class AppAdsCoordinator @Inject internal constructor(
         }
 
     private companion object {
+        const val TAG = "AppAds"
         const val NATIVE_INITIAL_TIMEOUT_MILLIS = 8_000L
     }
 }

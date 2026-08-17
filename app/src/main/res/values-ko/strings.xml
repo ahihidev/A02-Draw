@@ -41,7 +41,7 @@
     <string name="reward_unlock_lesson_title">이 레슨 범주를 잠금 해제</string>
     <string name="reward_unlock_lesson_message">30 분 동안이 범주에서 모든 수업에 액세스 할 수있는 짧은 광고를보십시오.</string>
     <string name="reward_unlock_emoji_title">Emoji Mix 잠금 해제</string>
-    <string name="reward_unlock_emoji_message">15 분 동안 모든 Emoji Mix 아이템을 사용할 수있는 짧은 광고를보십시오.</string>
+    <string name="reward_unlock_emoji_message">짧은 광고 하나를 시청하고 이 Emoji Mix를 만드세요.</string>
     <string name="reward_watch_ad">광고 보기</string>
     <string name="reward_preparing_ad">광고 준비 중…</string>
     <string name="reward_ad_ready">광고 준비. 시계 광고를 탭 한 후만 열립니다.</string>

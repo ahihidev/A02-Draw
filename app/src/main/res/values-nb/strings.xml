@@ -41,7 +41,7 @@
     <string name="reward_unlock_lesson_title">Lås opp denne klassen</string>
     <string name="reward_unlock_lesson_message">Se en kort annonse for å få tilgang til hver leksjon i denne kategorien i 30 minutter.</string>
     <string name="reward_unlock_emoji_title">Lås opp Emoji Mix</string>
-    <string name="reward_unlock_emoji_message">Se en kort annonse for å bruke hver Emoji Mix element i 15 minutter.</string>
+    <string name="reward_unlock_emoji_message">Se en kort annonse for å lage denne Emoji Mix-en.</string>
     <string name="reward_watch_ad">Se på annonsen</string>
     <string name="reward_preparing_ad">Forbereder annonse…</string>
     <string name="reward_ad_ready">Ad klar. Den åpnes først når du trykker på Watch-annonsen.</string>
