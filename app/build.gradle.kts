@@ -35,11 +35,11 @@ android {
         // Play Billing only returns products owned by the exact Play Console package.
         // Keep the Kotlin namespace independent while this catalog is tested against
         // the supplied com.led.keyboard.neon.classic Play application.
-        applicationId = "com.led.keyboard.neon.classic"
+        applicationId = "com.a02.draw"
         minSdk = 24
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.0.0"
+        versionCode = 5
+        versionName = "4.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }

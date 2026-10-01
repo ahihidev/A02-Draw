@@ -3,6 +3,7 @@ package com.a02.draw.billing
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import com.a02.draw.DrawApplication
 import com.a02.draw.core.ui.ads.PremiumEntitlementController
 import com.a02.draw.core.ui.billing.PremiumBillingController
 import com.a02.draw.core.ui.billing.PremiumBillingState
@@ -43,7 +44,17 @@ class GooglePremiumBillingController @Inject constructor(
     private val premiumEntitlement: PremiumEntitlementController,
 ) : PremiumBillingController, PurchasesUpdatedListener {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-    private val _state = MutableStateFlow(PremiumBillingState())
+    override val isPurchaseAvailable: Boolean
+        get() = !DrawApplication.FORCE_PREMIUM_FOR_VERSION_ONE
+    private val _state = MutableStateFlow(
+        PremiumBillingState(
+            catalogStatus = if (isPurchaseAvailable) {
+                PremiumCatalogStatus.IDLE
+            } else {
+                PremiumCatalogStatus.EMPTY
+            },
+        ),
+    )
     override val state: StateFlow<PremiumBillingState> = _state.asStateFlow()
 
     private val billingClient = BillingClient.newBuilder(context)
@@ -64,6 +75,7 @@ class GooglePremiumBillingController @Inject constructor(
     private val connectionCallbacks = mutableListOf<(BillingResult?) -> Unit>()
 
     override fun refreshProducts() {
+        if (resolveAppGrantedPremium()) return
         val requestGeneration = ++catalogGeneration
         _state.value = _state.value.copy(
             catalogStatus = PremiumCatalogStatus.LOADING,
@@ -111,6 +123,7 @@ class GooglePremiumBillingController @Inject constructor(
     }
 
     override fun selectOffer(offerKey: String) {
+        if (!isPurchaseAvailable) return
         if (_state.value.offers.any { it.key == offerKey }) {
             if (_state.value.purchaseStatus == PremiumPurchaseStatus.Launching) {
                 purchaseGeneration++
@@ -123,6 +136,7 @@ class GooglePremiumBillingController @Inject constructor(
     }
 
     override fun launchPurchase(activity: Activity, offerKey: String) {
+        if (resolveAppGrantedPremium()) return
         val selected = _state.value.offers.firstOrNull { it.key == offerKey } ?: return
         val requestGeneration = ++purchaseGeneration
         _state.value = _state.value.copy(purchaseStatus = PremiumPurchaseStatus.Launching)
@@ -160,11 +174,13 @@ class GooglePremiumBillingController @Inject constructor(
     }
 
     override fun restorePurchases() {
+        if (resolveAppGrantedPremium()) return
         refreshProducts()
         queryAndVerifyPurchases(showResult = true)
     }
 
     override fun synchronizeEntitlement() {
+        if (resolveAppGrantedPremium()) return
         queryAndVerifyPurchases(showResult = false)
     }
 
@@ -172,6 +188,7 @@ class GooglePremiumBillingController @Inject constructor(
         billingResult: BillingResult,
         purchases: MutableList<Purchase>?,
     ) {
+        if (resolveAppGrantedPremium()) return
         when (billingResult.responseCode) {
             BillingClient.BillingResponseCode.OK -> verifyPurchases(purchases.orEmpty(), true)
             BillingClient.BillingResponseCode.USER_CANCELED -> {
@@ -211,6 +228,14 @@ class GooglePremiumBillingController @Inject constructor(
             }
         }
         configuredQueries.forEach { (type, ids) -> queryProducts(type, ids, ::completeOne) }
+    }
+
+    private fun resolveAppGrantedPremium(): Boolean {
+        if (isPurchaseAvailable) return false
+        if (!premiumEntitlement.isPremium.value || !premiumEntitlement.isInitialized.value) {
+            premiumEntitlement.setPremiumOwned(true)
+        }
+        return true
     }
 
     private fun querySingleProduct(

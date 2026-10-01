@@ -6,6 +6,7 @@ import androidx.core.os.LocaleListCompat
 import com.a02.draw.ads.KiroSdkInitializer
 import com.a02.draw.ads.app.AppBackgroundTracker
 import com.a02.draw.connectivity.NoInternetGatekeeper
+import com.a02.draw.core.ui.ads.PremiumEntitlementController
 import com.a02.draw.core.ui.billing.PremiumBillingController
 import com.a02.draw.domain.repository.AppPreferencesRepository
 import dagger.hilt.android.HiltAndroidApp
@@ -26,6 +27,9 @@ class DrawApplication : Application() {
     @Inject
     lateinit var premiumBillingController: PremiumBillingController
     @Inject
+    lateinit var premiumEntitlementController: PremiumEntitlementController
+
+    @Inject
     internal lateinit var noInternetGatekeeper: NoInternetGatekeeper
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -37,10 +41,17 @@ class DrawApplication : Application() {
         // never misclassified as a real process background/foreground cycle.
         appBackgroundTracker.ensureRegistered()
         noInternetGatekeeper.ensureRegistered()
-        KiroSdkInitializer.initialize(this)
-        // This is the single process-start entitlement check. Splash waits for the result with
-        // a bounded, fail-closed timeout so Billing can never strand the user on startup.
-        premiumBillingController.synchronizeEntitlement()
+        KiroSdkInitializer.initialize(
+            application = this,
+            enableAds = !FORCE_PREMIUM_FOR_VERSION_ONE,
+        )
+        if (FORCE_PREMIUM_FOR_VERSION_ONE) {
+            premiumEntitlementController.setPremiumOwned(true)
+        } else {
+            // This is the single process-start entitlement check. Splash waits for the result with
+            // a bounded, fail-closed timeout so Billing can never strand the user on startup.
+            premiumBillingController.synchronizeEntitlement()
+        }
         applicationScope.launch {
             preferencesRepository.observePreferences()
                 .map { it.languageTag.orEmpty() }
@@ -56,4 +67,9 @@ class DrawApplication : Application() {
                 AppCompatDelegate.setApplicationLocales(locales)
             }
         }
+
+    companion object {
+        // Temporary v1 release switch. Set to false to restore ads and Google Play purchases.
+        const val FORCE_PREMIUM_FOR_VERSION_ONE = true
+    }
 }

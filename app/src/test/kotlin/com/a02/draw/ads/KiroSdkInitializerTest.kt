@@ -18,4 +18,14 @@ class KiroSdkInitializerTest {
         assertNull(config.trackingConfig.adjustAppToken)
         assertFalse(config.billingConfig.enableBilling)
     }
+
+    @Test
+    fun `version one premium switch disables ads in sdk config`() {
+        val config = KiroSdkInitializer.createConfig(
+            isDebug = false,
+            enableAds = false,
+        )
+
+        assertFalse(config.enableAds)
+    }
 }

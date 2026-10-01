@@ -52,7 +52,9 @@ class SettingsViewModel @Inject constructor(
         val item = state.value.items.firstOrNull { it.id == id } ?: return
         when {
             id == SUBSCRIPTION_ID -> send(SettingsEffect.NavigatePremium)
-            id in setOf("help", "privacy", "terms") -> send(SettingsEffect.NavigateDetail(id))
+            id == PRIVACY_ID -> send(SettingsEffect.OpenExternal(PRIVACY_POLICY_URL))
+            id == TERMS_ID -> send(SettingsEffect.OpenExternal(TERMS_OF_USE_URL))
+            id == "help" -> send(SettingsEffect.NavigateDetail(id))
             id == "update" || item.type == SettingType.RATE -> send(SettingsEffect.OpenStore)
             item.type == SettingType.SHARE -> send(SettingsEffect.ShareApp)
             id == "feedback" -> send(SettingsEffect.OpenExternal("mailto:?subject=AR%20Drawing%20feedback"))
@@ -73,6 +75,12 @@ class SettingsViewModel @Inject constructor(
 
     private companion object {
         const val SUBSCRIPTION_ID = "subscription"
+        const val PRIVACY_ID = "privacy"
+        const val TERMS_ID = "terms"
+        const val PRIVACY_POLICY_URL =
+            "https://sites.google.com/view/drawspacearsketchtrace/trang-ch%E1%BB%A7"
+        const val TERMS_OF_USE_URL =
+            "https://sites.google.com/view/terms-of-use-draw/trang-ch%E1%BB%A7"
         val HIDDEN_IDS = setOf("gift", "music", "help", "update", "feedback")
     }
 }

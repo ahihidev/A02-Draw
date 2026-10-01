@@ -62,6 +62,7 @@ data class PremiumBillingState(
 
 interface PremiumBillingController {
     val state: StateFlow<PremiumBillingState>
+    val isPurchaseAvailable: Boolean
 
     fun refreshProducts()
 

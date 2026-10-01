@@ -52,6 +52,7 @@
     <string name="add_drawing">New drawing</string>
     <string name="drawing_created">Drawing created</string>
     <string name="generic_error">Something went wrong</string>
+    <string name="browser_not_available">No browser app is available to open this link.</string>
     <string name="share_message">Made with AR Draw</string>
     <string name="share_drawing">Share drawing</string>
     <string name="search_hint">What will you draw today?</string>

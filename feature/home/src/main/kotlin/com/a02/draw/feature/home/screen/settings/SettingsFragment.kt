@@ -11,6 +11,7 @@ import com.a02.draw.core.ui.ads.AppAdPlacement
 import com.a02.draw.core.ui.ads.AppAdsController
 import com.a02.draw.core.ui.ads.AppNativeAdFormat
 import com.a02.draw.core.ui.base.BaseFragment
+import com.a02.draw.core.ui.billing.PremiumBillingController
 import com.a02.draw.core.ui.extensions.setDebouncedClickListener
 import com.a02.draw.domain.model.AppSettingItem
 import com.a02.draw.feature.home.R
@@ -30,6 +31,9 @@ import javax.inject.Inject
 class SettingsFragment : BaseFragment<ScreenSettingsBinding>(ScreenSettingsBinding::inflate) {
     @Inject
     lateinit var appAdsController: AppAdsController
+
+    @Inject
+    lateinit var premiumBillingController: PremiumBillingController
     override val useScreenTransitions: Boolean = false
 
     private val viewModel: SettingsViewModel by viewModels()
@@ -38,7 +42,7 @@ class SettingsFragment : BaseFragment<ScreenSettingsBinding>(ScreenSettingsBindi
 
     override fun setupViews(savedInstanceState: Bundle?) {
         isPremiumOwned = appAdsController.isPremium.value
-        binding.premiumBanner.isVisible = !isPremiumOwned
+        binding.premiumBanner.isVisible = shouldShowPremiumPurchaseUi()
         appAdsController.attachNative(
             binding.nativeAdContainer,
             AppAdPlacement.SETTING,
@@ -69,7 +73,7 @@ class SettingsFragment : BaseFragment<ScreenSettingsBinding>(ScreenSettingsBindi
             launch {
                 appAdsController.isPremium.collect { isPremium ->
                     isPremiumOwned = isPremium
-                    binding.premiumBanner.isVisible = !isPremium
+                    binding.premiumBanner.isVisible = shouldShowPremiumPurchaseUi()
                     renderItems(viewModel.state.value.items)
                 }
             }
@@ -79,7 +83,9 @@ class SettingsFragment : BaseFragment<ScreenSettingsBinding>(ScreenSettingsBindi
 
     private fun handleEffect(effect: SettingsEffect) {
         when (effect) {
-            SettingsEffect.NavigatePremium -> findNavController().navigate(R.id.premiumFragment)
+            SettingsEffect.NavigatePremium -> if (premiumBillingController.isPurchaseAvailable) {
+                findNavController().navigate(R.id.premiumFragment)
+            }
             is SettingsEffect.NavigateDetail -> runAdNavigation(appAdsController) {
                 findNavController().navigate(
                     R.id.settingsDetailFragment,
@@ -118,8 +124,16 @@ class SettingsFragment : BaseFragment<ScreenSettingsBinding>(ScreenSettingsBindi
                 ),
             )
         }.onFailure {
-            showError()
+            if (target.isWebUrl()) showBrowserUnavailable() else showError()
         }
+    }
+
+    private fun showBrowserUnavailable() {
+        Snackbar.make(
+            binding.root,
+            R.string.browser_not_available,
+            Snackbar.LENGTH_LONG,
+        ).show()
     }
 
     private fun showError() {
@@ -131,6 +145,7 @@ class SettingsFragment : BaseFragment<ScreenSettingsBinding>(ScreenSettingsBindi
             items.mapNotNull { item ->
                 when {
                     item.id != PREMIUM_SETTING_ID -> item
+                    !premiumBillingController.isPurchaseAvailable -> null
                     isPremiumOwned -> item.copy(
                         title = getString(R.string.premium_manage_subscriptions),
                     )
@@ -140,6 +155,12 @@ class SettingsFragment : BaseFragment<ScreenSettingsBinding>(ScreenSettingsBindi
             },
         )
     }
+
+    private fun shouldShowPremiumPurchaseUi(): Boolean =
+        premiumBillingController.isPurchaseAvailable && !isPremiumOwned
+
+    private fun String.isWebUrl(): Boolean =
+        startsWith("https://", ignoreCase = true) || startsWith("http://", ignoreCase = true)
 
     private companion object {
         const val PREMIUM_SETTING_ID = "subscription"

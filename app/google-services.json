@@ -1,21 +1,40 @@
 {
   "project_info": {
-    "project_number": "788741944440",
-    "project_id": "fcm-test-f0756",
-    "storage_bucket": "fcm-test-f0756.firebasestorage.app"
+    "project_number": "97702619411",
+    "project_id": "java-mod-b27a1",
+    "storage_bucket": "java-mod-b27a1.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:788741944440:android:0dc25a2037a3439231698d",
+        "mobilesdk_app_id": "1:97702619411:android:3516540bea76a2969192e6",
         "android_client_info": {
-          "package_name": "com.led.keyboard.neon.classic"
+          "package_name": "com.a02.draw"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyA6wa1kUnwcrPQxMNA05Iy1bO3LVP-PiV4"
+          "current_key": "AIzaSyBILUex39e8RZ0cTdwMiTs-_-7FU8IolYU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:97702619411:android:8300cbfacee7e2f39192e6",
+        "android_client_info": {
+          "package_name": "com.memories.modjava"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBILUex39e8RZ0cTdwMiTs-_-7FU8IolYU"
         }
       ],
       "services": {

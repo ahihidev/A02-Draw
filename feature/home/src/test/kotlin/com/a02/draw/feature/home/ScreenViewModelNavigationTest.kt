@@ -358,6 +358,41 @@ class ScreenViewModelNavigationTest {
     }
 
     @Test
+    fun `settings opens published privacy and terms pages`() = runTest {
+        val settingsContent = GetArCatalogUseCase(
+            object : ArContentRepository {
+                override suspend fun getCatalog(forceRefresh: Boolean): AppResult<ArCatalog> =
+                    AppResult.Success(
+                        CATALOG.copy(
+                            settings = listOf(
+                                AppSettingItem("privacy", "Privacy policy"),
+                                AppSettingItem("terms", "Terms of use"),
+                            ),
+                        ),
+                    )
+            },
+        )
+        val viewModel = SettingsViewModel(settingsContent)
+        advanceUntilIdle()
+
+        viewModel.onAction(SettingsAction.OpenItem("privacy"))
+        assertEquals(
+            SettingsEffect.OpenExternal(
+                "https://sites.google.com/view/drawspacearsketchtrace/trang-ch%E1%BB%A7",
+            ),
+            viewModel.effects.first(),
+        )
+
+        viewModel.onAction(SettingsAction.OpenItem("terms"))
+        assertEquals(
+            SettingsEffect.OpenExternal(
+                "https://sites.google.com/view/terms-of-use-draw/trang-ch%E1%BB%A7",
+            ),
+            viewModel.effects.first(),
+        )
+    }
+
+    @Test
     fun `settings detail restores id and handles back`() = runTest {
         val viewModel = SettingsDetailViewModel(SavedStateHandle(mapOf("settingId" to "help")))
         assertEquals(R.string.help_faqs, viewModel.state.value.title)
