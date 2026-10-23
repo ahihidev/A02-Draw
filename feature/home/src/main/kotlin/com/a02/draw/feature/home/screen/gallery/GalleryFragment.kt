@@ -5,11 +5,17 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.a02.draw.core.ui.ads.AppAdPlacement
+import com.a02.draw.core.ui.ads.AppAdsController
+import com.a02.draw.core.ui.ads.AppNativeAdFormat
+import com.a02.draw.core.ui.ads.RewardContentKey
 import com.a02.draw.core.ui.base.BaseFragment
 import com.a02.draw.core.ui.extensions.applyStatusBarPadding
 import com.a02.draw.core.ui.extensions.setAdaptiveGridLayoutManager
 import com.a02.draw.core.ui.extensions.setDebouncedClickListener
 import com.a02.draw.feature.home.R
+import com.a02.draw.feature.home.common.ads.requestVipUnlock
+import com.a02.draw.feature.home.common.ads.runAdNavigation
 import com.a02.draw.feature.home.common.component.ArtworkAdapter
 import com.a02.draw.feature.home.common.component.ArtworkRow
 import com.a02.draw.feature.home.common.image.HomeImageLoader
@@ -18,18 +24,32 @@ import com.a02.draw.feature.home.common.motion.crossfadeVisible
 import com.a02.draw.feature.home.databinding.ScreenGalleryBinding
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class GalleryFragment : BaseFragment<ScreenGalleryBinding>(ScreenGalleryBinding::inflate) {
+    @Inject
+    lateinit var appAdsController: AppAdsController
     private val viewModel: GalleryViewModel by viewModels()
     private val imageLoader = HomeImageLoader()
     private val artworkAdapter by lazy {
         ArtworkAdapter(
             imageLoader,
-            { viewModel.onAction(GalleryAction.OpenArtwork(it)) },
+            ::openArtwork,
             { viewModel.onAction(GalleryAction.ToggleFavorite(it)) },
         )
+    }
+
+    private fun openArtwork(id: String) {
+        val artwork = viewModel.state.value.artworks.firstOrNull { it.id == id } ?: return
+        requestVipUnlock(
+            appAdsController,
+            RewardContentKey.Artwork(id),
+            artwork.title,
+        ) { viewModel.onAction(GalleryAction.OpenArtwork(id)) }
     }
     private val quickFilterAdapter = QuickFilterAdapter {
         viewModel.onAction(GalleryAction.SelectQuickFilter(it))
@@ -37,6 +57,13 @@ class GalleryFragment : BaseFragment<ScreenGalleryBinding>(ScreenGalleryBinding:
     private var hasAnimatedInitialItems = false
 
     override fun setupViews(savedInstanceState: Bundle?) {
+        val hasTopic = arguments?.getString("topicId") != null
+        appAdsController.attachNative(
+            binding.nativeAdContainer,
+            if (hasTopic) AppAdPlacement.TOPIC_DETAIL else AppAdPlacement.APP_GENERIC,
+            if (hasTopic) AppNativeAdFormat.LARGE else AppNativeAdFormat.MEDIUM,
+            viewLifecycleOwner,
+        )
         binding.toolbar.applyStatusBarPadding()
         binding.artworkList.setAdaptiveGridLayoutManager(
             minimumItemWidth = resources.getDimensionPixelSize(R.dimen.artwork_min_cell_width),
@@ -62,7 +89,10 @@ class GalleryFragment : BaseFragment<ScreenGalleryBinding>(ScreenGalleryBinding:
                             it,
                             it.id in state.favoriteIds,
                             showFavorite = true,
-                            showTitle = false
+                            showTitle = false,
+                            isLocked = !appAdsController.isUnlocked(
+                                RewardContentKey.Artwork(it.id),
+                            ),
                         )
                     })
                     quickFilterAdapter.submitList(state.quickFilters.map {
@@ -80,10 +110,34 @@ class GalleryFragment : BaseFragment<ScreenGalleryBinding>(ScreenGalleryBinding:
                 }
             }
             launch {
+                merge(
+                    appAdsController.rewardAccessState.map { Unit },
+                    appAdsController.isPremium.map { Unit },
+                ).collect {
+                    val state = viewModel.state.value
+                    artworkAdapter.submitList(state.artworks.map { artwork ->
+                        ArtworkRow(
+                            artwork,
+                            artwork.id in state.favoriteIds,
+                            showFavorite = true,
+                            showTitle = false,
+                            isLocked = !appAdsController.isUnlocked(
+                                RewardContentKey.Artwork(artwork.id),
+                            ),
+                        )
+                    })
+                }
+            }
+            launch {
                 viewModel.effects.collect { effect ->
                     when (effect) {
-                        GalleryEffect.NavigateBack -> findNavController().navigateUp()
-                        GalleryEffect.NavigateFilter -> findNavController().navigate(R.id.filterFragment)
+                        GalleryEffect.NavigateBack -> runAdNavigation(appAdsController) {
+                            findNavController().navigateUp()
+                        }
+
+                        GalleryEffect.NavigateFilter -> runAdNavigation(appAdsController) {
+                            findNavController().navigate(R.id.filterFragment)
+                        }
                         GalleryEffect.NavigateTutorial -> findNavController().navigate(R.id.tutorialCameraFragment)
                         GalleryEffect.ShowError -> Snackbar.make(
                             binding.root,

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.gms.ads.nativead.NativeAdView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/native_ad_large_height"
+    android:background="@color/native_ad_surface">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:id="@+id/ad_media_container"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/native_ad_large_media_height"
+            android:layout_marginHorizontal="@dimen/native_ad_horizontal_padding"
+            android:layout_marginTop="@dimen/native_ad_large_vertical_padding"
+            android:background="@color/native_ad_media_placeholder"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.gms.ads.nativead.MediaView
+                android:id="@+id/ad_media"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/ad_large_info"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/native_ad_large_info_height"
+            android:layout_marginHorizontal="@dimen/native_ad_horizontal_padding"
+            android:layout_marginTop="@dimen/native_ad_content_gap"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ad_media_container">
+
+            <FrameLayout
+                android:id="@+id/ad_icon_container"
+                android:layout_width="@dimen/native_ad_icon_size"
+                android:layout_height="@dimen/native_ad_icon_size"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/ad_app_icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="centerCrop"
+                    tools:background="@color/native_ad_text_primary" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/ad_large_details"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="@dimen/native_ad_content_gap"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/ad_icon_container"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/ad_attribution"
+                        android:layout_width="20dp"
+                        android:layout_height="16dp"
+                        android:background="@drawable/bg_native_ad_badge"
+                        android:fontFamily="sans-serif"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:text="@string/native_ad_attribution"
+                        android:textAllCaps="true"
+                        android:textColor="@color/native_ad_on_primary"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:id="@+id/ad_headline"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:fontFamily="sans-serif-rounded"
+                        android:gravity="center_vertical"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:textColor="@color/native_ad_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        app:autoSizeMaxTextSize="14sp"
+                        app:autoSizeMinTextSize="10sp"
+                        app:autoSizeStepGranularity="1sp"
+                        app:autoSizeTextType="uniform"
+                        tools:text="BetterSleep: Sleep tracker with…" />
+                </LinearLayout>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/ad_body"
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"
+                    android:ellipsize="end"
+                    android:fontFamily="sans-serif-rounded"
+                    android:gravity="center_vertical"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:textColor="@color/native_ad_text_secondary"
+                    android:textSize="12sp"
+                    app:autoSizeMaxTextSize="12sp"
+                    app:autoSizeMinTextSize="9sp"
+                    app:autoSizeStepGranularity="1sp"
+                    app:autoSizeTextType="uniform"
+                    tools:text="White Noise is proven to make you sleep better…" />
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <FrameLayout
+            android:id="@+id/ad_cta_container"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/native_ad_cta_height"
+            android:layout_marginHorizontal="@dimen/native_ad_horizontal_padding"
+            android:layout_marginTop="@dimen/native_ad_content_gap"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ad_large_info">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/ad_call_to_action"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_native_ad_cta"
+                android:fontFamily="sans-serif-rounded"
+                android:includeFontPadding="false"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:padding="0dp"
+                android:textAllCaps="false"
+                android:textColor="@color/native_ad_on_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:autoSizeMaxTextSize="18sp"
+                app:autoSizeMinTextSize="14sp"
+                app:autoSizeStepGranularity="1sp"
+                app:autoSizeTextType="uniform"
+                tools:text="Install" />
+        </FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.gms.ads.nativead.NativeAdView>

@@ -3,6 +3,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     id("a02.android.hilt")
+    alias(libs.plugins.google.services)
 }
 
 val releaseSigningProperties = Properties().apply {
@@ -31,11 +32,14 @@ android {
     compileSdk = 36
 
     defaultConfig {
+        // Play Billing only returns products owned by the exact Play Console package.
+        // Keep the Kotlin namespace independent while this catalog is tested against
+        // the supplied com.led.keyboard.neon.classic Play application.
         applicationId = "com.a02.draw"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 7
+        versionName = "5.0.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -91,7 +95,6 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
         }
         release {
@@ -146,8 +149,22 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.material)
+    // KiroAds publishes GMA as a runtime dependency; custom ViewBinding layouts need the
+    // NativeAdView and MediaView types on this module's compile classpath as well.
+    implementation(libs.google.mobile.ads)
+    implementation(libs.play.billing)
+    implementation(libs.play.app.update)
+    implementation(libs.play.review)
+    implementation(libs.kiro.ads) {
+        // This app is XML/ViewBinding-only. The SDK publishes optional Compose rendering helpers
+        // as runtime dependencies, which would otherwise force compileSdk 37 through Lifecycle 2.11.
+        exclude(group = "androidx.compose")
+        exclude(group = "androidx.compose.ui")
+        exclude(group = "androidx.compose.material3")
+    }
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.androidx.test.core.ktx)

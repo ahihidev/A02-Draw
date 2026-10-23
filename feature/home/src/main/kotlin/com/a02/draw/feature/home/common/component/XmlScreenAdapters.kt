@@ -62,6 +62,7 @@ data class ArtworkRow(
     val isFavorite: Boolean,
     val showFavorite: Boolean,
     val showTitle: Boolean = true,
+    val isLocked: Boolean = true,
 )
 
 class ArtworkAdapter(
@@ -79,6 +80,7 @@ class ArtworkAdapter(
         RecyclerView.ViewHolder(binding.root) {
         fun bind(row: ArtworkRow) {
             val item = row.artwork
+            binding.vipBadge.visibility = if (row.isLocked) View.VISIBLE else View.GONE
             binding.title.text = item.title
             binding.title.visibility = if (row.showTitle) View.VISIBLE else View.GONE
             binding.favorite.visibility = if (row.showFavorite) View.VISIBLE else View.GONE
@@ -122,6 +124,7 @@ class CategoryAdapter(
     inner class Holder(private val binding: ItemLessonCategoryBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: LessonCategory) {
+            binding.vipBadge.visibility = View.GONE
             binding.title.text = item.title
             binding.subtitle.text = item.difficulty
             binding.meta.text =
@@ -142,7 +145,11 @@ class CategoryAdapter(
     }
 }
 
-data class LessonRow(val lesson: DrawingLesson, val completedSteps: Int)
+data class LessonRow(
+    val lesson: DrawingLesson,
+    val completedSteps: Int,
+    val isLocked: Boolean = true,
+)
 
 class LessonAdapter(
     private val imageLoader: HomeImageLoader,
@@ -158,6 +165,7 @@ class LessonAdapter(
         RecyclerView.ViewHolder(binding.root) {
         fun bind(row: LessonRow) {
             val lesson = row.lesson
+            binding.vipBadge.visibility = if (row.isLocked) View.VISIBLE else View.GONE
             binding.title.text = lesson.title
             binding.subtitle.text = lesson.minutes?.let {
                 binding.root.context.getString(R.string.lesson_minutes, it)
@@ -214,6 +222,7 @@ class SettingAdapter(
         }
 
         fun settingIcon(id: String) = when (id) {
+            "subscription" -> R.drawable.icon_setting_premium
             "help" -> R.drawable.icon_setting_help_figma
             "privacy" -> R.drawable.icon_setting_privacy_figma
             "terms" -> R.drawable.icon_setting_terms_figma

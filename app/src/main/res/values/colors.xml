@@ -12,4 +12,14 @@
     <color name="onboarding_pink">#F74989</color>
     <color name="onboarding_green">#2CB873</color>
     <color name="onboarding_border">#DCE3ED</color>
+    <color name="native_ad_surface">#E8DFFD</color>
+    <color name="native_ad_full_surface">#F2F2F2</color>
+    <color name="native_ad_primary">#935EED</color>
+    <color name="native_ad_on_primary">#FFFFFF</color>
+    <color name="native_ad_text_primary">#252228</color>
+    <color name="native_ad_text_secondary">#746E78</color>
+    <color name="native_ad_media_placeholder">#EEEAF5</color>
+    <color name="native_ad_close_surface">#DEDEDE</color>
+    <color name="native_ad_skeleton_base">#D7CEE9</color>
+    <color name="native_ad_skeleton_highlight">#F4F0FC</color>
 </resources>

@@ -170,7 +170,7 @@
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:padding="8dp"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_include"
+        app:layout_constraintBottom_toTopOf="@id/native_ad_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tabs" />
@@ -182,7 +182,7 @@
         android:clipToPadding="false"
         android:padding="8dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_include"
+        app:layout_constraintBottom_toTopOf="@id/native_ad_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tabs" />
@@ -194,10 +194,19 @@
         android:importantForAccessibility="no"
         android:scaleType="fitCenter"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_include"
+        app:layout_constraintBottom_toTopOf="@id/native_ad_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tabs" />
+
+    <FrameLayout
+        android:id="@+id/native_ad_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_include"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <include
         android:id="@+id/bottom_navigation_include"

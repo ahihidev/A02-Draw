@@ -11,4 +11,12 @@
     <color name="home_green_soft">#EBFFF3</color>
     <color name="home_blue_soft">#EBF7FF</color>
     <color name="home_pink">#F25B9C</color>
+    <color name="premium_ink">#240B55</color>
+    <color name="premium_muted">#594673</color>
+    <color name="premium_screen_start">#ECDCF9</color>
+    <color name="premium_screen_center">#F4E9FB</color>
+    <color name="premium_screen_end">#F7EFFC</color>
+    <color name="premium_card">#1FFFFFFF</color>
+    <color name="premium_card_selected">#5CE8DFFD</color>
+    <color name="premium_badge">#D9C4FF</color>
 </resources>

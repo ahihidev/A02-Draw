@@ -8,6 +8,7 @@ data class SettingsDetailUiState(
     @param:StringRes val title: Int,
     @param:StringRes val heading: Int,
     @param:StringRes val body: Int,
+    @param:StringRes val bodyAppendix: Int? = null,
 ) : UiState
 
 sealed interface SettingsDetailAction {

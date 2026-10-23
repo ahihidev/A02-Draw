@@ -189,6 +189,17 @@ class ScreenViewModelNavigationTest {
     }
 
     @Test
+    fun `home opens emoji mix and web browser`() = runTest {
+        val emojiViewModel = HomeViewModel(content, DefaultDrawingSessionStore())
+        emojiViewModel.onAction(HomeAction.OpenEmojiMix)
+        assertEquals(HomeScreenEffect.NavigateEmojiMix, emojiViewModel.effects.first())
+
+        val webViewModel = HomeViewModel(content, DefaultDrawingSessionStore())
+        webViewModel.onAction(HomeAction.OpenWebBrowser)
+        assertEquals(HomeScreenEffect.NavigateWebBrowser, webViewModel.effects.first())
+    }
+
+    @Test
     fun `home exposes every topic from catalog`() = runTest {
         val expectedTopics = (1..19).map { index ->
             DrawingTopic("topic-$index", "Topic $index", IMAGE)
@@ -309,6 +320,79 @@ class ScreenViewModelNavigationTest {
     }
 
     @Test
+    fun `settings keeps premium management entry when catalog omits it`() = runTest {
+        val viewModel = SettingsViewModel(content)
+        advanceUntilIdle()
+
+        assertEquals("subscription", viewModel.state.value.items.first().id)
+        viewModel.onAction(SettingsAction.OpenItem("subscription"))
+        assertEquals(SettingsEffect.NavigatePremium, viewModel.effects.first())
+    }
+
+    @Test
+    fun `settings hides help update and feedback without removing other items`() = runTest {
+        val settingsContent = GetArCatalogUseCase(
+            object : ArContentRepository {
+                override suspend fun getCatalog(forceRefresh: Boolean): AppResult<ArCatalog> =
+                    AppResult.Success(
+                        CATALOG.copy(
+                            settings = listOf(
+                                AppSettingItem("help", "Help & FAQs"),
+                                AppSettingItem("update", "Update version"),
+                                AppSettingItem("feedback", "Feedback"),
+                                AppSettingItem("share", "Share"),
+                                AppSettingItem("privacy", "Privacy policy"),
+                            ),
+                        ),
+                    )
+            },
+        )
+
+        val viewModel = SettingsViewModel(settingsContent)
+        advanceUntilIdle()
+
+        assertEquals(
+            listOf("subscription", "share", "privacy"),
+            viewModel.state.value.items.map(AppSettingItem::id),
+        )
+    }
+
+    @Test
+    fun `settings opens published privacy and terms pages`() = runTest {
+        val settingsContent = GetArCatalogUseCase(
+            object : ArContentRepository {
+                override suspend fun getCatalog(forceRefresh: Boolean): AppResult<ArCatalog> =
+                    AppResult.Success(
+                        CATALOG.copy(
+                            settings = listOf(
+                                AppSettingItem("privacy", "Privacy policy"),
+                                AppSettingItem("terms", "Terms of use"),
+                            ),
+                        ),
+                    )
+            },
+        )
+        val viewModel = SettingsViewModel(settingsContent)
+        advanceUntilIdle()
+
+        viewModel.onAction(SettingsAction.OpenItem("privacy"))
+        assertEquals(
+            SettingsEffect.OpenExternal(
+                "https://sites.google.com/view/drawspacearsketchtrace/trang-ch%E1%BB%A7",
+            ),
+            viewModel.effects.first(),
+        )
+
+        viewModel.onAction(SettingsAction.OpenItem("terms"))
+        assertEquals(
+            SettingsEffect.OpenExternal(
+                "https://sites.google.com/view/terms-of-use-draw/trang-ch%E1%BB%A7",
+            ),
+            viewModel.effects.first(),
+        )
+    }
+
+    @Test
     fun `settings detail restores id and handles back`() = runTest {
         val viewModel = SettingsDetailViewModel(SavedStateHandle(mapOf("settingId" to "help")))
         assertEquals(R.string.help_faqs, viewModel.state.value.title)
@@ -340,7 +424,17 @@ class ScreenViewModelNavigationTest {
         val preferences: AppPreferences get() = state.value
         override fun observePreferences(): Flow<AppPreferences> = state
         override suspend fun setThemeMode(themeMode: ThemeMode) = AppResult.Success(Unit)
+        override suspend fun setLanguageTag(languageTag: String) = AppResult.Success(Unit)
         override suspend fun setOnboardingCompleted(completed: Boolean) = AppResult.Success(Unit)
+        override suspend fun setPremium(isPremium: Boolean): AppResult<Unit> {
+            state.value = state.value.copy(isPremium = isPremium)
+            return AppResult.Success(Unit)
+        }
+
+        override suspend fun setRewardUnlockedItemIds(ids: Set<String>): AppResult<Unit> {
+            state.value = state.value.copy(rewardUnlockedItemIds = ids)
+            return AppResult.Success(Unit)
+        }
         override suspend fun setFavoriteArtworkIds(ids: Set<String>): AppResult<Unit> {
             state.value = state.value.copy(favoriteArtworkIds = ids)
             return AppResult.Success(Unit)
@@ -385,7 +479,6 @@ class ScreenViewModelNavigationTest {
                 ),
             ),
             categories = listOf(LessonCategory("animal", "Animal", "Easy", 1, IMAGE)),
-            plans = emptyList(),
             settings = listOf(AppSettingItem("help", "Help & FAQs")),
         )
     }

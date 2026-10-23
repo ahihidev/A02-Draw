@@ -96,6 +96,15 @@ class DrawingAdvancedControlsTest {
         assertFalse(viewModel.state.value.session.useFrontCamera)
     }
 
+    @Test
+    fun `ar safety warning resources are valid`() {
+        assertTrue(R.string.ar_safety_warning_title != 0)
+        assertTrue(R.string.ar_safety_warning_message != 0)
+        assertTrue(R.string.ar_safety_warning_confirm != 0)
+        assertTrue(R.string.tutorial_camera_safety_notice != 0)
+        assertTrue(R.drawable.ic_safety_warning != 0)
+    }
+
     private fun cameraViewModel() = CameraViewModel(
         SavedStateHandle(),
         UpdateAppPreferencesUseCase(FakePreferencesRepository()),
@@ -104,7 +113,10 @@ class DrawingAdvancedControlsTest {
     private class FakePreferencesRepository : AppPreferencesRepository {
         override fun observePreferences(): Flow<AppPreferences> = emptyFlow()
         override suspend fun setThemeMode(themeMode: ThemeMode) = AppResult.Success(Unit)
+        override suspend fun setLanguageTag(languageTag: String) = AppResult.Success(Unit)
         override suspend fun setOnboardingCompleted(completed: Boolean) = AppResult.Success(Unit)
+        override suspend fun setPremium(isPremium: Boolean) = AppResult.Success(Unit)
+        override suspend fun setRewardUnlockedItemIds(ids: Set<String>) = AppResult.Success(Unit)
         override suspend fun setFavoriteArtworkIds(ids: Set<String>) = AppResult.Success(Unit)
         override suspend fun setLessonCompletedSteps(lessonId: String, completedSteps: Int) =
             AppResult.Success(Unit)

@@ -39,6 +39,15 @@ class ApiSkeletonView @JvmOverloads constructor(
             invalidate()
         }
 
+    var skeletonGridColumnCount: Int = ADAPTIVE_GRID_COLUMN_COUNT
+        set(value) {
+            val next = value.coerceAtLeast(ADAPTIVE_GRID_COLUMN_COUNT)
+            if (field == next) return
+            field = next
+            requestLayout()
+            invalidate()
+        }
+
     private val density = resources.displayMetrics.density
     private val surfacePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = SKELETON_SURFACE }
     private val bonePaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -67,6 +76,10 @@ class ApiSkeletonView @JvmOverloads constructor(
             skeletonItemCount = values.getInt(
                 R.styleable.ApiSkeletonView_skeletonItemCount,
                 DEFAULT_ITEM_COUNT,
+            )
+            skeletonGridColumnCount = values.getInt(
+                R.styleable.ApiSkeletonView_skeletonGridColumnCount,
+                ADAPTIVE_GRID_COLUMN_COUNT,
             )
         }
     }
@@ -203,6 +216,9 @@ class ApiSkeletonView @JvmOverloads constructor(
     }
 
     private fun gridColumnCount(contentWidth: Int): Int {
+        if (skeletonGridColumnCount > ADAPTIVE_GRID_COLUMN_COUNT) {
+            return skeletonGridColumnCount
+        }
         val horizontalInsets = dp(GRID_HORIZONTAL_INSET_DP * 2)
         val usableWidth = (contentWidth - horizontalInsets).coerceAtLeast(0)
         return maxOf(MINIMUM_GRID_COLUMNS, usableWidth / dp(GRID_MINIMUM_CELL_WIDTH_DP))
@@ -239,6 +255,7 @@ class ApiSkeletonView @JvmOverloads constructor(
         const val MODE_GRID = 1
         const val DEFAULT_ITEM_COUNT = 6
         const val DEFAULT_WIDTH_DP = 360
+        const val ADAPTIVE_GRID_COLUMN_COUNT = 0
         const val MINIMUM_GRID_COLUMNS = 2
         const val GRID_MINIMUM_CELL_WIDTH_DP = 156
         const val CONTENT_TOP_INSET_DP = 8

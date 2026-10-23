@@ -28,6 +28,11 @@ mockk = "1.14.9"
 javaxInject = "1"
 cameraX = "1.6.1"
 lottie = "6.7.1"
+kiroAds = "1.0.5"
+googleMobileAds = "25.4.0"
+playBilling = "9.1.0"
+playUpdate = "2.1.0"
+playReview = "2.0.2"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core" }
@@ -72,6 +77,11 @@ androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", versi
 androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraX" }
 androidx-camera-video = { module = "androidx.camera:camera-video", version.ref = "cameraX" }
 lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
+kiro-ads = { module = "com.github.kirozxy:kiroAds", version.ref = "kiroAds" }
+google-mobile-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "googleMobileAds" }
+play-billing = { module = "com.android.billingclient:billing", version.ref = "playBilling" }
+play-app-update = { module = "com.google.android.play:app-update", version.ref = "playUpdate" }
+play-review = { module = "com.google.android.play:review", version.ref = "playReview" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -79,3 +89,4 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+google-services = { id = "com.google.gms.google-services", version = "4.4.2" }

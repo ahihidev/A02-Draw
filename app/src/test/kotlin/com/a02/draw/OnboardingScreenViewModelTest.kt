@@ -185,11 +185,17 @@ class OnboardingScreenViewModelTest {
         override suspend fun setThemeMode(themeMode: ThemeMode): AppResult<Unit> =
             AppResult.Success(Unit)
 
+        override suspend fun setLanguageTag(languageTag: String): AppResult<Unit> =
+            AppResult.Success(Unit)
+
         override suspend fun setOnboardingCompleted(completed: Boolean): AppResult<Unit> {
             if (shouldFail) return AppResult.Failure(com.a02.draw.core.common.result.AppError.Database())
             preferences.value = preferences.value.copy(onboardingCompleted = completed)
             return AppResult.Success(Unit)
         }
+
+        override suspend fun setPremium(isPremium: Boolean) = AppResult.Success(Unit)
+        override suspend fun setRewardUnlockedItemIds(ids: Set<String>) = AppResult.Success(Unit)
 
         override suspend fun setFavoriteArtworkIds(ids: Set<String>): AppResult<Unit> =
             AppResult.Success(Unit)
@@ -211,7 +217,6 @@ class OnboardingScreenViewModelTest {
                     artworks = emptyList(),
                     lessons = emptyList(),
                     categories = emptyList(),
-                    plans = emptyList(),
                     settings = emptyList(),
                 ),
             )

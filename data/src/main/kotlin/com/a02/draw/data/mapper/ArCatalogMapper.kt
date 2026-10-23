@@ -12,7 +12,6 @@ import com.a02.draw.domain.model.DrawingLessonStep
 import com.a02.draw.domain.model.DrawingTopic
 import com.a02.draw.domain.model.LessonCategory
 import com.a02.draw.domain.model.SettingType
-import com.a02.draw.domain.model.SubscriptionPlan
 import com.a02.draw.domain.model.TrendingSearch
 
 internal fun ArCatalogDto.toDomain(): ArCatalog = ArCatalog(
@@ -54,13 +53,12 @@ internal fun ArCatalogDto.toDomain(): ArCatalog = ArCatalog(
             steps = it.steps.map { step ->
                 DrawingLessonStep(step.stepNumber, step.image.toDomain())
             },
+            // Every lesson is reward-gated in the current product policy.
+            isPremium = true,
         )
     },
     categories = categories.map {
         LessonCategory(it.id, it.title, it.difficulty, it.lessonCount, it.image.toDomain())
-    },
-    plans = plans.map {
-        SubscriptionPlan(it.id, it.title, it.subtitle, it.price, it.recommended)
     },
     settings = settings.map {
         AppSettingItem(

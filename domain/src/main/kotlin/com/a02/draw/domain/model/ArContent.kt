@@ -48,6 +48,7 @@ data class DrawingLesson(
     val showInLearningPath: Boolean = true,
     val totalSteps: Int = 9,
     val steps: List<DrawingLessonStep> = emptyList(),
+    val isPremium: Boolean = true,
 )
 
 data class DrawingLessonStep(
@@ -61,14 +62,6 @@ data class LessonCategory(
     val difficulty: String,
     val lessonCount: Int,
     val image: ContentImage,
-)
-
-data class SubscriptionPlan(
-    val id: String,
-    val title: String,
-    val subtitle: String,
-    val price: String,
-    val isRecommended: Boolean = false,
 )
 
 data class AppSettingItem(
@@ -86,6 +79,5 @@ data class ArCatalog(
     val artworks: List<Artwork>,
     val lessons: List<DrawingLesson>,
     val categories: List<LessonCategory>,
-    val plans: List<SubscriptionPlan>,
     val settings: List<AppSettingItem>,
 )

@@ -77,7 +77,6 @@ class ToroArMapperTest {
         assertEquals("line_sketch", result.artworks.single().style)
         assertEquals(result.artworks.single().image, result.artworks.single().traceImage)
         assertEquals(fixture.lessons, result.lessons)
-        assertEquals(fixture.plans, result.plans)
         assertFalse(result.settings.isEmpty())
     }
 

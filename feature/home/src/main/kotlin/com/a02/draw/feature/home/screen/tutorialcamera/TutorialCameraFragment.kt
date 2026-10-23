@@ -8,6 +8,9 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.a02.draw.core.ui.ads.AppAdPlacement
+import com.a02.draw.core.ui.ads.AppAdsController
+import com.a02.draw.core.ui.ads.AppNativeAdFormat
 import com.a02.draw.core.ui.base.BaseFragment
 import com.a02.draw.core.ui.extensions.applyStatusBarPadding
 import com.a02.draw.core.ui.extensions.setDebouncedClickListener
@@ -22,9 +25,12 @@ import com.a02.draw.feature.home.screen.camera.CameraActivity
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class TutorialCameraFragment : BaseFragment<ScreenTutorialBinding>(ScreenTutorialBinding::inflate) {
+    @Inject
+    lateinit var appAdsController: AppAdsController
     private val viewModel: TutorialCameraViewModel by viewModels()
     private val imageLoader = HomeImageLoader()
 
@@ -52,6 +58,12 @@ class TutorialCameraFragment : BaseFragment<ScreenTutorialBinding>(ScreenTutoria
     }
 
     override fun setupViews(savedInstanceState: Bundle?) {
+        appAdsController.attachNative(
+            binding.nativeAdContainer,
+            AppAdPlacement.SELECT_MODE,
+            AppNativeAdFormat.MEDIUM,
+            viewLifecycleOwner,
+        )
         binding.toolbar.applyStatusBarPadding()
         binding.cameraMode.renderSelectedCard(true)
         binding.screenMode.renderSelectedCard(false)

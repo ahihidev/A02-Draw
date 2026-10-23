@@ -18,6 +18,7 @@ sealed interface SettingsAction {
 }
 
 sealed interface SettingsEffect : UiEffect {
+    data object NavigatePremium : SettingsEffect
     data class NavigateDetail(val settingId: String) : SettingsEffect
     data class OpenExternal(val target: String) : SettingsEffect
     data object OpenStore : SettingsEffect

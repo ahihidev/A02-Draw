@@ -5,20 +5,28 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.a02.draw.core.ui.ads.AppAdPlacement
+import com.a02.draw.core.ui.ads.AppAdsController
+import com.a02.draw.core.ui.ads.AppNativeAdFormat
 import com.a02.draw.core.ui.base.BaseFragment
 import com.a02.draw.feature.home.R
+import com.a02.draw.feature.home.common.ads.runAdNavigation
 import com.a02.draw.feature.home.common.component.CategoryAdapter
 import com.a02.draw.feature.home.common.image.HomeImageLoader
 import com.a02.draw.feature.home.common.model.BottomDestination
 import com.a02.draw.feature.home.common.navigation.bindBottomNavigation
 import com.a02.draw.feature.home.common.navigation.bindMainTabHeader
 import com.a02.draw.feature.home.common.navigation.navigateBottom
+import com.a02.draw.feature.home.common.navigation.renderPremiumShortcut
 import com.a02.draw.feature.home.databinding.ScreenLearnBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class LearnFragment : BaseFragment<ScreenLearnBinding>(ScreenLearnBinding::inflate) {
+    @Inject
+    lateinit var appAdsController: AppAdsController
     override val useScreenTransitions: Boolean = false
 
     private val viewModel: LearnViewModel by viewModels()
@@ -28,7 +36,17 @@ class LearnFragment : BaseFragment<ScreenLearnBinding>(ScreenLearnBinding::infla
     }
 
     override fun setupViews(savedInstanceState: Bundle?) {
-        binding.header.bindMainTabHeader { viewModel.onAction(LearnAction.OpenSearch) }
+        appAdsController.attachNative(
+            binding.nativeAdContainer,
+            AppAdPlacement.LEARN,
+            AppNativeAdFormat.MEDIUM,
+            viewLifecycleOwner,
+        )
+        binding.header.bindMainTabHeader(
+            onSearch = { viewModel.onAction(LearnAction.OpenSearch) },
+            onPremium = ::openPremium,
+        )
+        binding.header.renderPremiumShortcut(appAdsController.isPremium.value)
         binding.categoryList.layoutManager = LinearLayoutManager(requireContext())
         binding.categoryList.adapter = adapter
         binding.bottomNavigationInclude.bindBottomNavigation(BottomDestination.LEARN) {
@@ -49,17 +67,31 @@ class LearnFragment : BaseFragment<ScreenLearnBinding>(ScreenLearnBinding::infla
             launch {
                 viewModel.effects.collect { effect ->
                     when (effect) {
-                        LearnEffect.NavigateSearch -> findNavController().navigate(R.id.searchFragment)
-                        is LearnEffect.NavigateCategory -> findNavController().navigate(
-                            R.id.learnCategoryDetailFragment,
-                            Bundle().apply { putString("categoryId", effect.categoryId) },
-                        )
+                        LearnEffect.NavigateSearch -> runAdNavigation(appAdsController) {
+                            findNavController().navigate(R.id.searchFragment)
+                        }
 
-                        is LearnEffect.NavigateBottom -> findNavController().navigateBottom(effect.destination)
+                        is LearnEffect.NavigateCategory -> runAdNavigation(appAdsController) {
+                            findNavController().navigate(
+                                R.id.learnCategoryDetailFragment,
+                                Bundle().apply { putString("categoryId", effect.categoryId) },
+                            )
+                        }
+
+                        is LearnEffect.NavigateBottom -> runAdNavigation(appAdsController) {
+                            findNavController().navigateBottom(effect.destination)
+                        }
                     }
                 }
             }
+            launch {
+                appAdsController.isPremium.collect(binding.header::renderPremiumShortcut)
+            }
         }
+    }
+
+    private fun openPremium() {
+        findNavController().navigate(R.id.premiumFragment)
     }
 
     override fun onDestroyView() {
