@@ -210,4 +210,8 @@
     <string name="settings_upgrade_banner_title">すべての機能とテンプレートを解除して広告を非表示に</string>
     <string name="settings_upgrade_banner_cta">タップしてアップグレード</string>
     <string name="settings_upgrade_banner_accessibility">Premiumにアップグレードして、すべての機能とテンプレートを解除し、広告を非表示にします</string>
+    <string name="ar_safety_warning_title">安全に関する警告</string>
+    <string name="ar_safety_warning_message">• お絵かき中は常に周囲の状況や物理的な危険に注意してください。\n\n• お子様が拡張現実（AR）機能を使用する際は、必ず保護者の付き添い・監督が必要です。</string>
+    <string name="ar_safety_warning_confirm">理解しました</string>
+    <string name="tutorial_camera_safety_notice">安全上のご注意：周囲の安全に注意してください。お子様のご利用には保護者の監督が必要です。</string>
 </resources>

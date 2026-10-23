@@ -96,6 +96,15 @@ class DrawingAdvancedControlsTest {
         assertFalse(viewModel.state.value.session.useFrontCamera)
     }
 
+    @Test
+    fun `ar safety warning resources are valid`() {
+        assertTrue(R.string.ar_safety_warning_title != 0)
+        assertTrue(R.string.ar_safety_warning_message != 0)
+        assertTrue(R.string.ar_safety_warning_confirm != 0)
+        assertTrue(R.string.tutorial_camera_safety_notice != 0)
+        assertTrue(R.drawable.ic_safety_warning != 0)
+    }
+
     private fun cameraViewModel() = CameraViewModel(
         SavedStateHandle(),
         UpdateAppPreferencesUseCase(FakePreferencesRepository()),

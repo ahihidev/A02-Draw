@@ -212,4 +212,8 @@
     <string name="settings_upgrade_banner_title">Ontgrendel alle functies en sjablonen en verwijder advertenties</string>
     <string name="settings_upgrade_banner_cta">Tik om te upgraden</string>
     <string name="settings_upgrade_banner_accessibility">Upgrade naar Premium om alle functies en sjablonen te ontgrendelen en advertenties te verwijderen</string>
+    <string name="ar_safety_warning_title">Veiligheidswaarschuwing</string>
+    <string name="ar_safety_warning_message">• Wees tijdens het tekenen te allen tijde alert op uw omgeving en fysieke gevaren.\n\n• Kinderen moeten onder toezicht van een ouder staan bij het gebruik van Augmented Reality (AR)-functies.</string>
+    <string name="ar_safety_warning_confirm">Begrepen</string>
+    <string name="tutorial_camera_safety_notice">Veiligheidsbericht: Let op je omgeving. Ouderlijk toezicht is vereist voor kinderen.</string>
 </resources>

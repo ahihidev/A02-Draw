@@ -90,6 +90,16 @@
                     android:text="@string/draw_with_camera_description"
                     android:textColor="@color/home_muted"
                     android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/camera_mode_safety_notice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:lineSpacingExtra="2dp"
+                    android:text="@string/tutorial_camera_safety_notice"
+                    android:textColor="@color/home_muted"
+                    android:textSize="10sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

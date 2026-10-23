@@ -212,4 +212,8 @@
     <string name="settings_upgrade_banner_title">Lås upp alla funktioner och mallar och ta bort annonser</string>
     <string name="settings_upgrade_banner_cta">Tryck för att uppgradera</string>
     <string name="settings_upgrade_banner_accessibility">Uppgradera till Premium för att låsa upp alla funktioner och mallar och ta bort annonser</string>
+    <string name="ar_safety_warning_title">Säkerhetsvarning</string>
+    <string name="ar_safety_warning_message">• Var alltid uppmärksam på din omgivning och fysiska faror medan du ritar.\n\n• Barn måste ha föräldraövervakning när de använder funktioner för förstärkt verklighet (AR).</string>
+    <string name="ar_safety_warning_confirm">Jag förstår</string>
+    <string name="tutorial_camera_safety_notice">Säkerhetsmeddelande: Var uppmärksam på din omgivning. Föräldraövervakning krävs för barn.</string>
 </resources>

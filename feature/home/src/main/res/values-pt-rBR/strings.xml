@@ -214,4 +214,8 @@
     <string name="settings_upgrade_banner_title">Desbloqueie todos os recursos e modelos e remova os anúncios</string>
     <string name="settings_upgrade_banner_cta">Toque para fazer upgrade</string>
     <string name="settings_upgrade_banner_accessibility">Assine o Premium para desbloquear todos os recursos e modelos e remover os anúncios</string>
+    <string name="ar_safety_warning_title">Aviso de segurança</string>
+    <string name="ar_safety_warning_message">• Fique atento aos arredores e aos perigos físicos em todos os momentos enquanto desenha.\n\n• As crianças devem ter supervisão dos pais ao usar os recursos de Realidade Aumentada (RA).</string>
+    <string name="ar_safety_warning_confirm">Entendi</string>
+    <string name="tutorial_camera_safety_notice">Aviso de segurança: Fique atento ao que está ao seu redor. É necessária a supervisão dos pais para crianças.</string>
 </resources>

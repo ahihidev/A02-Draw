@@ -212,4 +212,8 @@
     <string name="settings_upgrade_banner_title">Avaa kaikki ominaisuudet ja mallit sekä poista mainokset</string>
     <string name="settings_upgrade_banner_cta">Napauta ja päivitä</string>
     <string name="settings_upgrade_banner_accessibility">Päivitä Premiumiin avataksesi kaikki ominaisuudet ja mallit sekä poistaaksesi mainokset</string>
+    <string name="ar_safety_warning_title">Turvallisuusvaroitus</string>
+    <string name="ar_safety_warning_message">• Ole aina tietoinen ympäristöstäsi ja fyysisistä vaaroista piirtämisen aikana.\n\n• Lasten tulee käyttää lisätyn todellisuuden (AR) ominaisuuksia vanhempien valvonnassa.</string>
+    <string name="ar_safety_warning_confirm">Ymmärrän</string>
+    <string name="tutorial_camera_safety_notice">Turvallisuushuomautus: Huomioi ympäristösi. Lapset tarvitsevat vanhempien valvontaa.</string>
 </resources>

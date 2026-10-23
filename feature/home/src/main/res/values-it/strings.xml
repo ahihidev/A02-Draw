@@ -214,4 +214,8 @@
     <string name="settings_upgrade_banner_title">Sblocca tutte le funzioni e i modelli e rimuovi gli annunci</string>
     <string name="settings_upgrade_banner_cta">Tocca per l’upgrade</string>
     <string name="settings_upgrade_banner_accessibility">Passa a Premium per sbloccare tutte le funzioni e i modelli e rimuovere gli annunci</string>
+    <string name="ar_safety_warning_title">Avviso di sicurezza</string>
+    <string name="ar_safety_warning_message">• Prestare sempre attenzione all\'ambiente circostante e ai pericoli fisici durante il disegno.\n\n• I bambini devono essere sotto la supervisione dei genitori quando utilizzano le funzioni di Realtà Aumentata (AR).</string>
+    <string name="ar_safety_warning_confirm">Ho capito</string>
+    <string name="tutorial_camera_safety_notice">Avviso de sicurezza: Fai attenzione a ciò che ti circonda. È richiesta la supervisione dei genitori per i bambini.</string>
 </resources>

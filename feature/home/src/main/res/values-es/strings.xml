@@ -214,4 +214,8 @@
     <string name="settings_upgrade_banner_title">Desbloquea todas las funciones y plantillas y elimina los anuncios</string>
     <string name="settings_upgrade_banner_cta">Toca para mejorar</string>
     <string name="settings_upgrade_banner_accessibility">Actualiza a Premium para desbloquear todas las funciones y plantillas y eliminar los anuncios</string>
+    <string name="ar_safety_warning_title">Aviso de seguridad</string>
+    <string name="ar_safety_warning_message">• Presta atención a tu entorno y a los peligros físicos en todo momento mientras dibujas.\n\n• Los niños deben tener supervisión parental al utilizar las funciones de Realidad Aumentada (RA).</string>
+    <string name="ar_safety_warning_confirm">Entendido</string>
+    <string name="tutorial_camera_safety_notice">Aviso de seguridad: Mantente alerta de tu entorno. Los niños requieren supervisión parental.</string>
 </resources>

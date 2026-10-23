@@ -214,4 +214,8 @@
     <string name="settings_upgrade_banner_title">Débloquez toutes les fonctionnalités et tous les modèles, et supprimez les publicités</string>
     <string name="settings_upgrade_banner_cta">Passer à Premium</string>
     <string name="settings_upgrade_banner_accessibility">Passez à Premium pour débloquer toutes les fonctionnalités et tous les modèles et supprimer les publicités</string>
+    <string name="ar_safety_warning_title">Avertissement de sécurité</string>
+    <string name="ar_safety_warning_message">• Veuillez faire attention à votre environnement et aux dangers physiques à tout moment pendant le dessin.\n\n• Les enfants doivent être sous la surveillance de leurs parents lorsqu\'ils utilisent les fonctionnalités de Réalité Augmentée (RA).</string>
+    <string name="ar_safety_warning_confirm">J\'ai compris</string>
+    <string name="tutorial_camera_safety_notice">Avis de sécurité : Soyez attentif à votre environnement. Surveillance parentale requise pour les enfants.</string>
 </resources>

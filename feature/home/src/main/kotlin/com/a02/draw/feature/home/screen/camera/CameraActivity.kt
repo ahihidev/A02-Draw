@@ -46,6 +46,7 @@ import com.a02.draw.feature.home.common.model.DrawingCropRatio
 import com.a02.draw.feature.home.common.motion.HomeMotion
 import com.a02.draw.feature.home.common.session.DrawingSession
 import com.a02.draw.feature.home.databinding.ActivityCameraBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -74,8 +75,15 @@ class CameraActivity : BaseActivity<ActivityCameraBinding>(ActivityCameraBinding
     private var videoCaptureEnabled = false
     private val imageLoader = HomeImageLoader()
     private lateinit var controls: DrawingControlsBinder
+    private var safetyWarningDialog: androidx.appcompat.app.AlertDialog? = null
+    private var safetyWarningAcknowledged = false
 
     override fun setupViews(savedInstanceState: Bundle?) {
+        safetyWarningAcknowledged =
+            savedInstanceState?.getBoolean(KEY_SAFETY_WARNING_ACKNOWLEDGED, false) ?: false
+        if (!safetyWarningAcknowledged) {
+            showSafetyWarningDialog()
+        }
         appAdsController.attachDrawingBanner(binding.bannerAdContainer, this)
         binding.cameraPreview.implementationMode =
             androidx.camera.view.PreviewView.ImplementationMode.PERFORMANCE
@@ -426,7 +434,35 @@ class CameraActivity : BaseActivity<ActivityCameraBinding>(ActivityCameraBinding
         Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(KEY_SAFETY_WARNING_ACKNOWLEDGED, safetyWarningAcknowledged)
+    }
+
+    private fun showSafetyWarningDialog() {
+        if (isFinishing || isDestroyed) return
+        safetyWarningDialog?.dismiss()
+        safetyWarningDialog = MaterialAlertDialogBuilder(this)
+            .setIcon(R.drawable.ic_safety_warning)
+            .setTitle(R.string.ar_safety_warning_title)
+            .setMessage(R.string.ar_safety_warning_message)
+            .setPositiveButton(R.string.ar_safety_warning_confirm) { dialog, _ ->
+                safetyWarningAcknowledged = true
+                dialog.dismiss()
+            }
+            .setOnCancelListener {
+                finishCamera()
+            }
+            .setCancelable(true)
+            .create().apply {
+                setCanceledOnTouchOutside(false)
+                show()
+            }
+    }
+
     override fun onDestroy() {
+        safetyWarningDialog?.dismiss()
+        safetyWarningDialog = null
         appAdsController.detachDrawingBanner(binding.bannerAdContainer)
         captureTimerJob?.cancel()
         activeRecording?.close()
@@ -439,6 +475,7 @@ class CameraActivity : BaseActivity<ActivityCameraBinding>(ActivityCameraBinding
     }
 
     companion object {
+        private const val KEY_SAFETY_WARNING_ACKNOWLEDGED = "camera.safety_warning_acknowledged"
         private const val COUNTDOWN_ANIMATION_MILLIS = 180L
         const val EXTRA_PICKED_URI = "camera.picked_uri"
         const val EXTRA_TRACE_URL = "camera.trace_url"

@@ -7,6 +7,7 @@ import com.a02.draw.feature.home.common.session.DefaultDrawingSessionStore
 import com.a02.draw.feature.home.screen.webbrowser.DrawingImageSearchUrlBuilder
 import com.a02.draw.feature.home.screen.webbrowser.WebBrowserAction
 import com.a02.draw.feature.home.screen.webbrowser.WebBrowserEffect
+import com.a02.draw.feature.home.screen.webbrowser.WebBrowserUiState
 import com.a02.draw.feature.home.screen.webbrowser.WebBrowserViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -47,7 +48,7 @@ class WebBrowserTest {
             FakeStore(),
             DefaultDrawingSessionStore(),
         )
-        assertEquals("Anime", viewModel.state.value.query)
+        assertEquals(WebBrowserUiState.DEFAULT_QUERY, viewModel.state.value.query)
     }
 
     @Test

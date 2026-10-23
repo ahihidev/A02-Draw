@@ -38,8 +38,8 @@ android {
         applicationId = "com.a02.draw"
         minSdk = 24
         targetSdk = 36
-        versionCode = 5
-        versionName = "4.0.0"
+        versionCode = 7
+        versionName = "5.0.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }

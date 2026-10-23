@@ -210,4 +210,8 @@
     <string name="settings_upgrade_banner_title">解鎖所有功能與範本，並移除廣告</string>
     <string name="settings_upgrade_banner_cta">點按升級</string>
     <string name="settings_upgrade_banner_accessibility">升級至 Premium，即可解鎖所有功能與範本並移除廣告</string>
+    <string name="ar_safety_warning_title">安全警告</string>
+    <string name="ar_safety_warning_message">• 在繪畫時請隨時注意周圍環境及現實環境中的危險。\n\n• 兒童在使用擴增實境 (AR) 功能時必須有家長陪同監督。</string>
+    <string name="ar_safety_warning_confirm">我已了解</string>
+    <string name="tutorial_camera_safety_notice">安全提示：請注意周圍環境。兒童使用時需有家長監督。</string>
 </resources>

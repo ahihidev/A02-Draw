@@ -210,4 +210,8 @@
     <string name="settings_upgrade_banner_title">모든 기능과 템플릿을 잠금 해제하고 광고를 제거하세요</string>
     <string name="settings_upgrade_banner_cta">탭하여 업그레이드</string>
     <string name="settings_upgrade_banner_accessibility">Premium으로 업그레이드하여 모든 기능과 템플릿을 잠금 해제하고 광고를 제거하세요</string>
+    <string name="ar_safety_warning_title">안전 경고</string>
+    <string name="ar_safety_warning_message">• 그림을 그리는 동안 항상 주변 환경과 물리적 위험에 주의하세요。\n\n• 어린이가 증강 현실(AR) 기능을 사용할 때는 반드시 보호자(부모)의 감독이 필요합니다。</string>
+    <string name="ar_safety_warning_confirm">확인했습니다</string>
+    <string name="tutorial_camera_safety_notice">안전 안내: 주변 환경을 확인하세요. 어린이는 보호자의 감독이 필요합니다.</string>
 </resources>

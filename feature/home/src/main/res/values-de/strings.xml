@@ -212,4 +212,8 @@
     <string name="settings_upgrade_banner_title">Schalte alle Funktionen und Vorlagen frei und entferne Werbung</string>
     <string name="settings_upgrade_banner_cta">Zum Upgrade tippen</string>
     <string name="settings_upgrade_banner_accessibility">Upgrade auf Premium, um alle Funktionen und Vorlagen freizuschalten und Werbung zu entfernen</string>
+    <string name="ar_safety_warning_title">Sicherheitshinweis</string>
+    <string name="ar_safety_warning_message">• Bitte achten Sie beim Zeichnen stets auf Ihre Umgebung und physische Gefahren.\n\n• Kinder müssen bei der Nutzung von Augmented Reality (AR) unter elterlicher Aufsicht stehen.</string>
+    <string name="ar_safety_warning_confirm">Verstanden</string>
+    <string name="tutorial_camera_safety_notice">Sicherheitshinweis: Achten Sie auf Ihre Umgebung. Kinder erfordern elterliche Aufsicht.</string>
 </resources>

@@ -212,4 +212,8 @@
     <string name="settings_upgrade_banner_title">Lås opp alle funksjoner og maler, og fjern annonser</string>
     <string name="settings_upgrade_banner_cta">Trykk for å oppgradere</string>
     <string name="settings_upgrade_banner_accessibility">Oppgrader til Premium for å låse opp alle funksjoner og maler og fjerne annonser</string>
+    <string name="ar_safety_warning_title">Sikkerhetsadvarsel</string>
+    <string name="ar_safety_warning_message">• Vær alltid oppmerksom på omgivelsene og fysiske farer mens du tegner.\n\n• Barn må ha foreldretilsyn ved bruk af utvidet virkelighet (AR)-funksjoner.</string>
+    <string name="ar_safety_warning_confirm">Jeg forstår</string>
+    <string name="tutorial_camera_safety_notice">Sikkerhetsvarsel: Vær oppmerksom på omgivelsene dine. Barn krever foreldretilsyn.</string>
 </resources>

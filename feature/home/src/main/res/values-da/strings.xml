@@ -212,4 +212,8 @@
     <string name="settings_upgrade_banner_title">Lås op for alle funktioner og skabeloner, og fjern annoncer</string>
     <string name="settings_upgrade_banner_cta">Tryk for at opgradere</string>
     <string name="settings_upgrade_banner_accessibility">Opgrader til Premium for at låse alle funktioner og skabeloner op og fjerne annoncer</string>
+    <string name="ar_safety_warning_title">Sikkerhedsadvarsel</string>
+    <string name="ar_safety_warning_message">• Vær altid opmærksom på dine omgivelser og fysiske farer, mens du tegner.\n\n• Børn skal være under forældreopsyn ved brug af Augmented Reality (AR)-funktioner.</string>
+    <string name="ar_safety_warning_confirm">Jeg forstår</string>
+    <string name="tutorial_camera_safety_notice">Sikkerhedsbemærkning: Vær opmærksom på dine omgivelser. Børn kræver forældreopsyn.</string>
 </resources>

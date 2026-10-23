@@ -216,4 +216,8 @@
     <string name="settings_upgrade_banner_title">Odblokuj wszystkie funkcje i szablony oraz usuń reklamy</string>
     <string name="settings_upgrade_banner_cta">Przejdź na Premium</string>
     <string name="settings_upgrade_banner_accessibility">Przejdź na Premium, aby odblokować wszystkie funkcje i szablony oraz usunąć reklamy</string>
+    <string name="ar_safety_warning_title">Ostrzeżenie o bezpieczeństwie</string>
+    <string name="ar_safety_warning_message">• Podczas rysowania należy zawsze zwracać uwagę na otoczenie i zagrożenia fizyczne.\n\n• Dzieci muszą korzystać z funkcji rozszerzonej rzeczywistości (AR) pod nadzorem rodziców.</string>
+    <string name="ar_safety_warning_confirm">Rozumiem</string>
+    <string name="tutorial_camera_safety_notice">Uwaga dotycząca bezpieczeństwa: Uważaj na otoczenie. Wymagany nadzór rodzicielski w przypadku dzieci.</string>
 </resources>
